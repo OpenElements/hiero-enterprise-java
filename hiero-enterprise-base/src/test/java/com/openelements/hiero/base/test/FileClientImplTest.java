@@ -11,6 +11,8 @@ import com.openelements.hiero.base.protocol.FileAppendRequest;
 import com.openelements.hiero.base.protocol.FileAppendResult;
 import com.openelements.hiero.base.protocol.FileInfoRequest;
 import com.openelements.hiero.base.protocol.FileInfoResponse;
+import com.openelements.hiero.base.protocol.FileContentsRequest;
+import com.openelements.hiero.base.protocol.FileContentsResponse;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,6 +263,56 @@ public class FileClientImplTest {
         final NullPointerException exception = Assertions.assertThrows(
                 NullPointerException.class, () -> fileClientImpl.getSize(null)
         );
+        Assertions.assertTrue(exception.getMessage().contains(message));
+    }
+
+    @Test
+    void testReadFile() throws HieroException {
+        // mock
+        final FileContentsResponse fileContentsResponse = Mockito.mock(FileContentsResponse.class);
+        final byte[] content = "Hello Hiero!".getBytes();
+
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+
+        when(protocolLayerClient.executeFileContentsQuery(any(FileContentsRequest.class)))
+                .thenReturn(fileContentsResponse);
+        when(fileContentsResponse.contents()).thenReturn(content);
+
+        final byte[] result = fileClientImpl.readFile(fileId);
+
+        verify(protocolLayerClient, times(1))
+                .executeFileContentsQuery(any(FileContentsRequest.class));
+        verify(fileContentsResponse, times(1)).contents();
+
+        Assertions.assertArrayEquals(content, result);
+    }
+
+    @Test
+    void testReadFileThrowsExceptionForInvalidId() throws HieroException {
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final String message = "Failed to read file with fileId " + fileId;
+
+        when(protocolLayerClient.executeFileContentsQuery(any(FileContentsRequest.class)))
+                .thenThrow(new HieroException("Failed to execute query"));
+
+        final HieroException exception = Assertions.assertThrows(
+                HieroException.class, () -> fileClientImpl.readFile(fileId)
+        );
+
+        Assertions.assertTrue(exception.getMessage().contains(message));
+    }
+
+    @Test
+    void testReadFileThrowsExceptionForNullValue() {
+        final String message = "fileId must not be null";
+        final FileId fileId = null;
+
+        final NullPointerException exception = Assertions.assertThrows(
+                NullPointerException.class, () -> fileClientImpl.readFile(fileId)
+        );
+
         Assertions.assertTrue(exception.getMessage().contains(message));
     }
 }

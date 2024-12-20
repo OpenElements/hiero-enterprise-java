@@ -96,7 +96,7 @@ public class FileClientTests {
     @Test
     void testReadFileByFileId() throws Exception {
         //given
-        final byte[] contents = "Hello, Hedera!".getBytes();
+        final byte[] contents = "Hello, Hiero!".getBytes();
         final FileId fileId = fileClient.createFile(contents);
 
         //when
@@ -109,7 +109,7 @@ public class FileClientTests {
     @Test
     void testReadFileByStringId() throws Exception {
         //given
-        final byte[] contents = "Hello, Hedera!".getBytes();
+        final byte[] contents = "Hello, Hiero!".getBytes();
         final String fileId = fileClient.createFile(contents).toString();
 
         //when
@@ -122,7 +122,7 @@ public class FileClientTests {
     @Test
     void testReadLargeFileByStringId() throws Exception {
         //given
-        final byte[] contents = IntStream.range(0, 500).mapToObj(i -> "Hello, Hedera!")
+        final byte[] contents = IntStream.range(0, 500).mapToObj(i -> "Hello, Hiero!")
                 .reduce((a, b) -> a + b)
                 .get()
                 .getBytes();
@@ -133,6 +133,12 @@ public class FileClientTests {
 
         //then
         Assertions.assertArrayEquals(contents, readContents);
+    }
+
+    @Test
+    void testReadFileThrowsExceptionForInvalidId() {
+        final FileId fileId = FileId.fromString("1.2.3");
+        Assertions.assertThrows(HieroException.class, () -> fileClient.readFile(fileId));
     }
 
     @Test
