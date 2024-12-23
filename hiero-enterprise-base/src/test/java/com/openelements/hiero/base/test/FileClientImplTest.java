@@ -315,4 +315,81 @@ public class FileClientImplTest {
 
         Assertions.assertTrue(exception.getMessage().contains(message));
     }
+
+    @Test
+    void testUpdateExpirationTime() throws HieroException {
+        // mock
+        final FileUpdateResult fileUpdateResult = Mockito.mock(FileUpdateResult.class);
+
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final Instant expirationTime = Instant.now().plusSeconds(120);
+
+        //then
+        when(protocolLayerClient.executeFileUpdateRequestTransaction(any(FileUpdateRequest.class)))
+                .thenReturn(fileUpdateResult);
+
+        fileClientImpl.updateExpirationTime(fileId, expirationTime);
+
+        verify(protocolLayerClient, times(1))
+                .executeFileUpdateRequestTransaction(any(FileUpdateRequest.class));
+    }
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForPastExpiration() {
+        final String message = "Expiration time must be in the future";
+
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final Instant expirationTime = Instant.now().minusSeconds(1);
+
+        // then
+        final IllegalArgumentException exception = Assertions.assertThrows(
+                IllegalArgumentException.class, () -> fileClientImpl.updateExpirationTime(fileId, expirationTime)
+        );
+
+        Assertions.assertTrue(exception.getMessage().contains(message));
+    }
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForInvalidId() throws HieroException {
+        final String message = "Failed to execute transaction of type FileUpdateTransaction";
+
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final Instant expirationTime = Instant.now().plusSeconds(1);
+
+        // then
+        when(protocolLayerClient.executeFileUpdateRequestTransaction(any(FileUpdateRequest.class)))
+                .thenThrow(new HieroException(message));
+
+        final HieroException exception = Assertions.assertThrows(
+                HieroException.class, () -> fileClientImpl.updateExpirationTime(fileId, expirationTime)
+        );
+
+        Assertions.assertTrue(exception.getMessage().contains(message));
+    }
+
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForNullArguments() {
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final Instant expirationTime = Instant.now().plusSeconds(120);
+
+        // then
+        final NullPointerException nullIdException = Assertions.assertThrows(
+                NullPointerException.class, () -> fileClientImpl.updateExpirationTime(null, expirationTime)
+        );
+        Assertions.assertTrue(nullIdException.getMessage().contains("fileId must not be null"));
+
+        final NullPointerException nullTimeException = Assertions.assertThrows(
+                NullPointerException.class, () -> fileClientImpl.updateExpirationTime(fileId, null)
+        );
+        Assertions.assertTrue(nullTimeException.getMessage().contains("expirationTime must not be null"));
+
+        Assertions.assertThrows(
+                NullPointerException.class, () -> fileClientImpl.updateExpirationTime(null, null)
+        );
+    }
 }
