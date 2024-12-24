@@ -292,16 +292,16 @@ public class FileClientTests {
     @Test
     @Disabled("Always fails with AUTORENEW_DURATION_NOT_IN_RANGE. Needs to be investigated further.")
     void testUpdateExpirationTime() throws Exception {
-        //given
-        final byte[] contents = "Hello, Hedera!".getBytes();
+        // given
+        final byte[] contents = "Hello, Hiero!".getBytes();
         final Instant definedExpirationTime = Instant.now().plus(Duration.of(20, ChronoUnit.MINUTES));
         final FileId fileId = fileClient.createFile(contents);
         fileClient.updateExpirationTime(fileId, definedExpirationTime);
 
-        //when
+        // when
         final Instant expirationTime = fileClient.getExpirationTime(fileId);
 
-        //then
+        // then
         Assertions.assertTrue(expirationTime.isAfter(definedExpirationTime.minusSeconds(1)));
         Assertions.assertTrue(expirationTime.isBefore(definedExpirationTime.plusSeconds(1)));
     }
@@ -309,16 +309,60 @@ public class FileClientTests {
     @Test
     @Disabled("Always fails with AUTORENEW_DURATION_NOT_IN_RANGE. Needs to be investigated further.")
     void testUpdateExpirationTimeDoesNotChangeContent() throws Exception {
-        //given
-        final byte[] contents = "Hello, Hedera!".getBytes();
+        // given
+        final byte[] contents = "Hello, Hiero!".getBytes();
         final Instant definedExpirationTime = Instant.now().plus(Duration.of(20, ChronoUnit.MINUTES));
         final FileId fileId = fileClient.createFile(contents);
         fileClient.updateExpirationTime(fileId, definedExpirationTime);
 
         final byte[] result = fileClient.readFile(fileId);
 
-        //then
+        // then
         Assertions.assertArrayEquals(contents, result);
+    }
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForPastExpirationTime() throws HieroException {
+        // given
+        final byte[] contents = "Hello, Hiero!".getBytes();
+        final Instant definedExpirationTime = Instant.now().minusSeconds(1);
+        final FileId fileId = fileClient.createFile(contents);
+
+        // then
+        Assertions.assertThrows(
+                IllegalArgumentException.class, () -> fileClient.updateExpirationTime(fileId, definedExpirationTime)
+        );
+    }
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForInvalidId() {
+        // given
+        final FileId fileId = FileId.fromString("1.2.3");
+        final Instant definedExpirationTime = Instant.now().plusSeconds(120);
+
+        // then
+        Assertions.assertThrows(
+                HieroException.class, () -> fileClient.updateExpirationTime(fileId, definedExpirationTime)
+        );
+    }
+
+    @Test
+    void testUpdateExpirationTimeThrowsExceptionForNullArgs() throws HieroException {
+        // given
+        final byte[] contents = "Hello, Hiero!".getBytes();
+        final Instant definedExpirationTime = Instant.now().plusSeconds(120);
+        final FileId fileId = fileClient.createFile(contents);
+
+        // then
+        Assertions.assertThrows(
+                NullPointerException.class, () -> fileClient.updateExpirationTime(null, definedExpirationTime)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class, () -> fileClient.updateExpirationTime(fileId, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class, () -> fileClient.updateExpirationTime(null, null)
+        );
     }
 
     @Test
