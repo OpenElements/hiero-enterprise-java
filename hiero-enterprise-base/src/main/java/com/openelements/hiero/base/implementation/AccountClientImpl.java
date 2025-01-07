@@ -24,10 +24,23 @@ public class AccountClientImpl implements AccountClient {
     @NonNull
     @Override
     public Account createAccount(@NonNull Hbar initialBalance) throws HieroException {
-        final AccountCreateRequest request = AccountCreateRequest.of(initialBalance);
-        final AccountCreateResult result = client.executeAccountCreateTransaction(request);
-        return result.newAccount();
+        if (initialBalance == null) {
+            throw new NullPointerException("initialBalance must not be null");
+        }
+        
+        if (initialBalance.toTinybars() < 0) {
+            throw new HieroException("Invalid initial balance: must be non-negative");
+        }
+        
+        try {
+            final AccountCreateRequest request = AccountCreateRequest.of(initialBalance);
+            final AccountCreateResult result = client.executeAccountCreateTransaction(request);
+            return result.newAccount();
+        } catch (IllegalArgumentException e) {
+            throw new HieroException("Invalid initial balance: " + e.getMessage(), e);
+        }
     }
+    
 
     @Override
     public void deleteAccount(@NonNull Account account) throws HieroException {
