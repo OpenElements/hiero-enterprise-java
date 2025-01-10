@@ -9,6 +9,8 @@ import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.implementation.MirrorNodeRestClient;
@@ -93,6 +95,31 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
             return Optional.empty();
         }
         return Optional.of(new TransactionInfo(transactionId));
+    }
+
+    @Override
+    public Page<Token> queryTokensForAccount(@NonNull AccountId accountId) throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        final String path = "/api/v1/tokens?account.id=" + accountId;
+        final Function<JsonNode, List<Token>> dataExtractionFunction = node -> jsonConverter.toTokens(node);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
+    }
+
+    @Override
+    public @NonNull Page<Balance> queryTokenBalances(TokenId tokenId) throws HieroException {
+        Objects.requireNonNull(tokenId, "tokenId must not be null");
+        final String path = "/api/v1/tokens/" + tokenId +"/balances";
+        final Function<JsonNode, List<Balance>> dataExtractionFunction = node -> jsonConverter.toBalances(node);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
+    }
+
+    @Override
+    public @NonNull Page<Balance> queryTokenBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId) throws HieroException {
+        Objects.requireNonNull(tokenId, "tokenId must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        final String path = "/api/v1/tokens/" + tokenId +"/balances?account.id=" + accountId;
+        final Function<JsonNode, List<Balance>> dataExtractionFunction = node -> jsonConverter.toBalances(node);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
     }
 
     @Override

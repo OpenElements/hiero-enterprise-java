@@ -4,6 +4,7 @@ import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.FileClient;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.NftClient;
+import com.openelements.hiero.base.FungibleTokenClient;
 import com.openelements.hiero.base.SmartContractClient;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.implementation.AccountClientImpl;
@@ -11,10 +12,10 @@ import com.openelements.hiero.base.implementation.AccountRepositoryImpl;
 import com.openelements.hiero.base.implementation.FileClientImpl;
 import com.openelements.hiero.base.implementation.HieroNetwork;
 import com.openelements.hiero.base.implementation.NetworkRepositoryImpl;
-import com.openelements.hiero.base.implementation.NetworkRepositoryImpl;
 import com.openelements.hiero.base.implementation.NftRepositoryImpl;
 import com.openelements.hiero.base.implementation.NftClientImpl;
-import com.openelements.hiero.base.implementation.NftRepositoryImpl;
+import com.openelements.hiero.base.implementation.FungibleTokenClientImpl;
+import com.openelements.hiero.base.implementation.TokenRepositoryImpl;
 import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.implementation.TransactionRepositoryImpl;
@@ -23,6 +24,7 @@ import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.NetworkRepository;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
+import com.openelements.hiero.base.mirrornode.TokenRepository;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import com.openelements.hiero.microprofile.implementation.ContractVerificationClientImpl;
@@ -30,7 +32,6 @@ import com.openelements.hiero.microprofile.implementation.HieroConfigImpl;
 import com.openelements.hiero.microprofile.implementation.MirrorNodeClientImpl;
 import com.openelements.hiero.microprofile.implementation.MirrorNodeJsonConverterImpl;
 import com.openelements.hiero.microprofile.implementation.MirrorNodeRestClientImpl;
-import com.openelements.hiero.microprofile.implementation.MirrorNodeClientImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -94,6 +95,14 @@ public class ClientProvider {
     @NonNull
     @Produces
     @ApplicationScoped
+    FungibleTokenClient createFungibleTokenClient(@NonNull final ProtocolLayerClient protocolLayerClient,
+                                                  @NonNull final HieroContext hieroContext) {
+        return new FungibleTokenClientImpl(protocolLayerClient, hieroContext.getOperatorAccount());
+    }
+
+    @NonNull
+    @Produces
+    @ApplicationScoped
     AccountClient createAccountClient(@NonNull final ProtocolLayerClient protocolLayerClient) {
         return new AccountClientImpl(protocolLayerClient);
     }
@@ -147,5 +156,12 @@ public class ClientProvider {
     @ApplicationScoped
     TransactionRepository createTransactionRepository(@NonNull final MirrorNodeClient mirrorNodeClient) {
         return new TransactionRepositoryImpl(mirrorNodeClient);
+    }
+
+    @NonNull
+    @Produces
+    @ApplicationScoped
+    TokenRepository createTokenRepository(@NonNull final MirrorNodeClient mirrorNodeClient) {
+        return new TokenRepositoryImpl(mirrorNodeClient);
     }
 }

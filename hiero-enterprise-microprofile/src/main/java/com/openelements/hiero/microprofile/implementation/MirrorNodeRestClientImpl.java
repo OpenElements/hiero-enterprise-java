@@ -25,6 +25,12 @@ public class MirrorNodeRestClientImpl implements MirrorNodeRestClient<JsonObject
                 .path(path)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
+
+        if (response.getStatus() == 404 || !response.hasEntity()) {
+            return JsonObject.EMPTY_JSON_OBJECT;
+        }
         return response.readEntity(JsonObject.class);
     }
+
+    public String getTarget() {return target;}
 }
