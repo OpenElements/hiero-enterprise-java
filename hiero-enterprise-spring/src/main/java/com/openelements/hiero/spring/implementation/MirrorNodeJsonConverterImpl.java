@@ -3,6 +3,8 @@ package com.openelements.hiero.spring.implementation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TokenSupplyType;
+import com.hedera.hashgraph.sdk.TokenType;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRate;
 import com.openelements.hiero.base.data.ExchangeRates;
@@ -11,7 +13,15 @@ import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.TokenInfo;
+import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.CustomFee;
+import com.openelements.hiero.base.data.FixedFee;
+import com.openelements.hiero.base.data.FractionalFee;
+import com.openelements.hiero.base.data.RoyaltyFee;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -203,6 +213,205 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .filter(optional -> optional.isPresent())
                 .map(optional -> optional.get())
                 .toList();
+    }
+
+    @Override
+    public Optional<TokenInfo> toTokenInfo(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final TokenId tokenId = TokenId.fromString(node.get("token_id").asText());
+            final TokenType type = TokenType.valueOf(node.get("type").asText());
+            final String name = node.get("name").asText();
+            final String symbol = node.get("symbol").asText();
+            final String memo = node.get("memo").asText();
+            final long decimals = node.get("decimals").asLong();
+            final byte[] metadata = node.get("metadata").asText().getBytes();
+            final Instant createdTimeStamp = Instant.ofEpochSecond(node.get("created_timestamp").asLong());
+            final Instant modifiedTimestamp = Instant.ofEpochSecond(node.get("modified_timestamp").asLong());
+            final TokenSupplyType supplyType = TokenSupplyType.valueOf(node.get("supply_type").asText());
+            final String totalSupply = node.get("total_supply").asText();
+            final String initialSupply = node.get("initial_supply").asText();
+            final AccountId treasuryAccountId = AccountId.fromString(node.get("treasury_account_id").asText());
+            final boolean deleted = node.get("deleted").asBoolean();
+            final String maxSupply = node.get("max_supply").asText();
+
+            final Instant expiryTimestamp;
+            if (!node.get("expiry_timestamp").isNull()) {
+                BigInteger nanoseconds = new BigInteger(node.get("expiry_timestamp").asText());
+                BigInteger expirySeconds = nanoseconds.divide(BigInteger.valueOf(1_000_000_000));
+                expiryTimestamp = Instant.ofEpochSecond(expirySeconds.longValue());
+            } else {
+                expiryTimestamp = null;
+            }
+
+            final CustomFee customFees = getCustomFee(node.get("custom_fees"));
+
+            return Optional.of(new TokenInfo(
+                    tokenId,
+                    type,
+                    name,
+                    symbol,
+                    memo,
+                    decimals,
+                    metadata,
+                    createdTimeStamp,
+                    modifiedTimestamp,
+                    expiryTimestamp,
+                    supplyType,
+                    initialSupply,
+                    totalSupply,
+                    maxSupply,
+                    treasuryAccountId,
+                    deleted,
+                    customFees
+            ));
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    private CustomFee getCustomFee(JsonNode node) {
+        List<FractionalFee> fractionalFees = null;
+        List<FixedFee> fixedFees = null;
+        List<RoyaltyFee> royaltyFees = null;
+
+        if (node.has("fixed_fees")) {
+            JsonNode fixedFeeNode = node.get("fixed_fees");
+            if (!fixedFeeNode.isArray()) {
+                throw new IllegalArgumentException("FixedFees node is not an array: " + fixedFeeNode);
+            }
+            fixedFees = StreamSupport.stream(Spliterators.spliteratorUnknownSize(fixedFeeNode.iterator(),
+                            Spliterator.ORDERED), false)
+                    .map(n ->{
+                        final long amount = n.get("amount").asLong();
+                        final AccountId accountId = n.get("collector_account_id").isNull()?
+                                        null : AccountId.fromString(n.get("collector_account_id").asText());
+                        final TokenId tokenId = n.get("denominating_token_id").isNull()?
+                                        null : TokenId.fromString(n.get("denominating_token_id").asText());
+                        return new FixedFee(amount, accountId, tokenId);
+                    })
+                    .toList();
+        }
+
+        if (node.has("fractional_fees")) {
+            JsonNode fractionalFeeNode = node.get("fractional_fees");
+            if (!fractionalFeeNode.isArray()) {
+                throw new IllegalArgumentException("FractionalFee node is not an array: " + fractionalFeeNode);
+            }
+            fractionalFees = StreamSupport.stream(Spliterators.spliteratorUnknownSize(fractionalFeeNode.iterator(),
+                            Spliterator.ORDERED), false)
+                    .map(n ->{
+                        final long numeratorAmount = n.get("amount").get("numerator").asLong();
+                        final long denominatorAmount = n.get("amount").get("denominator").asLong();
+                        final AccountId accountId = n.get("collector_account_id").isNull()?
+                                null : AccountId.fromString(n.get("collector_account_id").asText());
+                        final TokenId tokenId = n.get("denominating_token_id").isNull()?
+                                null : TokenId.fromString(n.get("denominating_token_id").asText());
+                        return new FractionalFee(numeratorAmount, denominatorAmount, accountId, tokenId);
+                    })
+                    .toList();
+        }
+
+        if (node.has("royalty_fees")) {
+            JsonNode royaltyFeeNode = node.get("royalty_fees");
+            if (!royaltyFeeNode.isArray()) {
+                throw new IllegalArgumentException("RoyaltyFee node is not an array: " + royaltyFeeNode);
+            }
+            royaltyFees = StreamSupport.stream(Spliterators.spliteratorUnknownSize(royaltyFeeNode.iterator(),
+                            Spliterator.ORDERED), false)
+                    .map(n ->{
+                        final long numeratorAmount = n.get("amount").get("numerator").asLong();
+                        final long denominatorAmount = n.get("amount").get("denominator").asLong();
+                        final long fallbackFeeAmount = n.get("fallback_fee").get("amount").asLong();
+                        final AccountId accountId = n.get("collector_account_id").isNull()?
+                                null : AccountId.fromString(n.get("collector_account_id").asText());
+                        final TokenId tokenId = n.get("fallback_fee").get("denominating_token_id").isNull()?
+                                null : TokenId.fromString(n.get("fallback_fee").get("denominating_token_id").asText());
+                        return new RoyaltyFee(numeratorAmount, denominatorAmount, fallbackFeeAmount, accountId, tokenId);
+                    })
+                    .toList();
+        }
+
+        return new CustomFee(fixedFees, fractionalFees, royaltyFees);
+    }
+
+    @Override
+    public List<Balance> toBalances(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (!node.has("balances")) {
+            return List.of();
+        }
+        final JsonNode balancesNode = node.get("balances");
+        if (!balancesNode.isArray()) {
+            throw new IllegalArgumentException("TokenBalances node is not an array: " + balancesNode);
+        }
+        Spliterator<JsonNode> spliterator = Spliterators.spliteratorUnknownSize(balancesNode.iterator(),
+                Spliterator.ORDERED);
+        return StreamSupport.stream(spliterator, false)
+                .map(n -> toBalance(n))
+                .filter(optional -> optional.isPresent())
+                .map(optional -> optional.get())
+                .toList();
+    }
+
+    @Override
+    public List<Token> toTokens(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (!node.has("tokens")) {
+            return List.of();
+        }
+        final JsonNode tokens = node.get("tokens");
+        if (!tokens.isArray()) {
+            throw new IllegalArgumentException("Tokens node is not an array: " + tokens);
+        }
+        Spliterator<JsonNode> spliterator = Spliterators.spliteratorUnknownSize(tokens.iterator(),
+                Spliterator.ORDERED);
+        return StreamSupport.stream(spliterator, false)
+                .map(n -> toToken(n))
+                .filter(optional -> optional.isPresent())
+                .map(optional -> optional.get())
+                .toList();
+    }
+
+    private Optional<Token> toToken(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final byte[] metadata = node.get("metadata").asText().getBytes();
+            final String name = node.get("name").asText();
+            final String symbol = node.get("symbol").asText();
+            final long decimals = node.get("decimals").asLong();
+            final TokenType type = TokenType.valueOf(node.get("type").asText());
+            final TokenId tokenId = node.get("token_id").isNull()? null : TokenId.fromString(node.get("token_id").asText());
+
+            return Optional.of(new Token(decimals, metadata, name, symbol, tokenId, type));
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    private Optional<Balance> toBalance(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final AccountId account = AccountId.fromString(node.get("account").asText());
+            final long balance = node.get("balance").asLong();
+            final long decimals = node.get("decimals").asLong();
+
+            return Optional.of(new Balance(account, balance, decimals));
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
     }
 
     @NonNull
