@@ -51,5 +51,10 @@ public interface MirrorNodeRestClient<JSON> {
     }
 
     @NonNull
+    default  JSON queryTokenById(TokenId tokenId) throws HieroException {
+        return doGetCall("/api/v1/tokens/" + tokenId);
+    }
+
+    @NonNull
     JSON doGetCall(@NonNull String path) throws HieroException;
 }

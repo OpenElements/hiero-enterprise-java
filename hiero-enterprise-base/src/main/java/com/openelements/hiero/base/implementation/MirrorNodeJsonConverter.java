@@ -7,6 +7,10 @@ import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.TokenInfo;
+import com.openelements.hiero.base.data.Balance;
+
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
@@ -36,4 +40,9 @@ public interface MirrorNodeJsonConverter<JSON> {
 
     List<Nft> toNfts(@NonNull JSON json);
 
+    Optional<TokenInfo> toTokenInfo(JSON json);
+
+    List<Balance> toBalances(JSON node);
+
+    List<Token> toTokens(JSON node);
 }
