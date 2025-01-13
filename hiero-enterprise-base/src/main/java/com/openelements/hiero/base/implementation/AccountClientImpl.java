@@ -37,7 +37,7 @@ public class AccountClientImpl implements AccountClient {
             final AccountCreateResult result = client.executeAccountCreateTransaction(request);
             return result.newAccount();
         } catch (IllegalArgumentException e) {
-            throw new HieroException("Invalid initial balance: " + e.getMessage(), e);
+            throw new HieroException("Error while creating Account", e);
         }
     }
     
