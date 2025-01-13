@@ -11,4 +11,12 @@ public record RoyaltyFee(
         @Nullable AccountId collectorAccountId,
         @Nullable TokenId denominatingTokenId
 ) {
+    public RoyaltyFee {
+        if (numeratorAmount < 0) {
+            throw new IllegalArgumentException("numeratorAmount must be greater than or equal to 0");
+        }
+        if (denominatorAmount < 0) {
+            throw new IllegalArgumentException("denominatorAmount must be greater than or equal to 0");
+        }
+    }
 }

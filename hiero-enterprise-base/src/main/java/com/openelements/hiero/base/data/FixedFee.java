@@ -5,4 +5,5 @@ import com.hedera.hashgraph.sdk.TokenId;
 import org.jspecify.annotations.Nullable;
 
 public record FixedFee(long amount, @Nullable AccountId collectorAccountId, @Nullable TokenId denominatingTokenId) {
+    public FixedFee {}
 }

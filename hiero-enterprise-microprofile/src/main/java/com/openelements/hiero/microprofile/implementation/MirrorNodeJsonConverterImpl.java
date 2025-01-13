@@ -306,9 +306,9 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
     }
 
     private CustomFee getCustomFee(JsonObject object) {
-        List<FractionalFee> fractionalFees = null;
-        List<FixedFee> fixedFees = null;
-        List<RoyaltyFee> royaltyFees = null;
+        List<FractionalFee> fractionalFees = List.of();
+        List<FixedFee> fixedFees = List.of();
+        List<RoyaltyFee> royaltyFees = List.of();
 
         if (object.containsKey("fixed_fees")) {
             JsonArray fixedFeeArray = object.get("fixed_fees").asJsonArray();
