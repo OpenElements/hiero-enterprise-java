@@ -17,23 +17,33 @@ import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 public class FileClientImplTest {
     ProtocolLayerClient protocolLayerClient;
     FileClientImpl fileClientImpl;
+  
+    @Mock
+    private FileClientImpl fileClient; 
 
     @BeforeEach
     void setup() {
         protocolLayerClient = Mockito.mock(ProtocolLayerClient.class);
         fileClientImpl = new FileClientImpl(protocolLayerClient);
+        fileClient = new FileClientImpl(protocolLayerClient);  
     }
 
     @Test
@@ -265,6 +275,50 @@ public class FileClientImplTest {
         );
         Assertions.assertTrue(exception.getMessage().contains(message));
     }
+
+
+//tests for deletefile method
+@Test
+public void testIsDeleted_FileIsDeleted() throws HieroException {
+    // Given
+    FileId fileId = FileId.fromString("0.0.123");
+    FileInfoResponse response = mock(FileInfoResponse.class);
+    when(protocolLayerClient.executeFileInfoQuery(any(FileInfoRequest.class))).thenReturn(response);
+    when(response.deleted()).thenReturn(true);
+
+    // When
+    boolean result = fileClient.isDeleted(fileId);
+
+    // Then
+    assertTrue(result);
+}
+
+@Test
+public void testIsDeleted_FileIsNotDeleted() throws HieroException {
+    // Given
+    FileId fileId = FileId.fromString("0.0.123"); 
+    FileInfoResponse response = mock(FileInfoResponse.class);
+    when(protocolLayerClient.executeFileInfoQuery(any(FileInfoRequest.class))).thenReturn(response);
+    when(response.deleted()).thenReturn(false);
+
+    // When
+    boolean result = fileClient.isDeleted(fileId);
+
+    // Then
+    assertFalse(result);
+}
+
+@Test
+public void testIsDeleted_NullFileId() {
+    // When
+    NullPointerException exception = assertThrows(NullPointerException.class, () -> {
+        fileClient.isDeleted(null); 
+    });
+
+    // Then
+    assertEquals("fileId must not be null", exception.getMessage());
+}
+
 
     @Test
     void testReadFile() throws HieroException {
