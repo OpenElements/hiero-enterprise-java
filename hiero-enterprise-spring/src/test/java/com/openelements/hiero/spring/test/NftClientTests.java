@@ -1,5 +1,7 @@
 package com.openelements.hiero.spring.test;
 
+import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
@@ -31,6 +33,24 @@ public class NftClientTests {
 
         //then
         Assertions.assertNotNull(tokenId);
+    }
+
+    @Test
+    void testCreateNftForNullParam() {
+        Assertions.assertThrows(
+                NullPointerException.class, () -> nftClient.createNftType((String)null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class, () -> nftClient.createNftType(null, null, (PrivateKey) null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClient.createNftType(null, null, (AccountId) null, (PrivateKey) null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClient.createNftType(null, null, null, null, (PrivateKey) null)
+        );
     }
 
     @Test
