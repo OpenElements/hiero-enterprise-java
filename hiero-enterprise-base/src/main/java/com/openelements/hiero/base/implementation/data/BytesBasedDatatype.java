@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 public enum BytesBasedDatatype implements ParamSupplier<Bytes> {
 
     BYTES("bytes", (v, params) -> params.addBytes(v.bytes())),
-    BYTES32("bytes32", (v, params) -> params.addBytes(v.bytes()));
+    BYTES32("bytes32", (v, params) -> params.addBytes32(v.bytes()));
 
     private final String nativeType;
 
