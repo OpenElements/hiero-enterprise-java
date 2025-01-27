@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.AccountBalance;
 import com.hedera.hashgraph.sdk.AccountBalanceQuery;
 import com.hedera.hashgraph.sdk.AccountCreateTransaction;
 import com.hedera.hashgraph.sdk.AccountDeleteTransaction;
+import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractCreateTransaction;
 import com.hedera.hashgraph.sdk.ContractDeleteTransaction;
 import com.hedera.hashgraph.sdk.ContractExecuteTransaction;
@@ -572,5 +573,10 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
     public Runnable addTransactionListener(@NonNull TransactionListener listener) {
         listeners.add(listener);
         return () -> listeners.remove(listener);
+    }
+
+    @Override
+    public AccountId getOperatorAccountId() {
+        return hieroContext.getOperatorAccount().accountId();
     }
 }
