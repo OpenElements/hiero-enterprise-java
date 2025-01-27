@@ -8,6 +8,7 @@ import com.openelements.hiero.base.implementation.data.LongBasedNumericDatatypes
 import com.openelements.hiero.base.implementation.data.ParamSupplier;
 import com.openelements.hiero.base.implementation.data.StringBasedDatatype;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
@@ -65,6 +66,16 @@ public record ContractParam<T>(@NonNull T value, @NonNull String nativeType, @No
     @NonNull
     public static ContractParam<String> bytes32(String value) {
         return of(value, StringBasedDatatype.BYTES32);
+    }
+
+    @NonNull
+    public static ContractParam<String> bytes(byte[] value) {
+        return of(new String(value, StandardCharsets.UTF_8), StringBasedDatatype.BYTES);
+    }
+
+    @NonNull
+    public static ContractParam<String> bytes32(byte[] value) {
+        return of(new String(value, StandardCharsets.UTF_8), StringBasedDatatype.BYTES32);
     }
 
     /**
