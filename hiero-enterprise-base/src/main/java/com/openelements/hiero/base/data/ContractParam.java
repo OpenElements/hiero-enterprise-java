@@ -57,6 +57,16 @@ public record ContractParam<T>(@NonNull T value, @NonNull String nativeType, @No
         return of(value, StringBasedDatatype.STRING);
     }
 
+    @NonNull
+    public static ContractParam<String> bytes(String value) {
+        return of(value, StringBasedDatatype.BYTES);
+    }
+
+    @NonNull
+    public static ContractParam<String> bytes32(String value) {
+        return of(value, StringBasedDatatype.BYTES32);
+    }
+
     /**
      * Creates a new contract parameter with the given value and native type {@code address}. The input must be address
      * in solidty format.
