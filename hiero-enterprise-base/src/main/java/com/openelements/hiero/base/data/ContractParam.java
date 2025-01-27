@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.openelements.hiero.base.implementation.data.BigIntegerBasedNumericDatatypes;
 import com.openelements.hiero.base.implementation.data.BooleanDatatype;
+import com.openelements.hiero.base.implementation.data.BytesBasedDatatype;
 import com.openelements.hiero.base.implementation.data.LongBasedNumericDatatypes;
 import com.openelements.hiero.base.implementation.data.ParamSupplier;
 import com.openelements.hiero.base.implementation.data.StringBasedDatatype;
@@ -59,23 +60,23 @@ public record ContractParam<T>(@NonNull T value, @NonNull String nativeType, @No
     }
 
     @NonNull
-    public static ContractParam<String> bytes(String value) {
-        return of(value, StringBasedDatatype.BYTES);
+    public static ContractParam<Bytes> bytes(String value) {
+        return bytes(value.getBytes(StandardCharsets.UTF_8));
     }
 
     @NonNull
-    public static ContractParam<String> bytes32(String value) {
-        return of(value, StringBasedDatatype.BYTES32);
+    public static ContractParam<Bytes> bytes32(String value) {
+        return bytes32(value.getBytes(StandardCharsets.UTF_8));
     }
 
     @NonNull
-    public static ContractParam<String> bytes(byte[] value) {
-        return of(new String(value, StandardCharsets.UTF_8), StringBasedDatatype.BYTES);
+    public static ContractParam<Bytes> bytes(byte[] value) {
+        return of(new Bytes(value), BytesBasedDatatype.BYTES);
     }
 
     @NonNull
-    public static ContractParam<String> bytes32(byte[] value) {
-        return of(new String(value, StandardCharsets.UTF_8), StringBasedDatatype.BYTES32);
+    public static ContractParam<Bytes> bytes32(byte[] value) {
+        return of(new Bytes(value), BytesBasedDatatype.BYTES32);
     }
 
     /**
