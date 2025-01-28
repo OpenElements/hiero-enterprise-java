@@ -1,5 +1,6 @@
 package com.openelements.hiero.base.protocol;
 
+import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.HieroException;
 import org.jspecify.annotations.NonNull;
 
@@ -226,4 +227,5 @@ public interface ProtocolLayerClient {
     @NonNull
     Runnable addTransactionListener(@NonNull TransactionListener listener);
 
+    AccountId getOperatorAccountId();
 }

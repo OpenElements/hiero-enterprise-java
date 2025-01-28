@@ -90,4 +90,13 @@ public interface AccountClient {
         Objects.requireNonNull(accountId, "newAccountId must not be null");
         return getAccountBalance(AccountId.fromString(accountId));
     }
+
+    /**
+     * Returns the balance of the operator account.
+     *
+     * @return the balance of the operator account
+     * @throws HieroException if the balance could not be retrieved
+     */
+    @NonNull
+    Hbar getOperatorAccountBalance() throws HieroException;
 }

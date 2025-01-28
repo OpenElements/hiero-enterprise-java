@@ -1,9 +1,10 @@
 package com.openelements.hiero.base.implementation;
+
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Hbar;
-import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.protocol.AccountBalanceRequest;
 import com.openelements.hiero.base.protocol.AccountBalanceResponse;
 import com.openelements.hiero.base.protocol.AccountCreateRequest;
@@ -27,11 +28,11 @@ public class AccountClientImpl implements AccountClient {
         if (initialBalance == null) {
             throw new NullPointerException("initialBalance must not be null");
         }
-        
+
         if (initialBalance.toTinybars() < 0) {
             throw new HieroException("Invalid initial balance: must be non-negative");
         }
-        
+
         try {
             final AccountCreateRequest request = AccountCreateRequest.of(initialBalance);
             final AccountCreateResult result = client.executeAccountCreateTransaction(request);
@@ -40,7 +41,7 @@ public class AccountClientImpl implements AccountClient {
             throw new HieroException("Error while creating Account", e);
         }
     }
-    
+
 
     @Override
     public void deleteAccount(@NonNull Account account) throws HieroException {
@@ -60,5 +61,10 @@ public class AccountClientImpl implements AccountClient {
         final AccountBalanceRequest request = AccountBalanceRequest.of(account);
         final AccountBalanceResponse response = client.executeAccountBalanceQuery(request);
         return response.hbars();
+    }
+
+    @Override
+    public @NonNull Hbar getOperatorAccountBalance() throws HieroException {
+        return getAccountBalance(client.getOperatorAccountId());
     }
 }
