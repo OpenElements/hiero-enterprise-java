@@ -153,6 +153,10 @@ public class ContractVerificationClientImplementation implements ContractVerific
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                         handleError(request, response);
+                    }).onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                        throw new RuntimeException(
+                                "Server error (" + response.getStatusCode() + ") for request '" + request.getURI()
+                                        + "'");
                     }).body(String.class);
 
             final JsonNode rootNode = objectMapper.readTree(resultBody);
