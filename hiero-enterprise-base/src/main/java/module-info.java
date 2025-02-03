@@ -4,11 +4,13 @@ module com.openelements.hiero.base {
     exports com.openelements.hiero.base.mirrornode;
     exports com.openelements.hiero.base.verification;
     exports com.openelements.hiero.base.data;
+    exports com.openelements.hiero.base.config;
     exports com.openelements.hiero.base.implementation to com.openelements.hiero.base.test;
     exports com.openelements.hiero.base.implementation.data to com.openelements.hiero.base.test;
+    exports com.openelements.hiero.base.config.implementation;
 
-    uses com.openelements.hiero.base.config.provider.NetworkSettingsProvider;
-    provides com.openelements.hiero.base.config.provider.NetworkSettingsProvider with com.openelements.hiero.base.config.provider.implementation.HederaNetworkSettingsProvider;
+    uses com.openelements.hiero.base.config.NetworkSettingsProvider;
+    provides com.openelements.hiero.base.config.NetworkSettingsProvider with com.openelements.hiero.base.config.hedera.HederaNetworkSettingsProvider;
 
     requires transitive sdk; //Hedera SDK
     requires org.slf4j;

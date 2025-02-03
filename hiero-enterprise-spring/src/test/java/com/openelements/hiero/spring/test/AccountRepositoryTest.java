@@ -1,10 +1,11 @@
 package com.openelements.hiero.spring.test;
 
 import com.hedera.hashgraph.sdk.AccountId;
-import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
-import com.openelements.hiero.base.mirrornode.AccountRepository;
+import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.data.AccountInfo;
+import com.openelements.hiero.base.mirrornode.AccountRepository;
+import com.openelements.hiero.test.HieroTestUtils;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,5 @@ public class AccountRepositoryTest {
         //then
         Assertions.assertNotNull(result);
         Assertions.assertTrue(result.isPresent());
-
     }
 }

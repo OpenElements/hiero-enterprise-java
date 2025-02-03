@@ -96,6 +96,11 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>hiero-enterprise-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>hiero-enterprise-spring</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -200,6 +205,7 @@
 
   <modules>
     <module>hiero-enterprise-base</module>
+    <module>hiero-enterprise-test</module>
     <module>hiero-enterprise-spring</module>
     <module>hiero-enterprise-microprofile</module>
     <module>hiero-enterprise-spring-sample</module>

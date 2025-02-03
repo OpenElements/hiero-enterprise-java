@@ -1,4 +1,4 @@
-package com.openelements.hiero.spring.test;
+package com.openelements.hiero.test;
 
 import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransactionId;
@@ -48,7 +48,7 @@ public class HieroTestUtils {
     public void waitForMirrorNodeRecords() throws HieroException {
         final TransactionId transactionId = transactionIdRef.get();
         if (transactionId != null) {
-            LocalDateTime start = LocalDateTime.now();
+            final LocalDateTime start = LocalDateTime.now();
             boolean done = false;
             while (!done) {
                 String transactionIdString =

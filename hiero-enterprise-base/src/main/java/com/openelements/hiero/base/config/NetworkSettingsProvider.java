@@ -1,6 +1,5 @@
-package com.openelements.hiero.base.config.provider;
+package com.openelements.hiero.base.config;
 
-import com.openelements.hiero.base.config.NetworkSettings;
 import java.util.Set;
 
 /**

@@ -1,6 +1,6 @@
 package com.openelements.hiero.base.config;
 
-import com.openelements.hiero.base.config.provider.implementation.NetworkSettingsProviderLoader;
+import com.openelements.hiero.base.config.implementation.NetworkSettingsProviderLoader;
 import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -8,9 +8,9 @@ import org.jspecify.annotations.NonNull;
 /**
  * Interface that provides all needed configuration settings for a network. Operator of a Hiero based network should
  * implement this interface to provide the necessary configuration settings. Implementations can be provided via Java
- * SPI as defined in {@link com.openelements.hiero.base.config.provider.NetworkSettingsProvider}.
+ * SPI as defined in {@link NetworkSettingsProvider}.
  *
- * @see com.openelements.hiero.base.config.provider.NetworkSettingsProvider
+ * @see NetworkSettingsProvider
  * @see java.util.ServiceLoader
  */
 public interface NetworkSettings {

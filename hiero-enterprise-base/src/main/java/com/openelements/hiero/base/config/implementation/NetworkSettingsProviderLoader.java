@@ -1,7 +1,7 @@
-package com.openelements.hiero.base.config.provider.implementation;
+package com.openelements.hiero.base.config.implementation;
 
 import com.openelements.hiero.base.config.NetworkSettings;
-import com.openelements.hiero.base.config.provider.NetworkSettingsProvider;
+import com.openelements.hiero.base.config.NetworkSettingsProvider;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;

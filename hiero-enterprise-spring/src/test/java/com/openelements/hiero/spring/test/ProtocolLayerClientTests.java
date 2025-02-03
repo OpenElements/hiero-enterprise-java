@@ -23,6 +23,7 @@ import com.openelements.hiero.base.protocol.FileInfoRequest;
 import com.openelements.hiero.base.protocol.FileInfoResponse;
 import com.openelements.hiero.base.protocol.FileUpdateRequest;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
+import com.openelements.hiero.test.HieroTestUtils;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

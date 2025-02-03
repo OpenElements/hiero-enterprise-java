@@ -1,4 +1,4 @@
-package com.openelements.hiero.base.config.provider;
+package com.openelements.hiero.base.config.hedera;
 
 import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.NetworkSettings;

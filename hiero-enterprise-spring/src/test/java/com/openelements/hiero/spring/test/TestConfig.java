@@ -3,6 +3,7 @@ package com.openelements.hiero.spring.test;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.spring.EnableHiero;
+import com.openelements.hiero.test.HieroTestUtils;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
