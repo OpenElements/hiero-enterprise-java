@@ -4,8 +4,9 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.HieroConfig;
+import com.openelements.hiero.base.config.NetworkSettings;
 import com.openelements.hiero.base.data.Account;
-import com.openelements.hiero.base.implementation.HieroNetwork;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,11 +20,13 @@ public class HieroConfigImpl implements HieroConfig {
 
     private final String networkName;
 
-    private final List<String> mirrorNodeAddresses;
+    private final Set<String> mirrorNodeAddresses;
 
     private final Set<ConsensusNode> consensusNodes;
 
-    private final HieroNetwork hieroNetwork;
+    private final Long chainId;
+
+    private final String relayUrl;
 
     public HieroConfigImpl(@NonNull final HieroProperties properties) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -35,22 +38,34 @@ public class HieroConfigImpl implements HieroConfig {
         final PrivateKey operatorPrivateKey = parsePrivateKey(properties.getPrivateKey());
 
         operatorAccount = Account.of(operatorAccountId, operatorPrivateKey);
-        networkName = properties.getNetwork().getName();
-        hieroNetwork = HieroNetwork.findByName(networkName)
-                .orElse(HieroNetwork.CUSTOM);
-        final String mirrorNodeAddress = properties.getNetwork().getMirrorNode();
-        if (mirrorNodeAddress != null && !mirrorNodeAddress.isBlank()) {
-            mirrorNodeAddresses = List.of(mirrorNodeAddress);
+
+        final Optional<NetworkSettings> networkSettings = NetworkSettings.forIdentifier(
+                properties.getNetwork().getName());
+        if (networkSettings.isPresent()) {
+            final NetworkSettings settings = networkSettings.get();
+            networkName = settings.getNetworkName().orElse(properties.getNetwork().getName());
+            mirrorNodeAddresses = Collections.unmodifiableSet(settings.getMirrorNodeAddresses());
+            consensusNodes = Collections.unmodifiableSet(settings.getConsensusNodes());
+            chainId = settings.chainId().orElse(null);
+            relayUrl = settings.relayUrl().orElse(null);
         } else {
-            mirrorNodeAddresses = List.of();
-        }
-        final List<HieroNode> nodes = properties.getNetwork().getNodes();
-        if (nodes == null || nodes.isEmpty()) {
-            consensusNodes = Set.of();
-        } else {
-            consensusNodes = properties.getNetwork().getNodes().stream()
-                    .map(node -> new ConsensusNode(node.getIp(), node.getPort() + "", node.getAccount()))
-                    .collect(Collectors.toUnmodifiableSet());
+            networkName = properties.getNetwork().getName();
+            final String mirrorNodeAddress = properties.getNetwork().getMirrorNode();
+            if (mirrorNodeAddress != null && !mirrorNodeAddress.isBlank()) {
+                mirrorNodeAddresses = Set.of(mirrorNodeAddress);
+            } else {
+                mirrorNodeAddresses = Set.of();
+            }
+            final List<HieroNode> nodes = properties.getNetwork().getNodes();
+            if (nodes == null || nodes.isEmpty()) {
+                consensusNodes = Set.of();
+            } else {
+                consensusNodes = properties.getNetwork().getNodes().stream()
+                        .map(node -> new ConsensusNode(node.getIp(), node.getPort() + "", node.getAccount()))
+                        .collect(Collectors.toUnmodifiableSet());
+            }
+            chainId = null;
+            relayUrl = null;
         }
     }
 
@@ -82,7 +97,7 @@ public class HieroConfigImpl implements HieroConfig {
     }
 
     @Override
-    public List<String> getMirrorNodeAddresses() {
+    public Set<String> getMirrorNodeAddresses() {
         return mirrorNodeAddresses;
     }
 
@@ -92,8 +107,12 @@ public class HieroConfigImpl implements HieroConfig {
     }
 
     @Override
-    public HieroNetwork getNetwork() {
-        return hieroNetwork;
+    public @NonNull Optional<Long> chainId() {
+        return Optional.ofNullable(chainId);
     }
 
+    @Override
+    public @NonNull Optional<String> relayUrl() {
+        return Optional.ofNullable(relayUrl);
+    }
 }

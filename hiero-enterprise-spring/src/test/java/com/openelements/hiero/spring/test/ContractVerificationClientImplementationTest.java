@@ -1,10 +1,10 @@
 package com.openelements.hiero.spring.test;
 
 import com.hedera.hashgraph.sdk.ContractId;
+import com.openelements.hiero.base.SmartContractClient;
+import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import com.openelements.hiero.base.verification.ContractVerificationState;
-import com.openelements.hiero.base.SmartContractClient;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ContractVerificationClientImplementationTest {
 
     @Autowired
-    private HieroNetwork hieroNetwork;
+    private HieroConfig hieroConfig;
 
     @Autowired
     private SmartContractClient smartContractClient;
@@ -31,7 +31,7 @@ class ContractVerificationClientImplementationTest {
     }
 
     private boolean isNotSupportedChain() {
-        return hieroNetwork == HieroNetwork.CUSTOM;
+        return hieroConfig.chainId().isEmpty();
     }
 
     @Test
