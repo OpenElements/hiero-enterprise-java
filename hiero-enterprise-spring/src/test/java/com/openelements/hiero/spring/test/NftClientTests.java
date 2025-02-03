@@ -3,6 +3,7 @@ package com.openelements.hiero.spring.test;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.NftClient;
@@ -116,6 +117,20 @@ public class NftClientTests {
             nftClient.transferNft(tokenId, serial, treasuryAccount.accountId(), treasuryAccount.privateKey(),
                     userAccount.accountId());
         });
+    }
+
+    @Test
+    void transferNftThrowsExceptionForInvalidTokenId() throws Exception {
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Account treasuryAccount = accountClient.createAccount(1);
+        final Account userAccount = accountClient.createAccount(1);
+        final long serial = 1L;
+        //then
+        Assertions.assertThrows(HieroException.class, () -> nftClient.transferNft(tokenId, serial,
+                treasuryAccount.accountId(), treasuryAccount.privateKey(), userAccount.accountId()));
+        Assertions.assertThrows(HieroException.class, () -> nftClient.transferNfts(tokenId, List.of(serial),
+                treasuryAccount.accountId(), treasuryAccount.privateKey(), userAccount.accountId()));
     }
 
     @Test

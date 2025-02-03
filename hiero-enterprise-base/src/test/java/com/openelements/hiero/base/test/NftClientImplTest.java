@@ -9,6 +9,9 @@ import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.TokenCreateRequest;
 import com.openelements.hiero.base.protocol.TokenCreateResult;
+import com.openelements.hiero.base.protocol.TokenTransferRequest;
+import com.openelements.hiero.base.protocol.TokenTransferResult;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,7 @@ public class NftClientImplTest {
     NftClientImpl nftClientImpl;
 
     ArgumentCaptor<TokenCreateRequest> tokenRequestCaptor = ArgumentCaptor.forClass(TokenCreateRequest.class);
+    ArgumentCaptor<TokenTransferRequest> tokenTransferCaptor = ArgumentCaptor.forClass(TokenTransferRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -201,5 +205,112 @@ public class NftClientImplTest {
                 NullPointerException.class,
                 () -> nftClientImpl.createNftType(null, null, null, null, (PrivateKey) null)
         );
+    }
+
+    @Test
+    void testTransferNft() throws HieroException {
+        // mock
+        final TokenTransferResult tokenTransferResult = Mockito.mock(TokenTransferResult.class);
+
+        // given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final long serialNumber = 1L;
+        final AccountId fromAccount = AccountId.fromString("1.2.3");
+        final AccountId toAccount = AccountId.fromString("4.5.6");
+        final PrivateKey fromAccountKey = PrivateKey.generateECDSA();
+
+        // when
+        when(protocolLayerClient.executeTransferTransaction(any(TokenTransferRequest.class)))
+                .thenReturn(tokenTransferResult);
+        nftClientImpl.transferNft(tokenId, serialNumber, fromAccount, fromAccountKey, toAccount);
+
+        // then
+        verify(protocolLayerClient, times(1))
+                .executeTransferTransaction(tokenTransferCaptor.capture());
+
+        final TokenTransferRequest request = tokenTransferCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(List.of(serialNumber), request.serials());
+        Assertions.assertEquals(fromAccount, request.sender());
+        Assertions.assertEquals(toAccount, request.receiver());
+        Assertions.assertEquals(fromAccountKey, request.senderKey());
+    }
+
+    @Test
+    void testTransferNfts() throws HieroException {
+        // mock
+        final TokenTransferResult tokenTransferResult = Mockito.mock(TokenTransferResult.class);
+
+        // given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final List<Long> serialNumbers = List.of(1L, 2L);
+        final AccountId fromAccount = AccountId.fromString("1.2.3");
+        final AccountId toAccount = AccountId.fromString("4.5.6");
+        final PrivateKey fromAccountKey = PrivateKey.generateECDSA();
+
+        // when
+        when(protocolLayerClient.executeTransferTransaction(any(TokenTransferRequest.class)))
+                .thenReturn(tokenTransferResult);
+        nftClientImpl.transferNfts(tokenId, serialNumbers, fromAccount, fromAccountKey, toAccount);
+
+        // then
+        verify(protocolLayerClient, times(1))
+                .executeTransferTransaction(tokenTransferCaptor.capture());
+
+        final TokenTransferRequest request = tokenTransferCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(serialNumbers, request.serials());
+        Assertions.assertEquals(fromAccount, request.sender());
+        Assertions.assertEquals(toAccount, request.receiver());
+        Assertions.assertEquals(fromAccountKey, request.senderKey());
+    }
+
+    @Test
+    void testTransferNftThrowsExceptionForInvalidTokenId() throws HieroException {
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId fromAccount = AccountId.fromString("1.2.3");
+        final AccountId toAccount = AccountId.fromString("4.5.6");
+        final PrivateKey fromAccountKey = PrivateKey.generateECDSA();
+        final long serial = 1L;
+
+        //when
+        when(protocolLayerClient.executeTransferTransaction(any(TokenTransferRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenTransferTransaction"));
+
+        //then
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.transferNft(tokenId, serial,
+                fromAccount, fromAccountKey, toAccount));
+    }
+
+    @Test
+    void testTransferNftThrowsExceptionForInvalidSerial() {
+        final String e1Message = "serial must be positive";
+        final String e2Message = "either amount or serial must be provided";
+
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId fromAccount = AccountId.fromString("1.2.3");
+        final AccountId toAccount = AccountId.fromString("4.5.6");
+        final PrivateKey fromAccountKey = PrivateKey.generateECDSA();
+        final long serial = -1L;
+
+        IllegalArgumentException e1 = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> nftClientImpl.transferNft(tokenId, serial, fromAccount, fromAccountKey, toAccount));
+        Assertions.assertEquals(e1Message, e1.getMessage());
+
+        IllegalArgumentException e2 = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> nftClientImpl.transferNfts(tokenId, List.of(), fromAccount, fromAccountKey, toAccount));
+        Assertions.assertEquals(e2Message, e2.getMessage());
+    }
+
+    @Test
+    void testTransferNftNullParams() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.transferNft(null, 1L, null,
+                        null, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.transferNfts(null, null, null,
+                        null, null));
     }
 }
