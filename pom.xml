@@ -50,6 +50,7 @@
     <jakarta.enterprise.version>3.0.1</jakarta.enterprise.version>
     <microprofile.version>7.0</microprofile.version>
     <quarkus.version>3.17.2</quarkus.version>
+    <google.auto.version>1.1.1</google.auto.version>
     <jboss-logging.version>3.6.1.Final</jboss-logging.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -159,11 +160,11 @@
         <artifactId>junit-jupiter</artifactId>
         <version>${junit.version}</version>
       </dependency>
-    <dependency>
-  <groupId>org.mockito</groupId>
-  <artifactId>mockito-core</artifactId>
-  <version> 5.11.0</version>
-</dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>5.11.0</version>
+      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -189,6 +190,11 @@
         <artifactId>jboss-logging</artifactId>
         <version>${jboss-logging.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.auto.service</groupId>
+        <artifactId>auto-service-annotations</artifactId>
+        <version>${google.auto.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -212,6 +218,15 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${google.auto.version}</version>
+              </path>
+            </annotationProcessorPaths>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
