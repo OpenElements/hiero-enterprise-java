@@ -6,4 +6,5 @@ open module com.openelements.hiero.test {
     requires transitive com.openelements.hiero.base;
     requires org.jspecify;
     requires com.google.auto.service;
+    requires org.slf4j;
 }

@@ -43,6 +43,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hiero-enterprise-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.helidon.microprofile.server</groupId>
       <artifactId>helidon-microprofile-server</artifactId>
       <scope>test</scope>

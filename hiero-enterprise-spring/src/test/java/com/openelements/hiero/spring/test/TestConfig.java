@@ -16,7 +16,6 @@ public class TestConfig {
     @Bean
     HieroTestUtils hieroTestUtils(MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
         HieroTestUtils testUtils = new HieroTestUtils(mirrorNodeClient, protocolLayerClient);
-        testUtils.init();
         return testUtils;
     }
 }
