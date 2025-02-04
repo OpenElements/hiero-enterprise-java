@@ -14,46 +14,46 @@ import com.hedera.hashgraph.sdk.TokenType;
 import com.hedera.hashgraph.sdk.proto.ContractFunctionResultOrBuilder;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.data.ContractParam;
-import com.openelements.hiero.base.protocol.AccountBalanceRequest;
-import com.openelements.hiero.base.protocol.AccountBalanceResponse;
-import com.openelements.hiero.base.protocol.AccountCreateRequest;
-import com.openelements.hiero.base.protocol.AccountCreateResult;
-import com.openelements.hiero.base.protocol.AccountDeleteRequest;
-import com.openelements.hiero.base.protocol.AccountDeleteResult;
-import com.openelements.hiero.base.protocol.ContractCallRequest;
-import com.openelements.hiero.base.protocol.ContractCallResult;
-import com.openelements.hiero.base.protocol.ContractCreateRequest;
-import com.openelements.hiero.base.protocol.ContractCreateResult;
-import com.openelements.hiero.base.protocol.ContractDeleteRequest;
-import com.openelements.hiero.base.protocol.ContractDeleteResult;
-import com.openelements.hiero.base.protocol.FileAppendRequest;
-import com.openelements.hiero.base.protocol.TokenTransferResult;
-import com.openelements.hiero.base.protocol.TopicDeleteResult;
-import com.openelements.hiero.base.protocol.TopicCreateResult;
-import com.openelements.hiero.base.protocol.TokenMintResult;
-import com.openelements.hiero.base.protocol.TokenCreateResult;
-import com.openelements.hiero.base.protocol.TokenBurnResult;
-import com.openelements.hiero.base.protocol.TokenAssociateResult;
-import com.openelements.hiero.base.protocol.FileUpdateResult;
-import com.openelements.hiero.base.protocol.FileInfoResponse;
-import com.openelements.hiero.base.protocol.FileDeleteResult;
-import com.openelements.hiero.base.protocol.FileCreateResult;
-import com.openelements.hiero.base.protocol.FileContentsResponse;
-import com.openelements.hiero.base.protocol.FileAppendResult;
-import com.openelements.hiero.base.protocol.FileContentsRequest;
-import com.openelements.hiero.base.protocol.TokenTransferRequest;
-import com.openelements.hiero.base.protocol.TokenMintRequest;
-import com.openelements.hiero.base.protocol.TokenCreateRequest;
-import com.openelements.hiero.base.protocol.TokenBurnRequest;
-import com.openelements.hiero.base.protocol.TokenAssociateRequest;
-import com.openelements.hiero.base.protocol.FileUpdateRequest;
-import com.openelements.hiero.base.protocol.FileInfoRequest;
-import com.openelements.hiero.base.protocol.FileDeleteRequest;
-import com.openelements.hiero.base.protocol.FileCreateRequest;
-import com.openelements.hiero.base.protocol.TopicSubmitMessageResult;
-import com.openelements.hiero.base.protocol.TopicSubmitMessageRequest;
-import com.openelements.hiero.base.protocol.TopicDeleteRequest;
-import com.openelements.hiero.base.protocol.TopicCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
+import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountCreateResult;
+import com.openelements.hiero.base.protocol.data.AccountDeleteRequest;
+import com.openelements.hiero.base.protocol.data.AccountDeleteResult;
+import com.openelements.hiero.base.protocol.data.ContractCallRequest;
+import com.openelements.hiero.base.protocol.data.ContractCallResult;
+import com.openelements.hiero.base.protocol.data.ContractCreateRequest;
+import com.openelements.hiero.base.protocol.data.ContractCreateResult;
+import com.openelements.hiero.base.protocol.data.ContractDeleteRequest;
+import com.openelements.hiero.base.protocol.data.ContractDeleteResult;
+import com.openelements.hiero.base.protocol.data.FileAppendRequest;
+import com.openelements.hiero.base.protocol.data.TokenTransferResult;
+import com.openelements.hiero.base.protocol.data.TopicDeleteResult;
+import com.openelements.hiero.base.protocol.data.TopicCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenMintResult;
+import com.openelements.hiero.base.protocol.data.TokenCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenBurnResult;
+import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
+import com.openelements.hiero.base.protocol.data.FileUpdateResult;
+import com.openelements.hiero.base.protocol.data.FileInfoResponse;
+import com.openelements.hiero.base.protocol.data.FileDeleteResult;
+import com.openelements.hiero.base.protocol.data.FileCreateResult;
+import com.openelements.hiero.base.protocol.data.FileContentsResponse;
+import com.openelements.hiero.base.protocol.data.FileAppendResult;
+import com.openelements.hiero.base.protocol.data.FileContentsRequest;
+import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
+import com.openelements.hiero.base.protocol.data.TokenMintRequest;
+import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
+import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
+import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
+import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
+import com.openelements.hiero.base.protocol.data.FileInfoRequest;
+import com.openelements.hiero.base.protocol.data.FileDeleteRequest;
+import com.openelements.hiero.base.protocol.data.FileCreateRequest;
+import com.openelements.hiero.base.protocol.data.TopicSubmitMessageResult;
+import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
+import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
+import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
 
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
@@ -549,10 +549,14 @@ public class ProtocolLayerDataCreationTests {
 
         // Then
         Assertions.assertDoesNotThrow(() -> new TokenMintResult(transactionId, status, serials, totalSupply));
-        Assertions.assertThrows(NullPointerException.class, () -> new TokenMintResult(null, status, serials, totalSupply));
-        Assertions.assertThrows(NullPointerException.class, () -> new TokenMintResult(transactionId, null, serials, totalSupply));
-        Assertions.assertThrows(NullPointerException.class, () -> new TokenMintResult(transactionId, status, null, totalSupply));
-        Assertions.assertThrows(NullPointerException.class, () -> new TokenMintResult(transactionId, status, serials, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenMintResult(null, status, serials, totalSupply));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenMintResult(transactionId, null, serials, totalSupply));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenMintResult(transactionId, status, null, totalSupply));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenMintResult(transactionId, status, serials, null));
     }
 
     @Test
@@ -579,7 +583,8 @@ public class ProtocolLayerDataCreationTests {
         //Then
         Assertions.assertDoesNotThrow(() -> new TokenBurnResult(transactionId, status, totalSupply));
         Assertions.assertThrows(NullPointerException.class, () -> new TokenBurnResult(null, status, totalSupply));
-        Assertions.assertThrows(NullPointerException.class, () -> new TokenBurnResult(transactionId, null, totalSupply));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenBurnResult(transactionId, null, totalSupply));
         Assertions.assertThrows(NullPointerException.class, () -> new TokenBurnResult(transactionId, status, null));
     }
 
@@ -685,37 +690,46 @@ public class ProtocolLayerDataCreationTests {
 
         //then
         Assertions.assertDoesNotThrow(
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, emptySerials, amount, sender,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, emptySerials,
+                        amount, sender,
                         receiver, senderKey));
         Assertions.assertDoesNotThrow(
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null, sender,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null,
+                        sender,
                         receiver, senderKey));
         Assertions.assertDoesNotThrow(() -> TokenTransferRequest.of(tokenId, 1L, sender, receiver, senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(null, transactionValidDuration, tokenId, serials, amount, sender, receiver,
+                () -> new TokenTransferRequest(null, transactionValidDuration, tokenId, serials, amount, sender,
+                        receiver,
                         senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, null, tokenId, serials, null, sender, receiver, senderKey));
+                () -> new TokenTransferRequest(maxTransactionFee, null, tokenId, serials, null, sender, receiver,
+                        senderKey));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, null, serials, null, sender,
                         receiver, senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, null, amount, sender,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, null, amount,
+                        sender,
                         receiver, senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials,null, null,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null,
+                        null,
                         receiver, senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null, sender,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null,
+                        sender,
                         null, senderKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null, sender,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, serials, null,
+                        sender,
                         receiver, null));
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, emptySerials, null,
                         sender, receiver, senderKey));
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, negativeSerials, null,
+                () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, negativeSerials,
+                        null,
                         sender, receiver, senderKey));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TokenTransferRequest(maxTransactionFee, transactionValidDuration, tokenId, null, null,

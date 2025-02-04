@@ -5,10 +5,10 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.data.Account;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.protocol.AccountBalanceRequest;
-import com.openelements.hiero.base.protocol.AccountBalanceResponse;
-import com.openelements.hiero.base.protocol.AccountCreateRequest;
-import com.openelements.hiero.base.protocol.AccountCreateResult;
+import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
+import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountCreateResult;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,8 +97,8 @@ public class AccountClientImplTest {
         });
     }
 
-//tests for createAccount method
- @Test
+    //tests for createAccount method
+    @Test
     void testCreateAccount_successful() throws HieroException {
         Hbar initialBalance = Hbar.from(100);
 
@@ -128,12 +128,12 @@ public class AccountClientImplTest {
     @Test
     void testCreateAccount_invalidInitialBalance_negative() {
         Hbar initialBalance = Hbar.from(-100);
-        HieroException exception = assertThrows(HieroException.class, 
-            () -> accountClientImpl.createAccount(initialBalance));
-    
+        HieroException exception = assertThrows(HieroException.class,
+                () -> accountClientImpl.createAccount(initialBalance));
+
         assertTrue(exception.getMessage().contains("Invalid initial balance"));
     }
-    
+
 
     @Test
     void testCreateAccount_hieroExceptionThrown() throws HieroException {

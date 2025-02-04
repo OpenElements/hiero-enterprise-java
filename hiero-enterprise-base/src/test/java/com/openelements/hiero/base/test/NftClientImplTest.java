@@ -7,8 +7,8 @@ import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
-import com.openelements.hiero.base.protocol.TokenCreateRequest;
-import com.openelements.hiero.base.protocol.TokenCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
+import com.openelements.hiero.base.protocol.data.TokenCreateResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -188,7 +188,7 @@ public class NftClientImplTest {
     @Test
     void testCreateNftForNullParam() {
         Assertions.assertThrows(
-                NullPointerException.class, () -> nftClientImpl.createNftType((String)null, null)
+                NullPointerException.class, () -> nftClientImpl.createNftType((String) null, null)
         );
         Assertions.assertThrows(
                 NullPointerException.class, () -> nftClientImpl.createNftType(null, null, (PrivateKey) null)
