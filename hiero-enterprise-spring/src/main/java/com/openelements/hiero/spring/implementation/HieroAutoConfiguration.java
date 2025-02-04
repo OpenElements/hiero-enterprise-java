@@ -11,7 +11,6 @@ import com.openelements.hiero.base.implementation.AccountClientImpl;
 import com.openelements.hiero.base.implementation.AccountRepositoryImpl;
 import com.openelements.hiero.base.implementation.FileClientImpl;
 import com.openelements.hiero.base.implementation.FungibleTokenClientImpl;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import com.openelements.hiero.base.implementation.NetworkRepositoryImpl;
 import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.implementation.NftRepositoryImpl;
@@ -28,7 +27,6 @@ import com.openelements.hiero.base.verification.ContractVerificationClient;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -48,11 +46,6 @@ public class HieroAutoConfiguration {
     @ApplicationScope
     HieroConfig hieroConfig(final HieroProperties properties) {
         return new HieroConfigImpl(properties);
-    }
-
-    @Bean
-    HieroNetwork hieroNetwork(final HieroConfig hieroConfig) {
-        return hieroConfig.getNetwork();
     }
 
     @Bean
@@ -94,18 +87,13 @@ public class HieroAutoConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "spring.hiero", name = "mirrorNodeSupported",
             havingValue = "true", matchIfMissing = true)
-    MirrorNodeClient mirrorNodeClient(final HieroContext hieroContext, final HieroNetwork hieroNetwork) {
+    MirrorNodeClient mirrorNodeClient(final HieroContext hieroContext) {
         final String mirrorNodeEndpoint;
-        if (Objects.equals(hieroNetwork, HieroNetwork.CUSTOM)) {
-            final List<String> mirrorNetwork = hieroContext.getClient().getMirrorNetwork();
-            if (mirrorNetwork.isEmpty()) {
-                throw new IllegalArgumentException("Mirror node endpoint must be set");
-            }
-            mirrorNodeEndpoint = mirrorNetwork.get(0);
-        } else {
-            mirrorNodeEndpoint = hieroNetwork.getMirrornodeEndpoint();
+        final List<String> mirrorNetwork = hieroContext.getClient().getMirrorNetwork();
+        if (mirrorNetwork.isEmpty()) {
+            throw new IllegalArgumentException("Mirror node endpoint must be set");
         }
-
+        mirrorNodeEndpoint = mirrorNetwork.get(0);
         final String baseUri;
         try {
             URL url = new URI(mirrorNodeEndpoint).toURL();
@@ -159,6 +147,6 @@ public class HieroAutoConfiguration {
 
     @Bean
     ContractVerificationClient contractVerificationClient(final HieroConfig hieroConfig) {
-        return new ContractVerificationClientImplementation(hieroConfig.getNetwork());
+        return new ContractVerificationClientImplementation(hieroConfig);
     }
 }

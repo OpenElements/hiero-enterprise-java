@@ -41,6 +41,6 @@ jobs:
           spring_profiles_active: solo
           HEDERA_ACCOUNT_ID: ${{ steps.solo.outputs.accountId }}
           HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
-          HEDERA_NETWORK: solo
+          HEDERA_NETWORK: hiero-solo-action
         run: ./mvnw verify
 

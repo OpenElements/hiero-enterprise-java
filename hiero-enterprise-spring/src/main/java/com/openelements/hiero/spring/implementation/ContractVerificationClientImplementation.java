@@ -5,10 +5,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedera.hashgraph.sdk.ContractId;
+import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import com.openelements.hiero.base.verification.ContractVerificationState;
-import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,25 +29,22 @@ public class ContractVerificationClientImplementation implements ContractVerific
                                  Map<String, String> files) {
     }
 
-    private final HieroNetwork hieroNetwork;
+    private final HieroConfig hieroConfig;
 
     private final ObjectMapper objectMapper;
 
     private final RestClient restClient;
 
-    public ContractVerificationClientImplementation(@NonNull final HieroNetwork hieroNetwork) {
-        this.hieroNetwork = Objects.requireNonNull(hieroNetwork, "hieroNetwork must not be null");
+    public ContractVerificationClientImplementation(@NonNull final HieroConfig hieroConfig) {
+        this.hieroConfig = Objects.requireNonNull(hieroConfig, "hieroConfig must not be null");
         objectMapper = new ObjectMapper();
         restClient = RestClient.create();
     }
 
     @NonNull
     private String getChainId() throws HieroException {
-        if (hieroNetwork == HieroNetwork.CUSTOM) {
-            throw new HieroException(
-                    "A custom Hiero network is not supported for smart contract verification. Please use Hedera MainNet, Hedera TestNet or Hedera PreviewNet.");
-        }
-        return hieroNetwork.getChainId() + "";
+        return hieroConfig.chainId().map(id -> Long.toString(id))
+                .orElseThrow(() -> new HieroException("Chain ID is not set"));
     }
 
     private void handleError(@NonNull final HttpRequest request, @NonNull final ClientHttpResponse response)
@@ -156,6 +153,10 @@ public class ContractVerificationClientImplementation implements ContractVerific
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                         handleError(request, response);
+                    }).onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                        throw new RuntimeException(
+                                "Server error (" + response.getStatusCode() + ") for request '" + request.getURI()
+                                        + "'");
                     }).body(String.class);
 
             final JsonNode rootNode = objectMapper.readTree(resultBody);

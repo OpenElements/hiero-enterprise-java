@@ -4,12 +4,11 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.HieroConfig;
+import com.openelements.hiero.base.config.NetworkSettings;
 import com.openelements.hiero.base.data.Account;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import com.openelements.hiero.microprofile.HieroNetworkConfiguration;
 import com.openelements.hiero.microprofile.HieroOperatorConfiguration;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -25,11 +24,13 @@ public class HieroConfigImpl implements HieroConfig {
 
     private final String networkName;
 
-    private final List<String> mirrorNodeAddresses;
+    private final Set<String> mirrorNodeAddresses;
 
     private final Set<ConsensusNode> consensusNodes;
 
-    private final HieroNetwork hieroNetwork;
+    private final Long chainId;
+
+    private final String relayUrl;
 
     public HieroConfigImpl(@NonNull final HieroOperatorConfiguration configuration,
             @NonNull final HieroNetworkConfiguration networkConfiguration) {
@@ -39,11 +40,24 @@ public class HieroConfigImpl implements HieroConfig {
         final AccountId operatorAccountId = AccountId.fromString(configuration.getAccountId());
         final PrivateKey operatorPrivateKey = PrivateKey.fromString(configuration.getPrivateKey());
         operatorAccount = Account.of(operatorAccountId, operatorPrivateKey);
-        networkName = networkConfiguration.getName().orElse(null);
-        mirrorNodeAddresses = networkConfiguration.getMirrornode().map(List::of).orElse(List.of());
-        consensusNodes = Collections.unmodifiableSet(networkConfiguration.getNodes());
-        hieroNetwork = HieroNetwork.findByName(networkName)
-                .orElse(HieroNetwork.CUSTOM);
+
+        final Optional<NetworkSettings> networkSettings = networkConfiguration.getName()
+                .map(name -> NetworkSettings.forIdentifier(name))
+                .map(settings -> settings.orElse(null));
+        if (networkSettings.isPresent()) {
+            final NetworkSettings settings = networkSettings.get();
+            networkName = settings.getNetworkName().orElse(networkConfiguration.getName().orElse(null));
+            mirrorNodeAddresses = Collections.unmodifiableSet(settings.getMirrorNodeAddresses());
+            consensusNodes = Collections.unmodifiableSet(settings.getConsensusNodes());
+            chainId = settings.chainId().orElse(null);
+            relayUrl = settings.relayUrl().orElse(null);
+        } else {
+            networkName = networkConfiguration.getName().orElse(null);
+            mirrorNodeAddresses = networkConfiguration.getMirrornode().map(Set::of).orElse(Set.of());
+            consensusNodes = Collections.unmodifiableSet(networkConfiguration.getNodes());
+            chainId = null;
+            relayUrl = null;
+        }
     }
 
     @Override
@@ -57,7 +71,7 @@ public class HieroConfigImpl implements HieroConfig {
     }
 
     @Override
-    public @NonNull List<String> getMirrorNodeAddresses() {
+    public @NonNull Set<String> getMirrorNodeAddresses() {
         return mirrorNodeAddresses;
     }
 
@@ -67,7 +81,12 @@ public class HieroConfigImpl implements HieroConfig {
     }
 
     @Override
-    public @NonNull HieroNetwork getNetwork() {
-        return hieroNetwork;
+    public @NonNull Optional<Long> chainId() {
+        return Optional.empty();
+    }
+
+    @Override
+    public @NonNull Optional<String> relayUrl() {
+        return Optional.empty();
     }
 }

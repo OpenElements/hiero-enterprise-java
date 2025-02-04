@@ -4,7 +4,6 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.data.Account;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public interface HieroConfig {
      * @return the mirror node addresses
      */
     @NonNull
-    List<String> getMirrorNodeAddresses();
+    Set<String> getMirrorNodeAddresses();
 
     /**
      * Returns the consensus nodes.
@@ -53,13 +52,11 @@ public interface HieroConfig {
     @NonNull
     Set<ConsensusNode> getConsensusNodes();
 
-    /**
-     * Returns the network.
-     *
-     * @return
-     */
     @NonNull
-    HieroNetwork getNetwork();
+    Optional<Long> chainId();
+
+    @NonNull
+    Optional<String> relayUrl();
 
     /**
      * Creates a Hiero context. Calling this method multiple times will return a new instance each time.
@@ -90,31 +87,16 @@ public interface HieroConfig {
      */
     @NonNull
     default Client createClient() {
-        final HieroNetwork hieroNetwork = getNetwork();
-        if (hieroNetwork != HieroNetwork.CUSTOM) {
-            try {
-                log.debug("Hiero network '{}' will be used", hieroNetwork.getName());
-
-                //TODO: Hack since the Client is still Hedera specific and not migrated to Hiero
-                Client client = Client.forName(hieroNetwork.getName().substring("hedera-".length()));
-                client.setOperator(getOperatorAccount().accountId(), getOperatorAccount().privateKey());
-                return client;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Can not create client for network " + hieroNetwork.getName(),
-                        e);
-            }
-        } else {
-            try {
-                final Map<String, AccountId> nodes = getConsensusNodes().stream()
-                        .collect(Collectors.toMap(n -> n.getAddress(), n -> n.getAccountId()));
-                final Client client = Client.forNetwork(nodes);
-                client.setMirrorNetwork(getMirrorNodeAddresses());
-                client.setOperator(getOperatorAccount().accountId(), getOperatorAccount().privateKey());
-                return client;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Can not create client for custom network", e);
-            }
+        try {
+            final Map<String, AccountId> nodes = getConsensusNodes().stream()
+                    .collect(Collectors.toMap(n -> n.getAddress(), n -> n.getAccountId()));
+            final Client client = Client.forNetwork(nodes);
+            final List<String> mirrorNodeAddresses = getMirrorNodeAddresses().stream().collect(Collectors.toList());
+            client.setMirrorNetwork(mirrorNodeAddresses);
+            client.setOperator(getOperatorAccount().accountId(), getOperatorAccount().privateKey());
+            return client;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Can not create client for custom network", e);
         }
     }
-
 }

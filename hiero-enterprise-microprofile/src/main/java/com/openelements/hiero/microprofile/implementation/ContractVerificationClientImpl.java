@@ -1,10 +1,10 @@
 package com.openelements.hiero.microprofile.implementation;
 
 import com.hedera.hashgraph.sdk.ContractId;
+import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import com.openelements.hiero.base.verification.ContractVerificationState;
-import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.implementation.HieroNetwork;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -25,24 +25,21 @@ public class ContractVerificationClientImpl implements ContractVerificationClien
 
     private static final String CONTRACT_VERIFICATION_URL = "https://server-verify.hashscan.io";
 
-    private final HieroNetwork hieroNetwork;
+    private final HieroConfig hieroConfig;
 
     private final JsonParserFactory jsonParserFactory;
 
     private final Client webClient;
 
-    public ContractVerificationClientImpl(@NonNull final HieroNetwork hieroNetwork) {
-        this.hieroNetwork = Objects.requireNonNull(hieroNetwork, "hieroNetwork must not be null");
+    public ContractVerificationClientImpl(@NonNull final HieroConfig hieroConfig) {
+        this.hieroConfig = Objects.requireNonNull(hieroConfig, "hieroConfig must not be null");
         jsonParserFactory = Json.createParserFactory(Map.of());
         webClient = ClientBuilder.newBuilder().build();
     }
 
     private String getChainId() throws HieroException {
-        if (hieroNetwork == HieroNetwork.CUSTOM) {
-            throw new HieroException(
-                    "A custom Hiero network is not supported for smart contract verification. Please use Hedera MainNet, Hedera TestNet or Hedera PreviewNet.");
-        }
-        return hieroNetwork.getChainId() + "";
+        return hieroConfig.chainId().map(id -> Long.toString(id))
+                .orElseThrow(() -> new HieroException("Chain ID is not set"));
     }
 
     @NonNull

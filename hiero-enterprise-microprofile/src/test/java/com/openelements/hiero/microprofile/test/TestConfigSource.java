@@ -3,7 +3,6 @@ package com.openelements.hiero.microprofile.test;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.slf4j.Logger;
@@ -39,12 +38,6 @@ public class TestConfigSource implements ConfigSource {
             properties.put("hiero.network.name", hieroNetwork);
         } else {
             properties.put("hiero.network.name", Dotenv.load().get("hiero.network.name"));
-        }
-
-        //TODO: Hardcoded for Solo tests,should be fixed later
-        if (Objects.equals(properties.get("hiero.network.name"), "solo")) {
-            properties.put("hiero.network.nodes", "127.0.0.1:50211:0.0.3");
-            properties.put("hiero.network.mirrornode", "http://localhost:8080");
         }
 
         properties.forEach((k, v) -> log.info("CONFIG: '" + k + "'->'" + v + "'"));
