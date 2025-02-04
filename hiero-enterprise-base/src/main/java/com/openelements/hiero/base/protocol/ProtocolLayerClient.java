@@ -66,7 +66,8 @@ public interface ProtocolLayerClient {
      * @return the result of the file update transaction
      * @throws HieroException if the transaction could not be executed
      */
-    FileUpdateResult executeFileUpdateRequestTransaction(FileUpdateRequest request) throws HieroException;
+    @NonNull
+    FileUpdateResult executeFileUpdateRequestTransaction(@NonNull FileUpdateRequest request) throws HieroException;
 
     /**
      * Execute a file info query.
@@ -214,7 +215,15 @@ public interface ProtocolLayerClient {
     TopicSubmitMessageResult executeTopicMessageSubmitTransaction(@NonNull TopicSubmitMessageRequest request)
             throws HieroException;
 
-    TopicMessageResult executeTopicMessageQuery(TopicMessageRequest request) throws HieroException;
+    /**
+     * Executes a topic message query.
+     *
+     * @param request the request containing the details of the topic message query
+     * @return the result of the topic message query
+     * @throws HieroException if the query could not be executed
+     */
+    @NonNull
+    TopicMessageResult executeTopicMessageQuery(@NonNull TopicMessageRequest request) throws HieroException;
 
 
     /**
@@ -227,5 +236,11 @@ public interface ProtocolLayerClient {
     @NonNull
     Runnable addTransactionListener(@NonNull TransactionListener listener);
 
+    /**
+     * Returns the account ID of the operator account.
+     *
+     * @return the account ID of the operator account
+     */
+    @NonNull
     AccountId getOperatorAccountId();
 }

@@ -22,6 +22,15 @@ public interface FileClient {
     @NonNull
     FileId createFile(@NonNull byte[] contents) throws HieroException;
 
+    /**
+     * Create a new file with the given contents and expiration time.
+     *
+     * @param contents       the contents of the file
+     * @param expirationTime the expiration time of the file
+     * @return the ID of the new file
+     * @throws HieroException if the file could not be created
+     */
+    @NonNull
     FileId createFile(@NonNull byte[] contents, @NonNull Instant expirationTime) throws HieroException;
 
     /**
@@ -108,5 +117,6 @@ public interface FileClient {
      * @return the expiration time of the file
      * @throws HieroException if the file could not be checked
      */
+    @NonNull
     Instant getExpirationTime(@NonNull FileId fileId) throws HieroException;
 }

@@ -11,6 +11,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Loads network settings from all available {@link NetworkSettingsProvider} implementations by using Java SPI.
+ */
 public final class NetworkSettingsProviderLoader {
 
     private final static Logger logger = LoggerFactory.getLogger(NetworkSettingsProviderLoader.class);
@@ -41,15 +44,31 @@ public final class NetworkSettingsProviderLoader {
         this.settings = Collections.unmodifiableSet(loaded);
     }
 
+    /**
+     * Returns all loaded network settings.
+     *
+     * @return all loaded network settings
+     */
     public Set<NetworkSettings> all() {
         return settings;
     }
 
+    /**
+     * Returns the network settings for the given identifier.
+     *
+     * @param identifier the network identifier
+     * @return the network settings for the given identifier
+     */
     public Optional<NetworkSettings> forIdentifier(String identifier) {
         return all().stream().filter(settings -> Objects.equals(settings.getNetworkIdentifier(), identifier))
                 .findFirst();
     }
 
+    /**
+     * Returns the singleton instance of this class.
+     *
+     * @return the singleton instance of this class
+     */
     public static NetworkSettingsProviderLoader getInstance() {
         return instance;
     }

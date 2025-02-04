@@ -1,6 +1,7 @@
 package com.openelements.hiero.base.config;
 
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
 
 /**
  * SPI interface to provide predefined {@link NetworkSettings} instances. Java SPI functionality is documented at
@@ -13,6 +14,7 @@ public interface NetworkSettingsProvider {
      *
      * @return the name of the provider
      */
+    @NonNull
     String getName();
 
     /**
@@ -20,5 +22,6 @@ public interface NetworkSettingsProvider {
      *
      * @return a set of {@link NetworkSettings} instances
      */
+    @NonNull
     Set<NetworkSettings> createNetworkSettings();
 }

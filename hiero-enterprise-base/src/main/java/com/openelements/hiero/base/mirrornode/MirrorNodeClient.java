@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.AccountInfo;
+import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
@@ -11,10 +12,9 @@ import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.Page;
-import com.openelements.hiero.base.data.TransactionInfo;
-import com.openelements.hiero.base.data.TokenInfo;
-import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.TokenInfo;
+import com.openelements.hiero.base.data.TransactionInfo;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -247,6 +247,7 @@ public interface MirrorNodeClient {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
+    @NonNull
     Page<Token> queryTokensForAccount(@NonNull AccountId accountId) throws HieroException;
 
     /**
@@ -256,6 +257,7 @@ public interface MirrorNodeClient {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
+    @NonNull
     default Page<Token> queryTokensForAccount(@NonNull String accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         return queryTokensForAccount(AccountId.fromString(accountId));
@@ -310,34 +312,36 @@ public interface MirrorNodeClient {
     /**
      * Return Balance Info for given tokenID and accountId.
      *
-     * @param tokenId id of the token
+     * @param tokenId   id of the token
      * @param accountId id of the account
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
     @NonNull
-    Page<Balance> queryTokenBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId) throws HieroException;
+    Page<Balance> queryTokenBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId)
+            throws HieroException;
 
     /**
      * Return Balance Info for given tokenID and accountId.
      *
-     * @param tokenId id of the token
+     * @param tokenId   id of the token
      * @param accountId id of the account
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
     @NonNull
-    default Page<Balance> queryTokenBalancesForAccount(@NonNull String tokenId, @NonNull String accountId) throws HieroException {
+    default Page<Balance> queryTokenBalancesForAccount(@NonNull String tokenId, @NonNull String accountId)
+            throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         Objects.requireNonNull(accountId, "accountId must not be null");
         return queryTokenBalancesForAccount(TokenId.fromString(tokenId), AccountId.fromString(accountId));
     }
 
     @NonNull
-    Optional<NftMetadata> getNftMetadata(TokenId tokenId) throws HieroException;
+    Optional<NftMetadata> getNftMetadata(@NonNull TokenId tokenId) throws HieroException;
 
     @NonNull
-    Page<NftMetadata> findNftTypesByOwner(AccountId ownerId);
+    Page<NftMetadata> findNftTypesByOwner(@NonNull AccountId ownerId);
 
     @NonNull
     Page<NftMetadata> findAllNftTypes();

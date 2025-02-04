@@ -15,12 +15,32 @@ import org.jspecify.annotations.NonNull;
  */
 public interface NftRepository {
 
+    /**
+     * Return all NFT types.
+     *
+     * @return first page of NFT types
+     * @throws HieroException if the search fails
+     */
+    @NonNull
     Page<NftMetadata> findAllTypes() throws HieroException;
 
-
+    /**
+     * Return all NFT types owned by the given owner.
+     *
+     * @param ownerId id of the owner account
+     * @return first page of NFT types
+     * @throws HieroException if the search fails
+     */
     @NonNull
     Page<NftMetadata> findTypesByOwner(@NonNull AccountId ownerId) throws HieroException;
 
+    /**
+     * Return all NFT types owned by the given owner.
+     *
+     * @param ownerId id of the owner account
+     * @return first page of NFT types
+     * @throws HieroException if the search fails
+     */
     @NonNull
     default Page<NftMetadata> findTypesByOwner(@NonNull String ownerId) throws HieroException {
         Objects.requireNonNull(ownerId, "ownerId must not be null");
@@ -155,14 +175,38 @@ public interface NftRepository {
         return findByOwnerAndTypeAndSerial(AccountId.fromString(owner), TokenId.fromString(tokenId), serialNumber);
     }
 
-    default Optional<NftMetadata> getNftMetadata(String tokenId) throws HieroException {
+    /**
+     * Return the NFT metadata of a given tokenId.
+     *
+     * @param tokenId id of the token type
+     * @return {@link Optional} containing the found NFT metadata or null
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    default Optional<NftMetadata> getNftMetadata(@NonNull String tokenId) throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         return getNftMetadata(TokenId.fromString(tokenId));
     }
 
-    Optional<NftMetadata> getNftMetadata(TokenId tokenId) throws HieroException;
+    /**
+     * Return the NFT metadata of a given tokenId.
+     *
+     * @param tokenId id of the token type
+     * @return {@link Optional} containing the found NFT metadata or null
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    Optional<NftMetadata> getNftMetadata(@NonNull TokenId tokenId) throws HieroException;
 
-    default Optional<NftMetadata> getNftMetadata(Nft nft) throws HieroException {
+    /**
+     * Return the NFT metadata of a given NFT.
+     *
+     * @param nft NFT instance
+     * @return {@link Optional} containing the found NFT metadata or null
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    default Optional<NftMetadata> getNftMetadata(@NonNull Nft nft) throws HieroException {
         Objects.requireNonNull(nft, "nft must not be null");
         return getNftMetadata(nft.tokenId());
     }

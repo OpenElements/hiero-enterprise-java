@@ -1,6 +1,7 @@
 package com.openelements.hiero.base.config;
 
 import com.openelements.hiero.base.config.implementation.NetworkSettingsProviderLoader;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -68,6 +69,7 @@ public interface NetworkSettings {
      *
      * @return all available network settings
      */
+    @NonNull
     static Set<NetworkSettings> all() {
         return NetworkSettingsProviderLoader.getInstance().all();
     }
@@ -78,7 +80,9 @@ public interface NetworkSettings {
      * @param identifier the identifier of the network
      * @return the network settings for the given identifier
      */
-    static Optional<NetworkSettings> forIdentifier(String identifier) {
+    @NonNull
+    static Optional<NetworkSettings> forIdentifier(@NonNull String identifier) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
         return NetworkSettingsProviderLoader.getInstance().forIdentifier(identifier);
     }
 }

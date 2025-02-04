@@ -7,10 +7,9 @@ import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
-import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Interface for interacting with a Hiero network. This interface provides methods for searching Tokens.
@@ -23,6 +22,7 @@ public interface TokenRepository {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
+    @NonNull
     Page<Token> findByAccount(@NonNull AccountId accountId) throws HieroException;
 
     /**
@@ -32,6 +32,7 @@ public interface TokenRepository {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
+    @NonNull
     default Page<Token> findByAccount(@NonNull String accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         return findByAccount(AccountId.fromString(accountId));
@@ -44,6 +45,7 @@ public interface TokenRepository {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
+    @NonNull
     Optional<TokenInfo> findById(@NonNull TokenId tokenId) throws HieroException;
 
     /**
@@ -53,9 +55,10 @@ public interface TokenRepository {
      * @return Optional of TokenInfo
      * @throws HieroException if the search fails
      */
-    default Optional<TokenInfo> findById(@NonNull String tokenId) throws HieroException{
+    @NonNull
+    default Optional<TokenInfo> findById(@NonNull String tokenId) throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
-        return  findById(TokenId.fromString(tokenId));
+        return findById(TokenId.fromString(tokenId));
     }
 
     /**
@@ -65,6 +68,7 @@ public interface TokenRepository {
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
+    @NonNull
     Page<Balance> getBalances(@NonNull TokenId tokenId) throws HieroException;
 
     /**
@@ -74,6 +78,7 @@ public interface TokenRepository {
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
+    @NonNull
     default Page<Balance> getBalances(@NonNull String tokenId) throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         return getBalances(TokenId.fromString(tokenId));
@@ -82,22 +87,25 @@ public interface TokenRepository {
     /**
      * Return Balance Info for given tokenID and accountId.
      *
-     * @param tokenId id of the token
+     * @param tokenId   id of the token
      * @param accountId id of the account
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
+    @NonNull
     Page<Balance> getBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId) throws HieroException;
 
     /**
      * Return Balance Info for given tokenID and accountId.
      *
-     * @param tokenId id of the token
+     * @param tokenId   id of the token
      * @param accountId id of the account
      * @return Page of Balance
      * @throws HieroException if the search fails
      */
-    default Page<Balance> getBalancesForAccount(@NonNull String tokenId, @NonNull String accountId) throws HieroException {
+    @NonNull
+    default Page<Balance> getBalancesForAccount(@NonNull String tokenId, @NonNull String accountId)
+            throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         Objects.requireNonNull(accountId, "accountId must not be null");
         return getBalancesForAccount(TokenId.fromString(tokenId), AccountId.fromString(accountId));

@@ -10,15 +10,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Hiero configuration for one network connection.
  */
 public interface HieroConfig {
-
-    final static Logger log = LoggerFactory.getLogger(HieroConfig.class);
 
     /**
      * Returns the operator account for the network.
@@ -52,9 +48,19 @@ public interface HieroConfig {
     @NonNull
     Set<ConsensusNode> getConsensusNodes();
 
+    /**
+     * Returns the chain ID of the network.
+     *
+     * @return the chain ID of the network
+     */
     @NonNull
     Optional<Long> chainId();
 
+    /**
+     * Returns the relay URL of the network.
+     *
+     * @return the relay URL of the network
+     */
     @NonNull
     Optional<String> relayUrl();
 
@@ -95,7 +101,7 @@ public interface HieroConfig {
             client.setMirrorNetwork(mirrorNodeAddresses);
             client.setOperator(getOperatorAccount().accountId(), getOperatorAccount().privateKey());
             return client;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException("Can not create client for custom network", e);
         }
     }
