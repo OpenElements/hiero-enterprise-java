@@ -1,5 +1,11 @@
 package com.openelements.hiero.base.test;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenId;
@@ -9,22 +15,14 @@ import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
 import com.openelements.hiero.base.protocol.data.TokenCreateResult;
-import com.openelements.hiero.base.protocol.TokenCreateRequest;
-import com.openelements.hiero.base.protocol.TokenCreateResult;
-import com.openelements.hiero.base.protocol.TokenTransferRequest;
-import com.openelements.hiero.base.protocol.TokenTransferResult;
+import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
+import com.openelements.hiero.base.protocol.data.TokenTransferResult;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 public class NftClientImplTest {
     ProtocolLayerClient protocolLayerClient;
