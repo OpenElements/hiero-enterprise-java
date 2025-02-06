@@ -313,17 +313,47 @@ public interface NftClient {
         return mintNfts(TokenId.fromString(tokenId), PrivateKey.fromString(supplyKey), metadata);
     }
 
+    /**
+     * Burn an NFT.
+     *
+     * @param tokenId      the ID of the NFT type
+     * @param serialNumber the serial number of the NFT
+     * @throws HieroException if the NFT could not be burned
+     */
     default void burnNft(@NonNull TokenId tokenId, long serialNumber) throws HieroException {
         burnNfts(tokenId, Set.of(serialNumber));
     }
 
+    /**
+     * Burn an NFT.
+     *
+     * @param tokenId      the ID of the NFT type
+     * @param serialNumber the serial number of the NFT
+     * @param supplyKey    the private key of the supply account
+     * @throws HieroException if the NFT could not be burned
+     */
     default void burnNft(@NonNull TokenId tokenId, long serialNumber, @NonNull PrivateKey supplyKey)
             throws HieroException {
         burnNfts(tokenId, Set.of(serialNumber), supplyKey);
     }
 
+    /**
+     * Burn NFTs.
+     *
+     * @param tokenId       the ID of the NFT type
+     * @param serialNumbers the serial numbers of the NFTs
+     * @throws HieroException if the NFTs could not be burned
+     */
     void burnNfts(@NonNull TokenId tokenId, @NonNull Set<Long> serialNumbers) throws HieroException;
 
+    /**
+     * Burn NFTs.
+     *
+     * @param tokenId       the ID of the NFT type
+     * @param serialNumbers the serial numbers of the NFTs
+     * @param supplyKey     the private key of the supply account
+     * @throws HieroException
+     */
     void burnNfts(@NonNull TokenId tokenId, @NonNull Set<Long> serialNumbers, @NonNull PrivateKey supplyKey)
             throws HieroException;
 

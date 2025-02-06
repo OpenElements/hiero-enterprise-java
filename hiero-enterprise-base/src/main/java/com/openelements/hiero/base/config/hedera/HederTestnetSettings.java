@@ -6,8 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * Network settings for the Hedera Testnet.
+ */
 public final class HederTestnetSettings implements NetworkSettings {
 
+    /**
+     * The network identifier.
+     */
     public static final String NETWORK_IDENTIFIER = "hedera-testnet";
 
     @Override

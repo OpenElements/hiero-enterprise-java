@@ -7,6 +7,7 @@ import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Interface for interacting with a Hiero network. This interface provides methods to get information related to
@@ -19,6 +20,7 @@ public interface NetworkRepository {
      * @return {@link Optional} containing the ExchangeRates or null
      * @throws HieroException if the search fails
      */
+    @NonNull
     Optional<ExchangeRates> exchangeRates() throws HieroException;
 
     /**
@@ -27,6 +29,7 @@ public interface NetworkRepository {
      * @return {@link List} containing NetworkFee or empty list
      * @throws HieroException if the search fails
      */
+    @NonNull
     List<NetworkFee> fees() throws HieroException;
 
     /**
@@ -35,6 +38,7 @@ public interface NetworkRepository {
      * @return {@link Optional} containing NetworkStake or null
      * @throws HieroException if the search fails
      */
+    @NonNull
     Optional<NetworkStake> stake() throws HieroException;
 
     /**
@@ -43,5 +47,6 @@ public interface NetworkRepository {
      * @return {@link Optional} containing NetworkSupplies or null
      * @throws HieroException if the search fails
      */
+    @NonNull
     Optional<NetworkSupplies> supplies() throws HieroException;
 }

@@ -18,6 +18,7 @@ public interface AccountRepository {
      * @return {@link Optional} containing the found AccountInfo or null
      * @throws HieroException if the search fails
      */
+    @NonNull
     Optional<AccountInfo> findById(@NonNull AccountId accountId) throws HieroException;
 
     /**
@@ -27,6 +28,7 @@ public interface AccountRepository {
      * @return {@link Optional} containing the found AccountInfo or null
      * @throws HieroException if the search fails
      */
+    @NonNull
     default Optional<AccountInfo> findById(@NonNull String accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         return findById(AccountId.fromString(accountId));

@@ -23,6 +23,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     TokenId createToken(@NonNull String name, @NonNull String symbol) throws HieroException;
 
     /**
@@ -34,6 +35,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull PrivateKey supplyKey)
             throws HieroException;
 
@@ -47,6 +49,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull String supplyKey)
             throws HieroException {
         Objects.requireNonNull(name, "name must not be null");
@@ -66,6 +69,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull AccountId treasuryAccountId,
             @NonNull PrivateKey treasuryKey) throws HieroException;
 
@@ -80,6 +84,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull String treasuryAccountId,
             @NonNull String treasuryKey) throws HieroException {
         Objects.requireNonNull(name, "name must not be null");
@@ -99,6 +104,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull Account treasuryAccount)
             throws HieroException {
         Objects.requireNonNull(name, "name must not be null");
@@ -118,6 +124,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull AccountId treasuryAccountId,
             @NonNull PrivateKey treasuryKey, @NonNull PrivateKey supplyKey) throws HieroException;
 
@@ -132,6 +139,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull String treasuryAccountId,
             @NonNull String treasuryKey, @NonNull String supplyKey) throws HieroException {
         Objects.requireNonNull(name, "name must not be null");
@@ -153,6 +161,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull Account treasuryAccount,
             @NonNull PrivateKey supplyKey) throws HieroException {
         Objects.requireNonNull(name, "name must not be null");
@@ -172,6 +181,7 @@ public interface FungibleTokenClient {
      * @return the ID of the new token
      * @throws HieroException if the token could not be created
      */
+    @NonNull
     default TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull Account treasuryAccount,
             @NonNull String supplyKey) throws HieroException {
         Objects.requireNonNull(name, "name must not be null");

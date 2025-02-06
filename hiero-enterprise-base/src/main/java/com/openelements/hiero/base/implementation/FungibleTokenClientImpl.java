@@ -8,6 +8,14 @@ import com.hedera.hashgraph.sdk.TokenType;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.protocol.*;
+import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
+import com.openelements.hiero.base.protocol.data.TokenBurnResult;
+import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
+import com.openelements.hiero.base.protocol.data.TokenCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenMintRequest;
+import com.openelements.hiero.base.protocol.data.TokenMintResult;
+import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
@@ -17,7 +25,8 @@ public class FungibleTokenClientImpl implements FungibleTokenClient {
 
     private final Account operationalAccount;
 
-    public FungibleTokenClientImpl(@NonNull final ProtocolLayerClient client, @NonNull final Account operationalAccount) {
+    public FungibleTokenClientImpl(@NonNull final ProtocolLayerClient client,
+            @NonNull final Account operationalAccount) {
         this.client = Objects.requireNonNull(client, "client must not be null");
         this.operationalAccount = Objects.requireNonNull(operationalAccount, "operationalAccount must not be null");
     }
@@ -36,17 +45,17 @@ public class FungibleTokenClientImpl implements FungibleTokenClient {
 
     @Override
     public TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull AccountId treasuryAccountId,
-                               @NonNull PrivateKey treasuryKey) throws HieroException {
+            @NonNull PrivateKey treasuryKey) throws HieroException {
         return createToken(name, symbol, treasuryAccountId, treasuryKey, operationalAccount.privateKey());
     }
 
     @Override
     public TokenId createToken(@NonNull String name, @NonNull String symbol, @NonNull AccountId treasuryAccountId,
-                               @NonNull PrivateKey treasuryKey, @NonNull PrivateKey supplyKey) throws HieroException {
+            @NonNull PrivateKey treasuryKey, @NonNull PrivateKey supplyKey) throws HieroException {
         final TokenCreateRequest request = TokenCreateRequest.of(name, symbol, treasuryAccountId, treasuryKey,
                 TokenType.FUNGIBLE_COMMON, supplyKey);
         final TokenCreateResult result = client.executeTokenCreateTransaction(request);
-        return  result.tokenId();
+        return result.tokenId();
     }
 
     @Override
@@ -82,14 +91,16 @@ public class FungibleTokenClientImpl implements FungibleTokenClient {
     }
 
     @Override
-    public void transferToken(@NonNull TokenId tokenId, @NonNull AccountId toAccountId, long amount) throws HieroException {
+    public void transferToken(@NonNull TokenId tokenId, @NonNull AccountId toAccountId, long amount)
+            throws HieroException {
         transferToken(tokenId, operationalAccount, toAccountId, amount);
     }
 
     @Override
     public void transferToken(@NonNull TokenId tokenId, @NonNull AccountId fromAccountId,
-                              @NonNull PrivateKey fromAccountKey, @NonNull AccountId toAccountId, long amount) throws HieroException {
-        final TokenTransferRequest request = TokenTransferRequest.of(tokenId, fromAccountId, toAccountId, fromAccountKey, amount);
+            @NonNull PrivateKey fromAccountKey, @NonNull AccountId toAccountId, long amount) throws HieroException {
+        final TokenTransferRequest request = TokenTransferRequest.of(tokenId, fromAccountId, toAccountId,
+                fromAccountKey, amount);
         client.executeTransferTransaction(request);
     }
 }

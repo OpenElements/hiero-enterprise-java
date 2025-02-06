@@ -3,16 +3,16 @@ package com.openelements.hiero.base.test;
 import com.hedera.hashgraph.sdk.FileId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.implementation.FileClientImpl;
-import com.openelements.hiero.base.protocol.FileCreateResult;
-import com.openelements.hiero.base.protocol.FileCreateRequest;
-import com.openelements.hiero.base.protocol.FileUpdateResult;
-import com.openelements.hiero.base.protocol.FileUpdateRequest;
-import com.openelements.hiero.base.protocol.FileAppendRequest;
-import com.openelements.hiero.base.protocol.FileAppendResult;
-import com.openelements.hiero.base.protocol.FileInfoRequest;
-import com.openelements.hiero.base.protocol.FileInfoResponse;
-import com.openelements.hiero.base.protocol.FileContentsRequest;
-import com.openelements.hiero.base.protocol.FileContentsResponse;
+import com.openelements.hiero.base.protocol.data.FileCreateResult;
+import com.openelements.hiero.base.protocol.data.FileCreateRequest;
+import com.openelements.hiero.base.protocol.data.FileUpdateResult;
+import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
+import com.openelements.hiero.base.protocol.data.FileAppendRequest;
+import com.openelements.hiero.base.protocol.data.FileAppendResult;
+import com.openelements.hiero.base.protocol.data.FileInfoRequest;
+import com.openelements.hiero.base.protocol.data.FileInfoResponse;
+import com.openelements.hiero.base.protocol.data.FileContentsRequest;
+import com.openelements.hiero.base.protocol.data.FileContentsResponse;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +113,7 @@ public class FileClientImplTest {
         final Instant expiration = Instant.now().minusSeconds(1);
 
         // then
-        final IllegalArgumentException exception =Assertions.assertThrows(
+        final IllegalArgumentException exception = Assertions.assertThrows(
                 IllegalArgumentException.class, () -> fileClientImpl.createFile(contents, expiration)
         );
         Assertions.assertTrue(exception.getMessage().contains(message));

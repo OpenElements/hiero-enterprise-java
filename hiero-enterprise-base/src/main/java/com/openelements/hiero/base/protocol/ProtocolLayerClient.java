@@ -2,6 +2,48 @@ package com.openelements.hiero.base.protocol;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
+import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountCreateResult;
+import com.openelements.hiero.base.protocol.data.AccountDeleteRequest;
+import com.openelements.hiero.base.protocol.data.AccountDeleteResult;
+import com.openelements.hiero.base.protocol.data.ContractCallRequest;
+import com.openelements.hiero.base.protocol.data.ContractCallResult;
+import com.openelements.hiero.base.protocol.data.ContractCreateRequest;
+import com.openelements.hiero.base.protocol.data.ContractCreateResult;
+import com.openelements.hiero.base.protocol.data.ContractDeleteRequest;
+import com.openelements.hiero.base.protocol.data.ContractDeleteResult;
+import com.openelements.hiero.base.protocol.data.FileAppendRequest;
+import com.openelements.hiero.base.protocol.data.FileAppendResult;
+import com.openelements.hiero.base.protocol.data.FileContentsRequest;
+import com.openelements.hiero.base.protocol.data.FileContentsResponse;
+import com.openelements.hiero.base.protocol.data.FileCreateRequest;
+import com.openelements.hiero.base.protocol.data.FileCreateResult;
+import com.openelements.hiero.base.protocol.data.FileDeleteRequest;
+import com.openelements.hiero.base.protocol.data.FileDeleteResult;
+import com.openelements.hiero.base.protocol.data.FileInfoRequest;
+import com.openelements.hiero.base.protocol.data.FileInfoResponse;
+import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
+import com.openelements.hiero.base.protocol.data.FileUpdateResult;
+import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
+import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
+import com.openelements.hiero.base.protocol.data.TokenBurnResult;
+import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
+import com.openelements.hiero.base.protocol.data.TokenCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenMintRequest;
+import com.openelements.hiero.base.protocol.data.TokenMintResult;
+import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
+import com.openelements.hiero.base.protocol.data.TokenTransferResult;
+import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
+import com.openelements.hiero.base.protocol.data.TopicCreateResult;
+import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
+import com.openelements.hiero.base.protocol.data.TopicDeleteResult;
+import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
+import com.openelements.hiero.base.protocol.data.TopicMessageResult;
+import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
+import com.openelements.hiero.base.protocol.data.TopicSubmitMessageResult;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -66,7 +108,8 @@ public interface ProtocolLayerClient {
      * @return the result of the file update transaction
      * @throws HieroException if the transaction could not be executed
      */
-    FileUpdateResult executeFileUpdateRequestTransaction(FileUpdateRequest request) throws HieroException;
+    @NonNull
+    FileUpdateResult executeFileUpdateRequestTransaction(@NonNull FileUpdateRequest request) throws HieroException;
 
     /**
      * Execute a file info query.
@@ -214,7 +257,15 @@ public interface ProtocolLayerClient {
     TopicSubmitMessageResult executeTopicMessageSubmitTransaction(@NonNull TopicSubmitMessageRequest request)
             throws HieroException;
 
-    TopicMessageResult executeTopicMessageQuery(TopicMessageRequest request) throws HieroException;
+    /**
+     * Executes a topic message query.
+     *
+     * @param request the request containing the details of the topic message query
+     * @return the result of the topic message query
+     * @throws HieroException if the query could not be executed
+     */
+    @NonNull
+    TopicMessageResult executeTopicMessageQuery(@NonNull TopicMessageRequest request) throws HieroException;
 
 
     /**
@@ -227,5 +278,11 @@ public interface ProtocolLayerClient {
     @NonNull
     Runnable addTransactionListener(@NonNull TransactionListener listener);
 
+    /**
+     * Returns the account ID of the operator account.
+     *
+     * @return the account ID of the operator account
+     */
+    @NonNull
     AccountId getOperatorAccountId();
 }
