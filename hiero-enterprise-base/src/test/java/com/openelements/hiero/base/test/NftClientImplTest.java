@@ -13,11 +13,14 @@ import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
+import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
+import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
 import com.openelements.hiero.base.protocol.data.TokenCreateResult;
 import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import com.openelements.hiero.base.protocol.data.TokenTransferResult;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,7 @@ public class NftClientImplTest {
 
     ArgumentCaptor<TokenCreateRequest> tokenRequestCaptor = ArgumentCaptor.forClass(TokenCreateRequest.class);
     ArgumentCaptor<TokenTransferRequest> tokenTransferCaptor = ArgumentCaptor.forClass(TokenTransferRequest.class);
+    ArgumentCaptor<TokenBurnRequest> tokenBurnCaptor = ArgumentCaptor.forClass(TokenBurnRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -312,5 +316,128 @@ public class NftClientImplTest {
         Assertions.assertThrows(NullPointerException.class,
                 () -> nftClientImpl.transferNfts(null, null, null,
                         null, null));
+    }
+
+    @Test
+    void testBurnNft() throws HieroException {
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+        final TokenBurnResult tokenBurnRequest = Mockito.mock(TokenBurnResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final long serials  = 1L;
+
+        when(operationalAccount.privateKey()).thenReturn(privateKey);
+        when(protocolLayerClient.executeBurnTokenTransaction(any(TokenBurnRequest.class)))
+                .thenReturn(tokenBurnRequest);
+
+        nftClientImpl.burnNft(tokenId, serials);
+
+        verify(operationalAccount, times(1)).privateKey();
+        verify(protocolLayerClient, times(1))
+                .executeBurnTokenTransaction(tokenBurnCaptor.capture());
+
+        final TokenBurnRequest request = tokenBurnCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(Set.of(serials), request.serials());
+        Assertions.assertEquals(privateKey, request.supplyKey());
+    }
+
+    @Test
+    void testBurnNftWithSupplyKey() throws HieroException {
+        final TokenBurnResult tokenBurnRequest = Mockito.mock(TokenBurnResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final long serials  = 1L;
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeBurnTokenTransaction(any(TokenBurnRequest.class)))
+                .thenReturn(tokenBurnRequest);
+
+        nftClientImpl.burnNft(tokenId, serials, privateKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeBurnTokenTransaction(tokenBurnCaptor.capture());
+
+        final TokenBurnRequest request = tokenBurnCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(Set.of(serials), request.serials());
+        Assertions.assertEquals(privateKey, request.supplyKey());
+    }
+
+    @Test
+    void testBurnNfts() throws HieroException {
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+        final TokenBurnResult tokenBurnRequest = Mockito.mock(TokenBurnResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Set<Long> serials  = Set.of(1L);
+
+        when(operationalAccount.privateKey()).thenReturn(privateKey);
+        when(protocolLayerClient.executeBurnTokenTransaction(any(TokenBurnRequest.class)))
+                .thenReturn(tokenBurnRequest);
+
+        nftClientImpl.burnNfts(tokenId, serials);
+
+        verify(operationalAccount, times(1)).privateKey();
+        verify(protocolLayerClient, times(1))
+                .executeBurnTokenTransaction(tokenBurnCaptor.capture());
+
+        final TokenBurnRequest request = tokenBurnCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(serials, request.serials());
+        Assertions.assertEquals(privateKey, request.supplyKey());
+    }
+
+    @Test
+    void testBurnNftsWithSupplyKey() throws HieroException {
+        final TokenBurnResult tokenBurnRequest = Mockito.mock(TokenBurnResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Set<Long> serials  = Set.of(1L);
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeBurnTokenTransaction(any(TokenBurnRequest.class)))
+                .thenReturn(tokenBurnRequest);
+
+        nftClientImpl.burnNfts(tokenId, serials, privateKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeBurnTokenTransaction(tokenBurnCaptor.capture());
+
+        final TokenBurnRequest request = tokenBurnCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(serials, request.serials());
+        Assertions.assertEquals(privateKey, request.supplyKey());
+    }
+
+    @Test
+    void testBurnNftThrowsExceptionForInvalidTokenId() throws HieroException {
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final long serials  = 1L;
+
+        when(operationalAccount.privateKey()).thenReturn(privateKey);
+        when(protocolLayerClient.executeBurnTokenTransaction(any(TokenBurnRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenBurnTransaction"));
+
+        Assertions.assertThrows(HieroException.class , () -> nftClientImpl.burnNft(tokenId, serials));
+        Assertions.assertThrows(HieroException.class , () -> nftClientImpl.burnNft(tokenId, serials, privateKey));
+        Assertions.assertThrows(HieroException.class , () -> nftClientImpl.burnNfts(tokenId, Set.of(serials)));
+        Assertions.assertThrows(HieroException.class , () -> nftClientImpl.burnNfts(tokenId, Set.of(serials), privateKey));
+    }
+
+    @Test
+    void testBurnNftNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.burnNft(null, 0));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.burnNft(null, 0, null));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.burnNfts(null, null));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.burnNfts(null, null, null));
     }
 }
