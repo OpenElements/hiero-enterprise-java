@@ -10,7 +10,7 @@ public class HieroOperatorConfiguration {
     private String accountId;
 
     private String privateKey;
-
+    
     public String getAccountId() {
         return accountId;
     }

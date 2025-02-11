@@ -7,6 +7,7 @@ import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.data.Account;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class HieroTestContext implements HieroContext {
                     throw new IllegalStateException("Error setting mirror network", e);
                 }
                 client.setOperator(accountId, privateKey);
+                client.setRequestTimeout(Duration.ofSeconds(3));
             }
         } else {
             final Dotenv dotenv = Dotenv.load();

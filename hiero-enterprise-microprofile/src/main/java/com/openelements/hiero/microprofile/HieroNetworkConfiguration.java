@@ -14,6 +14,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Dependent
 public class HieroNetworkConfiguration {
 
+    @ConfigProperty(name = "name")
     private Optional<String> name;
 
     @Inject
@@ -22,6 +23,12 @@ public class HieroNetworkConfiguration {
 
     @ConfigProperty(name = "mirrornode")
     private Optional<String> mirrornode;
+
+    private Optional<Long> requestTimeoutInMs;
+
+    public Optional<Long> getRequestTimeoutInMs() {
+        return requestTimeoutInMs;
+    }
 
     public Optional<String> getName() {
         return name;

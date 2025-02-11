@@ -6,6 +6,7 @@ import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.config.NetworkSettings;
 import com.openelements.hiero.base.data.Account;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,8 @@ public class HieroConfigImpl implements HieroConfig {
 
     private final String relayUrl;
 
+    private final Duration requestTimeout;
+
     public HieroConfigImpl(@NonNull final HieroProperties properties) {
         Objects.requireNonNull(properties, "properties must not be null");
 
@@ -38,6 +41,8 @@ public class HieroConfigImpl implements HieroConfig {
         final PrivateKey operatorPrivateKey = parsePrivateKey(properties.getPrivateKey());
 
         operatorAccount = Account.of(operatorAccountId, operatorPrivateKey);
+        requestTimeout = Optional.ofNullable(properties.getNetwork().getRequestTimeoutInMs())
+                .map(timeout -> Duration.ofMillis(timeout)).orElse(null);
 
         final Optional<NetworkSettings> networkSettings = NetworkSettings.forIdentifier(
                 properties.getNetwork().getName());
@@ -114,5 +119,10 @@ public class HieroConfigImpl implements HieroConfig {
     @Override
     public @NonNull Optional<String> relayUrl() {
         return Optional.ofNullable(relayUrl);
+    }
+
+    @Override
+    public Optional<Duration> getRequestTimeout() {
+        return Optional.ofNullable(requestTimeout);
     }
 }

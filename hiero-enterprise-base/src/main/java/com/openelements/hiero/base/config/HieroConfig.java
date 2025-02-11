@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.data.Account;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,6 +65,10 @@ public interface HieroConfig {
     @NonNull
     Optional<String> relayUrl();
 
+    default Optional<Duration> getRequestTimeout() {
+        return Optional.empty();
+    }
+
     /**
      * Creates a Hiero context. Calling this method multiple times will return a new instance each time.
      *
@@ -100,6 +105,7 @@ public interface HieroConfig {
             final List<String> mirrorNodeAddresses = getMirrorNodeAddresses().stream().collect(Collectors.toList());
             client.setMirrorNetwork(mirrorNodeAddresses);
             client.setOperator(getOperatorAccount().accountId(), getOperatorAccount().privateKey());
+            getRequestTimeout().ifPresent(client::setRequestTimeout);
             return client;
         } catch (final Exception e) {
             throw new IllegalArgumentException("Can not create client for custom network", e);

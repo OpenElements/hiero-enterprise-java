@@ -25,6 +25,8 @@ public class HieroNetworkProperties {
      */
     private String mirrorNode;
 
+    private Long requestTimeoutInMs;
+
     public String getName() {
         return name;
     }
@@ -47,5 +49,13 @@ public class HieroNetworkProperties {
 
     public void setNodes(List<HieroNode> nodes) {
         this.nodes = nodes;
+    }
+
+    public Long getRequestTimeoutInMs() {
+        return requestTimeoutInMs;
+    }
+
+    public void setRequestTimeoutInMs(Long requestTimeoutInMs) {
+        this.requestTimeoutInMs = requestTimeoutInMs;
     }
 }
