@@ -9,6 +9,7 @@ import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.NftClient;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,5 +153,75 @@ public class NftClientTests {
         Assertions.assertDoesNotThrow(() -> {
             nftClient.transferNft(tokenId, serial, treasuryAccount, userAccount.accountId());
         });
+    }
+
+    @Test
+    void burnNft() throws HieroException {
+        final String name = "Test NFT";
+        final String symbol = "TST";
+        final byte[] metadata1 = "https://example.com/metadata".getBytes(StandardCharsets.UTF_8);
+        final byte[] metadata2 = "https://example.com/metadata".getBytes(StandardCharsets.UTF_8);
+        final Account supplierAccount = accountClient.createAccount();
+
+        final TokenId tokenId = nftClient.createNftType(name, symbol);
+        final List<Long> serial = nftClient.mintNfts(tokenId, metadata1, metadata2);
+
+        Assertions.assertDoesNotThrow(() -> nftClient.burnNft(tokenId, serial.get(0)));
+        Assertions.assertDoesNotThrow(() -> nftClient.burnNft(tokenId, serial.get(1),supplierAccount.privateKey()));
+    }
+
+    @Test
+    void burnNfts() throws HieroException {
+        final String name = "Test NFT";
+        final String symbol = "TST";
+        final byte[] metadata1 = "https://example.com/metadata".getBytes(StandardCharsets.UTF_8);
+        final byte[] metadata2 = "https://example.com/metadata".getBytes(StandardCharsets.UTF_8);
+        final Account supplierAccount = accountClient.createAccount();
+
+        final TokenId tokenId = nftClient.createNftType(name, symbol);
+        final List<Long> serials = nftClient.mintNfts(tokenId, metadata1, metadata2);
+
+        Assertions.assertDoesNotThrow(() -> nftClient.burnNfts(tokenId, Set.of(serials.get(0))));
+        Assertions.assertDoesNotThrow(() -> nftClient.burnNfts(tokenId, Set.of(serials.get(1)),supplierAccount.privateKey()));
+    }
+
+    @Test
+    void burnNftThrowExceptionForUnMintToken() throws HieroException {
+        final String name = "Test NFT";
+        final String symbol = "TST";
+        final TokenId tokenId = nftClient.createNftType(name, symbol);
+        final Account supplierAccount = accountClient.createAccount();
+        final long serial = 1L;
+
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNft(tokenId, serial));
+        Assertions.assertThrows(HieroException.class,
+                () -> nftClient.burnNft(tokenId, serial, supplierAccount.privateKey()));
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNfts(tokenId, Set.of(serial)));
+        Assertions.assertThrows(HieroException.class,
+                () -> nftClient.burnNfts(tokenId, Set.of(serial), supplierAccount.privateKey()));
+    }
+
+    @Test
+    void burnNftThrowExceptionForInvalidId() {
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+        final long serial = 1L;
+
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNft(tokenId, serial));
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNft(tokenId, serial, privateKey));
+
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNfts(tokenId, Set.of(serial)));
+        Assertions.assertThrows(HieroException.class, () -> nftClient.burnNfts(tokenId, Set.of(serial), privateKey));
+    }
+
+    @Test
+    void burnNftNullParam() {
+        Assertions.assertThrows(NullPointerException.class, () -> nftClient.burnNft(null, 0));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClient.burnNft(null, 0, null));
+
+        Assertions.assertThrows(NullPointerException.class, () -> nftClient.burnNfts(null, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClient.burnNfts(null, null, null));
     }
 }

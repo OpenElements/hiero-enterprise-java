@@ -15,6 +15,8 @@ public class TestConfigSource implements ConfigSource {
     private final Map<String, String> properties;
 
     public TestConfigSource() {
+        final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+
         properties = new HashMap<>();
         properties.put("mp.initializer.allow", "true");
         properties.put("mp.initializer.no-warn", "true");
@@ -23,21 +25,21 @@ public class TestConfigSource implements ConfigSource {
         if (hieroAccountIdByEnv != null) {
             properties.put("hiero.accountId", hieroAccountIdByEnv);
         } else {
-            properties.put("hiero.accountId", Dotenv.load().get("hiero.accountId"));
+            properties.put("hiero.accountId", dotenv.get("hiero.accountId"));
         }
 
         final String hieroPrivateKeyByEnv = System.getenv("HEDERA_PRIVATE_KEY");
         if (hieroPrivateKeyByEnv != null) {
             properties.put("hiero.privateKey", hieroPrivateKeyByEnv);
         } else {
-            properties.put("hiero.privateKey", Dotenv.load().get("hiero.privateKey"));
+            properties.put("hiero.privateKey", dotenv.get("hiero.privateKey"));
         }
 
         final String hieroNetwork = System.getenv("HEDERA_NETWORK");
         if (hieroNetwork != null) {
             properties.put("hiero.network.name", hieroNetwork);
         } else {
-            properties.put("hiero.network.name", Dotenv.load().get("hiero.network.name"));
+            properties.put("hiero.network.name", dotenv.get("hiero.network.name"));
         }
 
         Dotenv.load().entries().stream()
