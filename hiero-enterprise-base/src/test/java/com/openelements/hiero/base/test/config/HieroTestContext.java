@@ -1,4 +1,4 @@
-package com.openelements.hiero.base.test;
+package com.openelements.hiero.base.test.config;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Client;
