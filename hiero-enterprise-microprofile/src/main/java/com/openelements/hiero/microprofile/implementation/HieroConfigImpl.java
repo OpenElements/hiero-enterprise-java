@@ -8,6 +8,7 @@ import com.openelements.hiero.base.config.NetworkSettings;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.microprofile.HieroNetworkConfiguration;
 import com.openelements.hiero.microprofile.HieroOperatorConfiguration;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public class HieroConfigImpl implements HieroConfig {
 
     private final String relayUrl;
 
+    private final Long requestTimeoutInMs;
+
     public HieroConfigImpl(@NonNull final HieroOperatorConfiguration configuration,
             @NonNull final HieroNetworkConfiguration networkConfiguration) {
         Objects.requireNonNull(configuration, "configuration must not be null");
@@ -40,7 +43,7 @@ public class HieroConfigImpl implements HieroConfig {
         final AccountId operatorAccountId = AccountId.fromString(configuration.getAccountId());
         final PrivateKey operatorPrivateKey = PrivateKey.fromString(configuration.getPrivateKey());
         operatorAccount = Account.of(operatorAccountId, operatorPrivateKey);
-
+        requestTimeoutInMs = networkConfiguration.getRequestTimeoutInMs().orElse(null);
         final Optional<NetworkSettings> networkSettings = networkConfiguration.getName()
                 .map(name -> NetworkSettings.forIdentifier(name))
                 .map(settings -> settings.orElse(null));
@@ -58,6 +61,11 @@ public class HieroConfigImpl implements HieroConfig {
             chainId = null;
             relayUrl = null;
         }
+    }
+
+    @Override
+    public Optional<Duration> getRequestTimeout() {
+        return Optional.ofNullable(requestTimeoutInMs).map(Duration::ofMillis);
     }
 
     @Override

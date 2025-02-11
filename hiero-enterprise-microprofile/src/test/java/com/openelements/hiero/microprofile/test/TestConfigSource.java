@@ -42,6 +42,12 @@ public class TestConfigSource implements ConfigSource {
             properties.put("hiero.network.name", dotenv.get("hiero.network.name"));
         }
 
+        dotenv.entries().stream()
+                .filter(e -> !e.getKey().equals("hiero.accountId"))
+                .filter(e -> !e.getKey().equals("hiero.privateKey"))
+                .filter(e -> !e.getKey().equals("hiero.network.name"))
+                .forEach(e -> properties.put(e.getKey(), e.getValue()));
+
         properties.forEach((k, v) -> log.info("CONFIG: '" + k + "'->'" + v + "'"));
     }
 

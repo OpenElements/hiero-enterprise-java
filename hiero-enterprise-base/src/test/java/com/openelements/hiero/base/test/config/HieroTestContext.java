@@ -49,7 +49,7 @@ public class HieroTestContext implements HieroContext {
         final PrivateKey privateKey = PrivateKey.fromString(hieroPrivateKeyByEnv);
         final PublicKey publicKey = privateKey.getPublicKey();
         operationalAccount = new Account(accountId, publicKey, privateKey);
-
+        
         final NetworkSettings networkSettings = NetworkSettings.forIdentifier(hieroNetwork)
                 .orElseThrow(() -> new IllegalStateException("ENV 'HEDERA_NETWORK' is set to '" + hieroNetwork
                         + "' but no network settings are available for this network."));
