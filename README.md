@@ -102,6 +102,8 @@ export HEDERA_ACCOUNT_ID=0.0.3447271
 export HEDERA_PRIVATE_KEY=2130020100312346052b8104400304220420c236508c429395a8180b1230f436d389adc5afaa9145456783b57b2045c6cc37
 ```
 
+An external sample project can be found at https://github.com/hendrikebbers/spring-hiero-sample
+
 ## Microservice support
 
 To use this module, you need to add the following dependency to your project:
@@ -118,6 +120,8 @@ The `hiero-enterprise-microprofile-sample` module contains a sample application 
 The sample application is a simple Quarkus application that reads has a REST endpoint at `localhost:8080/` and  shows
 the hbar balance of the account `0.0.100` on the Hedera testnet.
 For most of the part, the sample application is the same as the Spring Boot sample application.
+
+A sample project can be found at https://github.com/hendrikebbers/quarkus-hiero-sample
 
 ## Managed services
 
