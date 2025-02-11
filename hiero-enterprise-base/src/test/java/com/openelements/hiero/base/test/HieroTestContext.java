@@ -23,7 +23,7 @@ public class HieroTestContext implements HieroContext {
     private final Client client;
 
     public HieroTestContext() {
-        final Dotenv dotenv = Dotenv.load();
+        final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         final String hieroAccountIdByEnv = Optional.ofNullable(System.getenv("HEDERA_ACCOUNT_ID"))
                 .orElse(dotenv.get("hiero.accountId"));
