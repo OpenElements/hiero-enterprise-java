@@ -5,56 +5,67 @@ import com.hedera.hashgraph.sdk.Client;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.HieroContext;
+import com.openelements.hiero.base.config.NetworkSettings;
 import com.openelements.hiero.base.data.Account;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
 
 public class HieroTestContext implements HieroContext {
+
+    private final static Logger log = org.slf4j.LoggerFactory.getLogger(HieroTestContext.class);
 
     private final Account operationalAccount;
 
     private final Client client;
 
     public HieroTestContext() {
-        final String hieroAccountIdByEnv = System.getenv("HEDERA_ACCOUNT_ID");
-        final String hieroPrivateKeyByEnv = System.getenv("HEDERA_PRIVATE_KEY");
-        final String hieroNetwork = System.getenv("HEDERA_NETWORK");
+        final Dotenv dotenv = Dotenv.load();
 
-        if (hieroAccountIdByEnv != null && hieroPrivateKeyByEnv != null) {
-            final AccountId accountId = AccountId.fromString(hieroAccountIdByEnv);
-            final PrivateKey privateKey = PrivateKey.fromString(hieroPrivateKeyByEnv);
-            final PublicKey publicKey = privateKey.getPublicKey();
-            operationalAccount = new Account(accountId, publicKey, privateKey);
-            if (Objects.equals(hieroNetwork, "testnet")) {
-                client = Client.forTestnet();
-                client.setOperator(accountId, privateKey);
-            } else {
-                //SOLO
-                final Map<String, AccountId> nodes = new HashMap<>();
-                nodes.put("127.0.0.1:50211", AccountId.fromString("0.0.3"));
-                client = Client.forNetwork(nodes);
-                try {
-                    client.setMirrorNetwork(List.of("localhost:8080"));
-                } catch (Exception e) {
-                    throw new IllegalStateException("Error setting mirror network", e);
-                }
-                client.setOperator(accountId, privateKey);
-            }
-        } else {
-            final Dotenv dotenv = Dotenv.load();
-            final String accountIdAsString = dotenv.get("hiero.accountId");
-            final String privateKeyAsString = dotenv.get("hiero.privateKey");
-            final AccountId accountId = AccountId.fromString(accountIdAsString);
-            final PrivateKey privateKey = PrivateKey.fromString(privateKeyAsString);
-            final PublicKey publicKey = privateKey.getPublicKey();
-            operationalAccount = new Account(accountId, publicKey, privateKey);
-            client = Client.forTestnet();
-            client.setOperator(accountId, privateKey);
+        final String hieroAccountIdByEnv = Optional.ofNullable(System.getenv("HEDERA_ACCOUNT_ID"))
+                .orElse(dotenv.get("hiero.accountId"));
+        final String hieroPrivateKeyByEnv = Optional.ofNullable(System.getenv("HEDERA_PRIVATE_KEY"))
+                .orElse(dotenv.get("hiero.privateKey"));
+        final String hieroNetwork = Optional.ofNullable(System.getenv("HEDERA_NETWORK"))
+                .or(() -> Optional.ofNullable(dotenv.get("hiero.network")))
+                .orElse("hedera-testnet");
+
+        if (hieroAccountIdByEnv == null) {
+            throw new IllegalStateException(
+                    "AccountId for operator account is not set. Please set 'HEDERA_ACCOUNT_ID' or 'hiero.accountId' in .env file.");
         }
+        if (hieroPrivateKeyByEnv == null) {
+            throw new IllegalStateException(
+                    "PrivateKey for operator account is not set. Please set 'HEDERA_PRIVATE_KEY' or 'hiero.privateKey' in .env file.");
+        }
+
+        log.info("Using operator account: {}", hieroAccountIdByEnv);
+        log.info("Using network: {}", hieroNetwork);
+
+        final AccountId accountId = AccountId.fromString(hieroAccountIdByEnv);
+        final PrivateKey privateKey = PrivateKey.fromString(hieroPrivateKeyByEnv);
+        final PublicKey publicKey = privateKey.getPublicKey();
+        operationalAccount = new Account(accountId, publicKey, privateKey);
+
+        final NetworkSettings networkSettings = NetworkSettings.forIdentifier(hieroNetwork)
+                .orElseThrow(() -> new IllegalStateException("ENV 'HEDERA_NETWORK' is set to '" + hieroNetwork
+                        + "' but no network settings are available for this network."));
+
+        final Map<String, AccountId> nodes = new HashMap<>();
+        networkSettings.getConsensusNodes()
+                .forEach(consensusNode -> nodes.put(consensusNode.getAddress(), consensusNode.getAccountId()));
+        client = Client.forNetwork(nodes);
+        if (!networkSettings.getMirrorNodeAddresses().isEmpty()) {
+            try {
+                client.setMirrorNetwork(networkSettings.getMirrorNodeAddresses().stream().toList());
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Error in configuring Mirror Node", e);
+            }
+        }
+        client.setOperator(accountId, privateKey);
     }
 
     @Override
