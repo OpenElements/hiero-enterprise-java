@@ -8,11 +8,14 @@ import static org.mockito.Mockito.when;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.PublicKey;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
+import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
@@ -35,6 +38,7 @@ public class NftClientImplTest {
     ArgumentCaptor<TokenCreateRequest> tokenRequestCaptor = ArgumentCaptor.forClass(TokenCreateRequest.class);
     ArgumentCaptor<TokenTransferRequest> tokenTransferCaptor = ArgumentCaptor.forClass(TokenTransferRequest.class);
     ArgumentCaptor<TokenBurnRequest> tokenBurnCaptor = ArgumentCaptor.forClass(TokenBurnRequest.class);
+    ArgumentCaptor<TokenAssociateRequest> tokenAssociateCaptor = ArgumentCaptor.forClass(TokenAssociateRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -439,5 +443,73 @@ public class NftClientImplTest {
 
         Assertions.assertThrows(NullPointerException.class,
                 () -> nftClientImpl.burnNfts(null, null, null));
+    }
+
+    @Test
+    void testAssociateNft() throws HieroException {
+        final TokenAssociateResult tokenAssociateResult = Mockito.mock(TokenAssociateResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeTokenAssociateTransaction(any(TokenAssociateRequest.class)))
+                .thenReturn(tokenAssociateResult);
+
+        nftClientImpl.associateNft(tokenId, accountId, accountKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeTokenAssociateTransaction(tokenAssociateCaptor.capture());
+
+        final TokenAssociateRequest request = tokenAssociateCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(accountId, request.accountId());
+        Assertions.assertEquals(accountKey, request.accountPrivateKey());
+    }
+
+    @Test
+    void testAssociateNftWithAccount() throws HieroException {
+        final TokenAssociateResult tokenAssociateResult = Mockito.mock(TokenAssociateResult.class);
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+        final PublicKey publicKey = privateKey.getPublicKey();
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Account account = new Account(accountId, publicKey, privateKey);
+
+        when(protocolLayerClient.executeTokenAssociateTransaction(any(TokenAssociateRequest.class)))
+                .thenReturn(tokenAssociateResult);
+
+        nftClientImpl.associateNft(tokenId, account);
+
+        verify(protocolLayerClient, times(1))
+                .executeTokenAssociateTransaction(tokenAssociateCaptor.capture());
+
+        final TokenAssociateRequest request = tokenAssociateCaptor.getValue();
+        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(accountId, request.accountId());
+        Assertions.assertEquals(privateKey, request.accountPrivateKey());
+    }
+
+    @Test
+    void testAssociateNftThrowsExceptionForInvalidId() throws HieroException {
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+        final Account account = new Account(accountId, accountKey.getPublicKey(), accountKey);
+
+        when(protocolLayerClient.executeTokenAssociateTransaction(any(TokenAssociateRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenAssociateTransaction"));
+
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.associateNft(tokenId, accountId, accountKey));
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.associateNft(tokenId, account));
+    }
+
+    @Test
+    void testAssociateNftNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.associateNft((TokenId) null, (AccountId) null, (PrivateKey) null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.associateNft(null, null));
     }
 }
