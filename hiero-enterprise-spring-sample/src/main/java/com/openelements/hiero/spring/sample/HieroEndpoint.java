@@ -19,7 +19,7 @@ public class HieroEndpoint {
     public String createAccount() {
         try {
             final Account account = client.createAccount();
-            return "Account created!";
+            return "Account " + account.accountId() + " created!";
         } catch (final Exception e) {
             throw new RuntimeException("Error in Hedera call", e);
         }
