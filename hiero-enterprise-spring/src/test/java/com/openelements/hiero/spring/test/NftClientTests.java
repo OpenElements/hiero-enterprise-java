@@ -101,6 +101,26 @@ public class NftClientTests {
     }
 
     @Test
+    void associateNftThrowExceptionForInvalidId() throws HieroException {
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(HieroException.class,
+                () -> nftClient.associateNft(tokenId, userAccount.accountId(), userAccount.privateKey()));
+    }
+
+    @Test
+    void testAssociateNftForNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClient.associateNft((TokenId) null, null, null));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClient.associateNft(null, null));
+    }
+
+    @Test
     void transferNft() throws Exception {
         //given
         final String name = "Test NFT";
