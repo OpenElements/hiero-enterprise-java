@@ -1,0 +1,161 @@
+[
+  {
+    "inputs": [
+      {
+        "name": "supplier_",
+        "internalType": "address",
+        "type": "address"
+      },
+      {
+        "name": "consumer_",
+        "internalType": "address",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "identifier_",
+        "internalType": "string",
+        "type": "string"
+      },
+      {
+        "name": "hash_",
+        "internalType": "bytes32",
+        "type": "bytes32"
+      }
+    ],
+    "name": "addHash",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "bool",
+        "type": "bool"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "identifier_",
+        "internalType": "string",
+        "type": "string"
+      },
+      {
+        "name": "hash_",
+        "internalType": "bytes32",
+        "type": "bytes32"
+      }
+    ],
+    "name": "check",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "uint256",
+        "type": "uint256"
+      }
+    ],
+    "inputs": [],
+    "name": "getMissingVerificationCount",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "string",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "index",
+        "internalType": "uint256",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMissingVerificationIdentifier",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "uint256",
+        "type": "uint256"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "identifier_",
+        "internalType": "string",
+        "type": "string"
+      }
+    ],
+    "name": "getSupplyTimestamp",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "uint256",
+        "type": "uint256"
+      }
+    ],
+    "inputs": [],
+    "name": "getTotalCount",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [
+      {
+        "name": "",
+        "internalType": "uint256",
+        "type": "uint256"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "identifier_",
+        "internalType": "string",
+        "type": "string"
+      }
+    ],
+    "name": "getVerificationTimestamp",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "outputs": [],
+    "inputs": [
+      {
+        "name": "identifier_",
+        "internalType": "string",
+        "type": "string"
+      },
+      {
+        "name": "hash_",
+        "internalType": "bytes32",
+        "type": "bytes32"
+      }
+    ],
+    "name": "verifyHash",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
