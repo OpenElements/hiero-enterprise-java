@@ -1,8 +1,8 @@
-package com.openelements.hiero.smartcontract;
+package com.openelements.hiero.smartcontract.implementation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.openelements.hiero.smartcontract.implementation.AbiTypeAdapterFactory;
+import com.openelements.hiero.smartcontract.AbiParser;
 import com.openelements.hiero.smartcontract.model.AbiModel;
 import java.io.IOException;
 import java.io.Reader;
@@ -14,11 +14,11 @@ import java.nio.file.Path;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-public class WrapperClassFactory {
+public class GsonAbiParser implements AbiParser {
 
     private final Gson gson;
 
-    public WrapperClassFactory() {
+    public GsonAbiParser() {
         this.gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new AbiTypeAdapterFactory())
                 .create();
