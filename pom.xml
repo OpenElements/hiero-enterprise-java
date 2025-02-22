@@ -64,6 +64,7 @@
     <cyclonedx-maven-plugin.version>2.8.0</cyclonedx-maven-plugin.version>
     <jreleaser-maven-plugin.version>1.9.0</jreleaser-maven-plugin.version>
     <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
+    <solidity-enterprise.version>0.2.0-SNAPSHOT</solidity-enterprise.version>
   </properties>
 
   <dependencyManagement>
@@ -119,6 +120,11 @@
             <artifactId>javax.annotation-api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.open-elements.solidity</groupId>
+        <artifactId>abi-parser</artifactId>
+        <version>${solidity-enterprise.version}</version>
       </dependency>
       <dependency>
         <groupId>io.grpc</groupId>

@@ -15,7 +15,8 @@ module com.openelements.hiero.base {
 
     requires transitive sdk; //Hedera SDK
     requires org.slf4j;
-    requires com.google.protobuf; //TODO: We should not have the need to use it
     requires static org.jspecify;
+    requires com.google.protobuf; //TODO: We should not have the need to use it
     requires com.google.auto.service;
+    requires com.openelements.hiero.smartcontract.abi;
 }
