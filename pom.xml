@@ -65,6 +65,7 @@
     <jreleaser-maven-plugin.version>1.9.0</jreleaser-maven-plugin.version>
     <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
     <solidity-enterprise.version>0.2.0-SNAPSHOT</solidity-enterprise.version>
+    <web3j.version>4.12.3</web3j.version>
   </properties>
 
   <dependencyManagement>
@@ -205,6 +206,11 @@
         <groupId>com.google.auto.service</groupId>
         <artifactId>auto-service-annotations</artifactId>
         <version>${google.auto.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.web3j</groupId>
+        <artifactId>abi</artifactId>
+        <version>${web3j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -28,6 +28,10 @@
       <artifactId>abi-parser</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.web3j</groupId>
+      <artifactId>abi</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.github.cdimascio</groupId>
       <artifactId>dotenv-java</artifactId>
       <scope>test</scope>

@@ -2,10 +2,6 @@ package com.openelements.hiero.base.data;
 
 import com.hedera.hashgraph.sdk.ContractId;
 import com.openelements.hiero.smartcontract.abi.model.AbiEvent;
-import com.openelements.hiero.smartcontract.abi.model.AbiParameter;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -55,40 +51,6 @@ public record ContractLog(@NonNull String address, @Nullable String bloom, @Null
         }
         final String eventHashAsHex = event.createEventSignatureHashAsHex();
         return topics.get(0).equals(eventHashAsHex);
-    }
-
-    public ContractEventInstance asEventInstance(final @NonNull AbiEvent event) {
-        Objects.requireNonNull(event, "event");
-        if (!event.anonymous()) {
-            if (!isEventOfType(event)) {
-                throw new IllegalArgumentException("Event does not match log");
-            }
-        }
-        //see https://github.com/web3/web3.js/blob/bf1691765bd9d4b0f7a4479e915207707d69226d/packages/web3-eth-abi/src/api/logs_api.ts#L74
-        final List<AbiParameter> nonIndexedParameters = new ArrayList<>();
-        event.inputs().forEach(parameter -> {
-            if (!parameter.indexed()) {
-                nonIndexedParameters.add(parameter);
-            }
-        });
-        //see https://docs.soliditylang.org/en/latest/abi-spec.html#index-0
-        int topicIndex = 0;
-        if (!event.anonymous()) {
-            topicIndex = 1;
-        }
-        final List<ContractEventInstance.Parameter> parameters = new ArrayList<>();
-        for (AbiParameter parameter : event.inputs()) {
-            if (parameter.indexed()) {
-                parameters.add(new ContractEventInstance.Parameter(parameter.name(), parameter.type(),
-                        topics.get(topicIndex++).getBytes(StandardCharsets.UTF_8)));
-            } else {
-                //TODO: extract values from data field
-                //see https://github.com/hyperledger-web3j/web3j/blob/ae201107aed4ed6ba56ab238c773bb4b37e002d6/abi/src/test/java/org/web3j/abi/TypeDecoderTest.java#L105
-                // see https://github.com/hyperledger-web3j/web3j/blob/ae201107aed4ed6ba56ab238c773bb4b37e002d6/abi/src/main/java/org/web3j/abi/DefaultFunctionReturnDecoder.java
-                parameters.add(new ContractEventInstance.Parameter(parameter.name(), parameter.type(), new byte[0]));
-            }
-        }
-        return new ContractEventInstance(contractId, event.name(), Collections.unmodifiableList(parameters));
     }
 
 }
