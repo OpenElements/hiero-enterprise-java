@@ -3,6 +3,9 @@ package com.openelements.hiero.base.data;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.openelements.hiero.base.solidity.SolidityTools;
 import com.openelements.hiero.smartcontract.abi.model.AbiEvent;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -48,6 +51,14 @@ public record ContractLog(@NonNull String address, @Nullable String bloom, @Null
         Objects.requireNonNull(block_hash, "block_hash must not be null");
         Objects.requireNonNull(timestamp, "timestamp must not be null");
         Objects.requireNonNull(transactionHash, "transactionHash must not be null");
+    }
+
+    public ZonedDateTime getTimestamp() {
+        String[] parts = timestamp.split("\\.");
+        long seconds = Long.parseLong(parts[0]);
+        int nanoseconds = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+        Instant instant = Instant.ofEpochSecond(seconds, nanoseconds);
+        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
     public boolean isEventOfType(final @NonNull AbiEvent event) {
