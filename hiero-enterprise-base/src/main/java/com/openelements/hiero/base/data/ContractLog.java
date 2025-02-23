@@ -1,6 +1,7 @@
 package com.openelements.hiero.base.data;
 
 import com.hedera.hashgraph.sdk.ContractId;
+import com.openelements.hiero.base.solidity.SolidityTools;
 import com.openelements.hiero.smartcontract.abi.model.AbiEvent;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,14 @@ public record ContractLog(@NonNull String address, @Nullable String bloom, @Null
                           @NonNull String transactionHash,
                           @Nullable Long transactionIndex) {
 
+    public ContractLog {
+        Objects.requireNonNull(address, "address must not be null");
+        Objects.requireNonNull(topics, "topics must not be null");
+        Objects.requireNonNull(block_hash, "block_hash must not be null");
+        Objects.requireNonNull(timestamp, "timestamp must not be null");
+        Objects.requireNonNull(transactionHash, "transactionHash must not be null");
+    }
+
     public boolean isEventOfType(final @NonNull AbiEvent event) {
         Objects.requireNonNull(event, "event");
         if (event.anonymous()) {
@@ -53,4 +62,11 @@ public record ContractLog(@NonNull String address, @Nullable String bloom, @Null
         return topics.get(0).equals(eventHashAsHex);
     }
 
+    public ContractEventInstance asEventInstance(final @NonNull AbiEvent event) {
+        Objects.requireNonNull(event, "event must not be null");
+        if (!isEventOfType(event)) {
+            throw new IllegalArgumentException("Event does not match log");
+        }
+        return SolidityTools.asEventInstance(this, event);
+    }
 }
