@@ -1,5 +1,12 @@
 package com.openelements.hiero.test;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.openelements.hiero.base.HieroException;
@@ -7,11 +14,6 @@ import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.TransactionListener;
 import com.openelements.hiero.base.protocol.data.TransactionType;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HieroTestUtils implements Serializable {
 
@@ -60,7 +62,7 @@ public class HieroTestUtils implements Serializable {
                     throw new RuntimeException("Error in mirror node query!", e);
                 }
                 if (!done) {
-                    if (LocalDateTime.now().isAfter(start.plusSeconds(30))) {
+                    if (LocalDateTime.now().isAfter(start.plusSeconds(60))) {
                         throw new RuntimeException("Timeout waiting for transaction");
                     }
                     try {
