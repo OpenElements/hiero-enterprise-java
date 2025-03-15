@@ -44,6 +44,8 @@ import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicMessageResult;
 import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicSubmitMessageResult;
+import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
+import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -235,6 +237,16 @@ public interface ProtocolLayerClient {
      */
     @NonNull
     TopicCreateResult executeTopicCreateTransaction(@NonNull TopicCreateRequest request) throws HieroException;
+
+    /**
+     * Executes a topic update transaction.
+     *
+     * @param request the request containing the details of the topic update transaction
+     * @return the result of the topic update transaction
+     * @throws HieroException if the transaction could not be executed
+     */
+    @NonNull
+    TopicUpdateResult executeTopicUpdateTransaction(@NonNull TopicUpdateRequest request) throws HieroException;
 
     /**
      * Executes a topic delete transaction.
