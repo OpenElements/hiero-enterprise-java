@@ -11,6 +11,7 @@ import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.TokenInfo;
+import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import java.util.List;
 import java.util.Objects;
@@ -73,6 +74,13 @@ public abstract class AbstractMirrorNodeClient<JSON> implements MirrorNodeClient
     public final Optional<TokenInfo> queryTokenById(@NonNull TokenId tokenId) throws HieroException {
         final JSON json = getRestClient().queryTokenById(tokenId);
         return getJsonConverter().toTokenInfo(json);
+    }
+
+    @Override
+    @NonNull
+    public final Optional<TransactionInfo> queryTransaction(@NonNull String transactionId) throws HieroException {
+        final JSON json = getRestClient().queryTransaction(transactionId);
+        return getJsonConverter().toTransactionInfo(json);
     }
 
     @Override

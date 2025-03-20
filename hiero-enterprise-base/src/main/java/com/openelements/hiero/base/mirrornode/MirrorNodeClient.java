@@ -15,9 +15,13 @@ import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Result;
+import com.openelements.hiero.base.data.BalanceModification;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.openelements.hiero.base.protocol.data.TransactionType;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -170,6 +174,42 @@ public interface MirrorNodeClient {
     @NonNull
     Page<TransactionInfo> queryTransactionsByAccount(@NonNull AccountId accountId) throws HieroException;
 
+
+    /**
+     * Queries all transactions for a specific account and transaction type.
+     *
+     * @param accountId the account ID to query transactions for
+     * @return a page of transaction information
+     * @throws HieroException if an error occurs during the query
+     */
+    @NonNull
+    Page<TransactionInfo> queryTransactionsByAccountAndType(@NonNull AccountId accountId, @NonNull TransactionType type)
+            throws HieroException;
+
+    /**
+     * Queries all transactions for a specific account and transaction type.
+     *
+     * @param accountId the account ID to query transactions for
+     * @param result the result of transaction
+     * @return a page of transaction information
+     * @throws HieroException if an error occurs during the query
+     */
+    @NonNull
+    Page<TransactionInfo> queryTransactionsByAccountAndResult(@NonNull AccountId accountId, @NonNull Result result)
+            throws HieroException;
+
+    /**
+     * Find all transactions associated with a specific account and
+     * has specific transaction type.
+     *
+     * @param accountId id of the account
+     * @param type type of balance modification of transaction
+     * @return page of transactions
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    Page<TransactionInfo> queryTransactionsByAccountAndModification(@NonNull AccountId accountId, @NonNull BalanceModification type)
+            throws HieroException;
 
     /**
      * Queries the transaction information for a specific transaction ID.

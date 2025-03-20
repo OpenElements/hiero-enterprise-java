@@ -19,11 +19,13 @@ import com.openelements.hiero.base.implementation.NftRepositoryImpl;
 import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.implementation.TokenRepositoryImpl;
+import com.openelements.hiero.base.implementation.TransactionRepositoryImpl;
 import com.openelements.hiero.base.mirrornode.AccountRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.NetworkRepository;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
+import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import java.net.URI;
@@ -150,6 +152,13 @@ public class HieroAutoConfiguration {
             havingValue = "true", matchIfMissing = true)
     TokenRepository tokenRepository(final MirrorNodeClient mirrorNodeClient) {
         return new TokenRepositoryImpl(mirrorNodeClient);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "spring.hiero", name = "mirrorNodeSupported",
+            havingValue = "true", matchIfMissing = true)
+    TransactionRepository transactionRepository(final MirrorNodeClient mirrorNodeClient) {
+        return new TransactionRepositoryImpl(mirrorNodeClient);
     }
 
     @Bean

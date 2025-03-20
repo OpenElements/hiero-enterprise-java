@@ -11,13 +11,16 @@ import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.Result;
+import com.openelements.hiero.base.data.BalanceModification;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.implementation.MirrorNodeRestClient;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
+
+import com.openelements.hiero.base.protocol.data.TransactionType;
 import org.jspecify.annotations.NonNull;
 import org.springframework.web.client.RestClient;
 
@@ -82,19 +85,39 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
     public Page<TransactionInfo> queryTransactionsByAccount(@NonNull final AccountId accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         final String path = "/api/v1/transactions?account.id=" + accountId;
-        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction = n -> jsonConverter.toTransactionInfos(
-                n);
+        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction = n ->
+                jsonConverter.toTransactionInfos(n);
         return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
     }
 
     @Override
-    public Optional<TransactionInfo> queryTransaction(@NonNull final String transactionId) throws HieroException {
-        final JsonNode jsonNode = mirrorNodeRestClient.queryTransaction(transactionId);
-        //TODO: I assume there is a better check
-        if (jsonNode == null || !jsonNode.fieldNames().hasNext()) {
-            return Optional.empty();
-        }
-        return Optional.of(new TransactionInfo(transactionId));
+    public @NonNull Page<TransactionInfo> queryTransactionsByAccountAndType(@NonNull AccountId accountId, @NonNull TransactionType type)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        final String path = "/api/v1/transactions?account.id=" + accountId + "&transactiontype=" + type.getType();
+        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction =
+                n -> jsonConverter.toTransactionInfos(n);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
+    }
+
+    @Override
+    public @NonNull Page<TransactionInfo> queryTransactionsByAccountAndResult(@NonNull AccountId accountId, @NonNull Result result)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        final String path = "/api/v1/transactions?account.id=" + accountId + "&result=" + result.name();
+        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction =
+                n -> jsonConverter.toTransactionInfos(n);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
+    }
+
+    @Override
+    public @NonNull Page<TransactionInfo> queryTransactionsByAccountAndModification(@NonNull AccountId accountId, @NonNull BalanceModification type)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        final String path = "/api/v1/transactions?account.id=" + accountId + "&type=" + type.name();
+        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction =
+                n -> jsonConverter.toTransactionInfos(n);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
     }
 
     @Override

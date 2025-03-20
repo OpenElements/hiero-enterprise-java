@@ -2,7 +2,6 @@ package com.openelements.hiero.microprofile.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
-import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
 import com.openelements.hiero.base.data.AccountInfo;
@@ -20,13 +19,17 @@ import com.openelements.hiero.base.data.CustomFee;
 import com.openelements.hiero.base.data.FixedFee;
 import com.openelements.hiero.base.data.FractionalFee;
 import com.openelements.hiero.base.data.RoyaltyFee;
+import com.openelements.hiero.base.data.NftTransfer;
+import com.openelements.hiero.base.data.TokenTransfer;
+import com.openelements.hiero.base.data.StakingRewardTransfer;
+import com.openelements.hiero.base.data.Transfer;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
+import com.openelements.hiero.base.protocol.data.TransactionType;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 
 import java.time.Instant;
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -161,6 +164,50 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
     }
 
     @Override
+    public @NonNull Optional<TransactionInfo> toTransactionInfo(@NonNull JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (jsonObject.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            final String transactionId = jsonObject.getString("transaction_id");
+            final byte[] bytes = jsonObject.getString("bytes").getBytes();
+            final long chargedTxFee = Long.parseLong(jsonObject.getString("charged_tx_fee"));
+            final Instant consensusTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("consensus_timestamp")));
+            final String entityId = jsonObject.getString("entity_id");
+            final String maxFee = jsonObject.getString("max_fee");
+            final byte[] memo = jsonObject.getString("memo_base64").getBytes();
+            final TransactionType name = TransactionType.from(jsonObject.getString("name"));
+            final String _node = jsonObject.getString("node");
+            final int nonce = jsonObject.getInt("nonce");
+            final Instant parentConsensusTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("parent_consensus_timestamp")));
+            final String result = jsonObject.getString("result");
+            final boolean scheduled = jsonObject.getBoolean("scheduled");
+            final byte[] transactionHash = jsonObject.getString("transaction_hash").getBytes();
+            final String validDurationSeconds = jsonObject.getString("valid_duration_seconds");
+            final Instant validStartTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("valid_start_timestamp")));
+
+            final List<NftTransfer> nftTransfers = jsonArrayToStream(jsonObject.getJsonArray("nft_transfers"))
+                    .map(n -> toNftTransfer(n)).toList();
+
+            final List<StakingRewardTransfer> stakingRewardTransfers = jsonArrayToStream(jsonObject.getJsonArray("staking_reward_transfers"))
+                    .map(n -> toStakingRewardTransfer(n)).toList();
+
+            final List<TokenTransfer> tokenTransfers = jsonArrayToStream(jsonObject.getJsonArray("token_transfers"))
+                    .map(n -> toTokenTransfer(n)).toList();
+
+            final List<Transfer> transfers = jsonArrayToStream(jsonObject.getJsonArray("transfers"))
+                    .map(n -> toTransfer(n)).toList();
+
+            return Optional.of(new TransactionInfo(transactionId, bytes, chargedTxFee, consensusTimestamp, entityId,
+                    maxFee, memo, name,nftTransfers, _node, nonce, parentConsensusTimestamp, result, scheduled,
+                    stakingRewardTransfers, tokenTransfers,transactionHash, transfers, validDurationSeconds, validStartTimestamp));
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
+        }
+    }
+
+    @Override
     public @NonNull List<TransactionInfo> toTransactionInfos(@NonNull JsonObject jsonObject) {
         if (!jsonObject.containsKey("transactions")) {
             return List.of();
@@ -168,15 +215,51 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
 
         final JsonArray transactionsNode = jsonObject.getJsonArray("transactions");
         return jsonArrayToStream(transactionsNode)
-                .map(n -> {
-                    try {
-                        final String transactionId = n.asJsonObject().getString("transaction_id");
-                        return new TransactionInfo(transactionId);
-                    } catch (final Exception e) {
-                        throw new IllegalStateException("Can not parse JSON: " + n, e);
-                    }
+                .map((n) -> {
+                    JsonObject node = n.asJsonObject();
+                    return toTransactionInfo(node);
                 })
+                .filter(n -> n.isPresent())
+                .map(n -> n.get())
                 .toList();
+    }
+
+    private Transfer toTransfer(JsonValue node) {
+        final JsonObject jsonObject = node.asJsonObject();
+        final AccountId account = AccountId.fromString(jsonObject.getString("account"));
+        final long amount = Long.parseLong(jsonObject.getString("amount"));
+        final boolean isApproval = jsonObject.getBoolean("is_approval");
+
+        return new Transfer(account, amount, isApproval);
+    }
+
+    private TokenTransfer toTokenTransfer(JsonValue node) {
+        final JsonObject jsonObject = node.asJsonObject();
+        final TokenId tokenId = TokenId.fromString(jsonObject.getString("token_id"));
+        final AccountId account = AccountId.fromString(jsonObject.getString("account"));
+        final long amount = Long.parseLong(jsonObject.getString("amount"));
+        final boolean isApproval = jsonObject.getBoolean("is_approval");
+
+        return new TokenTransfer(tokenId, account, amount, isApproval);
+    }
+
+    private StakingRewardTransfer toStakingRewardTransfer(JsonValue node) {
+        final JsonObject jsonObject = node.asJsonObject();
+        final AccountId account = AccountId.fromString(jsonObject.getString("account"));
+        long amount = Long.parseLong(jsonObject.getString("amount"));
+
+        return new StakingRewardTransfer(account, amount);
+    }
+
+    private NftTransfer toNftTransfer(JsonValue node) {
+        final JsonObject jsonObject = node.asJsonObject();
+        final boolean isApproval = jsonObject.getBoolean("is_approval");
+        final AccountId receiverAccountId = AccountId.fromString(jsonObject.getString("receiver_account_id"));
+        final AccountId senderAccountId = AccountId.fromString(jsonObject.getString("sender_account_id"));
+        final long serialNumber = Long.parseLong(jsonObject.getString("serial_number"));
+        final  TokenId tokenId = TokenId.fromString(jsonObject.getString("token_id"));
+
+        return new NftTransfer(isApproval, receiverAccountId, senderAccountId, serialNumber, tokenId);
     }
 
     @Override
