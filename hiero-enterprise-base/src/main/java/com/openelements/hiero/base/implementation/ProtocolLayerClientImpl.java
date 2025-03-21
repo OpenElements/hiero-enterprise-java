@@ -27,6 +27,7 @@ import com.hedera.hashgraph.sdk.TokenBurnTransaction;
 import com.hedera.hashgraph.sdk.TokenCreateTransaction;
 import com.hedera.hashgraph.sdk.TokenMintTransaction;
 import com.hedera.hashgraph.sdk.TopicCreateTransaction;
+import com.hedera.hashgraph.sdk.TopicUpdateTransaction;
 import com.hedera.hashgraph.sdk.TopicDeleteTransaction;
 import com.hedera.hashgraph.sdk.TopicMessageQuery;
 import com.hedera.hashgraph.sdk.TopicMessageSubmitTransaction;
@@ -76,6 +77,8 @@ import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import com.openelements.hiero.base.protocol.data.TokenTransferResult;
 import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
 import com.openelements.hiero.base.protocol.data.TopicCreateResult;
+import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
+import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
 import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
 import com.openelements.hiero.base.protocol.data.TopicDeleteResult;
 import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
@@ -317,11 +320,51 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
         try {
             final TopicCreateTransaction transaction = new TopicCreateTransaction()
                     .setMaxTransactionFee(request.maxTransactionFee())
-                    .setTransactionValidDuration(request.transactionValidDuration());
+                    .setTransactionValidDuration(request.transactionValidDuration())
+                    .setAdminKey(request.adminKey());
+            if (request.memo() != null) {
+                transaction.setTopicMemo(request.memo());
+            }
+            if (request.submitKey() != null) {
+                transaction.setSubmitKey(request.submitKey());
+            }
+            sign(transaction, request.adminKey());
             final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
             return new TopicCreateResult(receipt.transactionId, receipt.status, receipt.topicId);
         } catch (final Exception e) {
             throw new HieroException("Failed to execute create topic transaction", e);
+        }
+    }
+
+    @Override
+    public @NonNull TopicUpdateResult executeTopicUpdateTransaction(@NonNull TopicUpdateRequest request)
+            throws HieroException {
+        Objects.requireNonNull(request, "request must not be null");
+        Objects.requireNonNull(request.maxTransactionFee(), "maxTransactionFee must not be null");
+        Objects.requireNonNull(request.transactionValidDuration(), "transactionValidDuration must not be null");
+        try {
+            final TopicUpdateTransaction transaction = new TopicUpdateTransaction()
+                    .setMaxTransactionFee(request.maxTransactionFee())
+                    .setTransactionValidDuration(request.transactionValidDuration())
+                    .setTopicId(request.topicId());
+            if (request.memo() != null) {
+                transaction.setTopicMemo(request.memo());
+            }
+            if (request.submitKey() != null) {
+                transaction.setSubmitKey(request.submitKey());
+            }
+            if (request.updatedAdminKey() != null) {
+                transaction.setAdminKey(request.updatedAdminKey());
+            }
+            if (request.updatedAdminKey() != null) {
+                sign(transaction, request.adminKey(), request.updatedAdminKey());
+            } else {
+                sign(transaction, request.adminKey());
+            }
+            final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
+            return new TopicUpdateResult(receipt.transactionId, receipt.status);
+        } catch (final Exception e) {
+            throw new HieroException("Failed to execute update topic transaction", e);
         }
     }
 
@@ -333,6 +376,7 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
                     .setMaxTransactionFee(request.maxTransactionFee())
                     .setTransactionValidDuration(request.transactionValidDuration())
                     .setTopicId(request.topicId());
+            sign(transaction, request.adminKey());
             final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
             return new TopicDeleteResult(receipt.transactionId, receipt.status);
         } catch (final Exception e) {
@@ -349,6 +393,9 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
                     .setTransactionValidDuration(request.transactionValidDuration())
                     .setTopicId(request.topicId())
                     .setMessage(request.message());
+            if (request.submitKey() != null) {
+                sign(transaction, request.submitKey());
+            }
             final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
             return new TopicSubmitMessageResult(receipt.transactionId, receipt.status);
         } catch (final Exception e) {
