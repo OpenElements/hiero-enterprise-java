@@ -1,8 +1,13 @@
 package com.openelements.hiero.spring.test;
 
-import com.hedera.hashgraph.sdk.TokenId;
-import com.openelements.hiero.base.*;
-import com.openelements.hiero.base.data.*;
+import com.hedera.hashgraph.sdk.AccountId;
+import com.openelements.hiero.base.AccountClient;
+import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.Account;
+import com.openelements.hiero.base.data.Page;
+import com.openelements.hiero.base.data.Result;
+import com.openelements.hiero.base.data.BalanceModification;
+import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.protocol.data.TransactionType;
 import com.openelements.hiero.test.HieroTestUtils;
@@ -22,37 +27,53 @@ public class TransactionRepositoryTest {
     private AccountClient accountClient;
 
     @Autowired
-    private NftClient nftClient;
-
-    @Autowired
-    private TopicClient topicClient;
-
-    @Autowired
     private HieroTestUtils hieroTestUtils;
 
     @Test
     void testFindTransactionByAccountId() throws HieroException {
-        final Account account = accountClient.createAccount(10);
-        final TokenId id = nftClient.createNftType("Hello Hiero", "NFT", account);
-        nftClient.mintNft(id, account.privateKey(), "Hello Hiero".getBytes());
-        hieroTestUtils.waitForMirrorNodeRecords();
+        final Account account = accountClient.createAccount(1);
 
         final Page<TransactionInfo> page = transactionRepository.findByAccount(account.accountId());
         Assertions.assertNotNull(page);
+
         final List<TransactionInfo> data = page.getData();
-        System.out.println(page.getData().size());
         Assertions.assertFalse(data.isEmpty());
     }
 
     @Test
-    void test2() throws HieroException {
-        Page<TransactionInfo> page = transactionRepository.findByAccountAndResult("0.0.4951978", Result.FAIL);
-        System.out.println(page.getData());
+    void testFindTransactionByAccountIdGiveEmptyListForAccountIdWithZeroTransaction() throws HieroException {
+        final AccountId accountId = AccountId.fromString("0.0.0");
+        final Page<TransactionInfo> page = transactionRepository.findByAccount(accountId);
+        Assertions.assertNotNull(page);
+
+        final List<TransactionInfo> data = page.getData();
+        Assertions.assertTrue(data.isEmpty());
     }
 
     @Test
-    void test3() throws HieroException {
-        Page<TransactionInfo> page = transactionRepository.findByAccountAndModification("0.0.4951978", BalanceModification.DEBIT);
-        System.out.println(page.getData());
+    void testFindTransactionByAccountIdAndType() throws HieroException {
+        final Account account = accountClient.createAccount(1);
+
+        final Page<TransactionInfo> page = transactionRepository.findByAccountAndType(account.accountId(),
+                TransactionType.ACCOUNT_CREATE);
+        Assertions.assertNotNull(page);
+    }
+
+    @Test
+    void testFindTransactionByAccountIdAndResult() throws HieroException {
+        final Account account = accountClient.createAccount(1);
+
+        final Page<TransactionInfo> page = transactionRepository.findByAccountAndResult(account.accountId(),
+                Result.SUCCESS);
+        Assertions.assertNotNull(page);
+    }
+
+    @Test
+    void testFindTransactionByAccountIdAndBalanceModification() throws HieroException {
+        final Account account = accountClient.createAccount(1);
+
+        final Page<TransactionInfo> page = transactionRepository.findByAccountAndModification(account.accountId(),
+                BalanceModification.DEBIT);
+        Assertions.assertNotNull(page);
     }
 }
