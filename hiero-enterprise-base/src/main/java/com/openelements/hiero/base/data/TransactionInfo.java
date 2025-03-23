@@ -37,7 +37,6 @@ public record TransactionInfo(
         Objects.requireNonNull(maxFee, "maxFee must not be null");
         Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(nftTransfers, "nftTransfers must not be null");
-        Objects.requireNonNull(parentConsensusTimestamp, "parentConsensusTimestamp must not be null");
         Objects.requireNonNull(stakingRewardTransfers, "stakingRewardTransfers must not be null");
         Objects.requireNonNull(tokenTransfers, "tokenTransfers must not be null");
         Objects.requireNonNull(transfers, "transfers must not be null");

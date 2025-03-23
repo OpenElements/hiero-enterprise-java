@@ -32,7 +32,7 @@ public class TransactionRepositoryTest {
     @Test
     void testFindTransactionByAccountId() throws HieroException {
         final Account account = accountClient.createAccount(1);
-
+        hieroTestUtils.waitForMirrorNodeRecords();
         final Page<TransactionInfo> page = transactionRepository.findByAccount(account.accountId());
         Assertions.assertNotNull(page);
 
@@ -43,6 +43,7 @@ public class TransactionRepositoryTest {
     @Test
     void testFindTransactionByAccountIdGiveEmptyListForAccountIdWithZeroTransaction() throws HieroException {
         final AccountId accountId = AccountId.fromString("0.0.0");
+        hieroTestUtils.waitForMirrorNodeRecords();
         final Page<TransactionInfo> page = transactionRepository.findByAccount(accountId);
         Assertions.assertNotNull(page);
 
@@ -53,7 +54,7 @@ public class TransactionRepositoryTest {
     @Test
     void testFindTransactionByAccountIdAndType() throws HieroException {
         final Account account = accountClient.createAccount(1);
-
+        hieroTestUtils.waitForMirrorNodeRecords();
         final Page<TransactionInfo> page = transactionRepository.findByAccountAndType(account.accountId(),
                 TransactionType.ACCOUNT_CREATE);
         Assertions.assertNotNull(page);
@@ -62,7 +63,7 @@ public class TransactionRepositoryTest {
     @Test
     void testFindTransactionByAccountIdAndResult() throws HieroException {
         final Account account = accountClient.createAccount(1);
-
+        hieroTestUtils.waitForMirrorNodeRecords();
         final Page<TransactionInfo> page = transactionRepository.findByAccountAndResult(account.accountId(),
                 Result.SUCCESS);
         Assertions.assertNotNull(page);
@@ -71,7 +72,7 @@ public class TransactionRepositoryTest {
     @Test
     void testFindTransactionByAccountIdAndBalanceModification() throws HieroException {
         final Account account = accountClient.createAccount(1);
-
+        hieroTestUtils.waitForMirrorNodeRecords();
         final Page<TransactionInfo> page = transactionRepository.findByAccountAndModification(account.accountId(),
                 BalanceModification.DEBIT);
         Assertions.assertNotNull(page);

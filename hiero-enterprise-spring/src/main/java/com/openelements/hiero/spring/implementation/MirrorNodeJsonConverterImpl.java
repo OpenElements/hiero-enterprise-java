@@ -201,7 +201,8 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
             final TransactionType name = TransactionType.from(node.get("name").asText());
             final String _node = node.get("node").asText();
             final int nonce = node.get("nonce").asInt();
-            final Instant parentConsensusTimestamp = Instant.ofEpochSecond(node.get("parent_consensus_timestamp").asLong());
+            final Instant parentConsensusTimestamp = node.get("parent_consensus_timestamp").isNull()? null :
+                    Instant.ofEpochSecond(node.get("parent_consensus_timestamp").asLong());
             final String result = node.get("result").asText();
             final boolean scheduled = node.get("scheduled").asBoolean();
             final byte[] transactionHash = node.get("transaction_hash").asText().getBytes();

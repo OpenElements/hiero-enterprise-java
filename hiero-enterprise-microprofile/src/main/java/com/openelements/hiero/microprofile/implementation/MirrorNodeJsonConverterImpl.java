@@ -169,6 +169,11 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
         if (jsonObject.isEmpty()) {
             return Optional.empty();
         }
+
+        if (jsonObject.containsKey("transactions")) {
+            jsonObject = jsonArrayToStream(jsonObject.getJsonArray("transactions")).findFirst().get().asJsonObject();
+        }
+
         try {
             final String transactionId = jsonObject.getString("transaction_id");
             final byte[] bytes = jsonObject.getString("bytes").getBytes();
@@ -180,7 +185,8 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
             final TransactionType name = TransactionType.from(jsonObject.getString("name"));
             final String _node = jsonObject.getString("node");
             final int nonce = jsonObject.getInt("nonce");
-            final Instant parentConsensusTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("parent_consensus_timestamp")));
+            final Instant parentConsensusTimestamp = jsonObject.get("parent_consensus_timestamp").asJsonObject() == null ? null :
+                    Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("parent_consensus_timestamp")));
             final String result = jsonObject.getString("result");
             final boolean scheduled = jsonObject.getBoolean("scheduled");
             final byte[] transactionHash = jsonObject.getString("transaction_hash").getBytes();
