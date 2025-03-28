@@ -20,6 +20,11 @@ import com.openelements.hiero.base.data.CustomFee;
 import com.openelements.hiero.base.data.FixedFee;
 import com.openelements.hiero.base.data.FractionalFee;
 import com.openelements.hiero.base.data.RoyaltyFee;
+import com.openelements.hiero.base.data.NftTransfer;
+import com.openelements.hiero.base.data.TokenTransfer;
+import com.openelements.hiero.base.data.Transfer;
+import com.openelements.hiero.base.data.StakingRewardTransfer;
+import com.openelements.hiero.base.protocol.data.TransactionType;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -175,26 +180,109 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
     }
 
     @Override
+    public @NonNull Optional<TransactionInfo> toTransactionInfo(@NonNull JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (node.has("transactions")) {
+            node = jsonArrayToStream(node.get("transactions")).findFirst().get();
+        }
+
+        try {
+            final String transactionId = node.get("transaction_id").asText();
+            final byte[] bytes = node.get("bytes").asText().getBytes();
+            final long chargedTxFee = node.get("charged_tx_fee").asLong();
+            final Instant consensusTimestamp = Instant.ofEpochSecond(node.get("consensus_timestamp").asLong());
+            final String entityId = node.get("entity_id").asText();
+            final String maxFee = node.get("max_fee").asText();
+            final byte[] memo = node.get("memo_base64").asText().getBytes();
+            final TransactionType name = TransactionType.from(node.get("name").asText());
+            final String _node = node.get("node").asText();
+            final int nonce = node.get("nonce").asInt();
+            final Instant parentConsensusTimestamp = node.get("parent_consensus_timestamp").isNull()? null :
+                    Instant.ofEpochSecond(node.get("parent_consensus_timestamp").asLong());
+            final String result = node.get("result").asText();
+            final boolean scheduled = node.get("scheduled").asBoolean();
+            final byte[] transactionHash = node.get("transaction_hash").asText().getBytes();
+            final String validDurationSeconds = node.get("valid_duration_seconds").asText();
+            final Instant validStartTimestamp = Instant.ofEpochSecond(node.get("valid_start_timestamp").asLong());
+
+            final List<NftTransfer> nftTransfers = jsonArrayToStream(node.get("nft_transfers"))
+                    .map(n -> toNftTransfer(n)).toList();
+
+            final List<StakingRewardTransfer> stakingRewardTransfers = jsonArrayToStream(node.get("staking_reward_transfers"))
+                    .map(n -> toStakingRewardTransfer(n)).toList();
+
+            final List<TokenTransfer> tokenTransfers = jsonArrayToStream(node.get("token_transfers"))
+                    .map(n -> toTokenTransfer(n)).toList();
+
+            final List<Transfer> transfers = jsonArrayToStream(node.get("transfers"))
+                    .map(n -> toTransfer(n)).toList();
+
+            return Optional.of(new TransactionInfo(transactionId, bytes, chargedTxFee, consensusTimestamp, entityId,
+                    maxFee, memo, name,nftTransfers, _node, nonce, parentConsensusTimestamp, result, scheduled,
+                    stakingRewardTransfers, tokenTransfers,transactionHash, transfers, validDurationSeconds,
+                    validStartTimestamp));
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    @Override
     public @NonNull List<TransactionInfo> toTransactionInfos(@NonNull JsonNode node) {
         Objects.requireNonNull(node, "jsonNode must not be null");
         if (node.isNull() || node.isEmpty()) {
             return List.of();
         }
-
         if (!node.has("transactions")) {
             return List.of();
         }
 
         final JsonNode transactionsNode = node.get("transactions");
+
         return jsonArrayToStream(transactionsNode)
-                .map(n -> {
-                    try {
-                        final String transactionId = n.get("transaction_id").asText();
-                        return new TransactionInfo(transactionId);
-                    } catch (final Exception e) {
-                        throw new JsonParseException(n, e);
-                    }
-                }).toList();
+                .map(n -> toTransactionInfo(n))
+                .filter(n -> n.isPresent())
+                .map(n -> n.get())
+                .toList();
+    }
+
+    private Transfer toTransfer(JsonNode node) {
+        final AccountId account = AccountId.fromString(node.get("account").asText());
+        final long amount = node.get("amount").asLong();
+        final boolean isApproval = node.get("is_approval").asBoolean();
+
+        return new Transfer(account, amount, isApproval);
+    }
+
+    private TokenTransfer toTokenTransfer(JsonNode node) {
+        final TokenId tokenId = TokenId.fromString(node.get("token_id").asText());
+        final AccountId account = AccountId.fromString(node.get("account").asText());
+        final long amount = node.get("amount").asLong();
+        final boolean isApproval = node.get("is_approval").asBoolean();
+
+        return new TokenTransfer(tokenId, account, amount, isApproval);
+    }
+
+    private StakingRewardTransfer toStakingRewardTransfer(JsonNode node) {
+        final AccountId account = AccountId.fromString(node.get("account").asText());
+        long amount = node.get("amount").asLong();
+
+        return new StakingRewardTransfer(account, amount);
+    }
+
+    private NftTransfer toNftTransfer(JsonNode node) {
+        final boolean isApproval = node.get("is_approval").asBoolean();
+        final AccountId receiverAccountId = node.get("receiver_account_id").isNull() ? null :
+                AccountId.fromString(node.get("receiver_account_id").asText());
+        final AccountId senderAccountId = node.get("sender_account_id").isNull() ? null :
+                AccountId.fromString(node.get("sender_account_id").asText());
+        final long serialNumber = node.get("serial_number").asLong();
+        final  TokenId tokenId = TokenId.fromString(node.get("token_id").asText());
+
+        return new NftTransfer(isApproval, receiverAccountId, senderAccountId, serialNumber, tokenId);
     }
 
     @Override

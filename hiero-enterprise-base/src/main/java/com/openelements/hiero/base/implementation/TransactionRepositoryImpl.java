@@ -2,12 +2,16 @@ package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.BalanceModification;
+import com.openelements.hiero.base.data.Result;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TransactionInfo;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.openelements.hiero.base.protocol.data.TransactionType;
 import org.jspecify.annotations.NonNull;
 
 
@@ -23,6 +27,30 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     public Page<TransactionInfo> findByAccount(@NonNull final AccountId accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         return this.mirrorNodeClient.queryTransactionsByAccount(accountId);
+    }
+
+    @Override
+    public @NonNull Page<TransactionInfo> findByAccountAndType(@NonNull AccountId accountId, @NonNull TransactionType type)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+        return mirrorNodeClient.queryTransactionsByAccountAndType(accountId, type);
+    }
+
+    @Override
+    public @NonNull Page<TransactionInfo> findByAccountAndResult(@NonNull AccountId accountId, @NonNull Result result)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(result, "result must not be null");
+        return mirrorNodeClient.queryTransactionsByAccountAndResult(accountId, result);
+    }
+
+    @Override
+    public @NonNull Page<TransactionInfo> findByAccountAndModification(@NonNull AccountId accountId, @NonNull BalanceModification type)
+            throws HieroException {
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+        return mirrorNodeClient.queryTransactionsByAccountAndModification(accountId, type);
     }
 
     @NonNull
