@@ -18,6 +18,6 @@ public final class HederaNetworkSettingsProvider implements NetworkSettingsProvi
 
     @Override
     public Set<NetworkSettings> createNetworkSettings() {
-        return Set.of(new HederMainnetSettings(), new HederTestnetSettings());
+        return Set.of(new HederaMainnetSettings(), new HederaTestnetSettings());
     }
 }
