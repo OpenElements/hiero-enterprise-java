@@ -36,6 +36,9 @@ public interface MirrorNodeJsonConverter<JSON> {
     List<NetworkFee> toNetworkFees(@NonNull JSON json);
 
     @NonNull
+    Optional<TransactionInfo> toTransactionInfo(@NonNull JSON json);
+
+    @NonNull
     List<TransactionInfo> toTransactionInfos(@NonNull JSON json);
 
     List<Nft> toNfts(@NonNull JSON json);
