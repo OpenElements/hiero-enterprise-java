@@ -5,6 +5,9 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
+import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TransactionId;
+import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRate;
 import com.openelements.hiero.base.data.ExchangeRates;
@@ -23,21 +26,24 @@ import com.openelements.hiero.base.data.RoyaltyFee;
 import com.openelements.hiero.base.data.NftTransfer;
 import com.openelements.hiero.base.data.TokenTransfer;
 import com.openelements.hiero.base.data.Transfer;
+import com.openelements.hiero.base.data.Topic;
+import com.openelements.hiero.base.data.TopicMessage;
+import com.openelements.hiero.base.data.ChunkInfo;
 import com.openelements.hiero.base.data.StakingRewardTransfer;
 import com.openelements.hiero.base.protocol.data.TransactionType;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<JsonNode> {
+
+    private static final Logger log = LoggerFactory.getLogger(MirrorNodeJsonConverterImpl.class);
 
     @Override
     public Optional<Nft> toNft(final JsonNode node) {
@@ -462,6 +468,107 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .map(n -> toToken(n))
                 .filter(optional -> optional.isPresent())
                 .map(optional -> optional.get())
+                .toList();
+    }
+
+    @Override
+    public @NonNull Optional<Topic> toTopic(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final TopicId topicId = TopicId.fromString(node.get("topic_id").asText());
+            final PublicKey adminKey = node.get("admin_key").isNull()? null
+                    : PublicKey.fromString(node.get("admin_key").get("key").asText());
+            final AccountId autoRenewAccount = node.get("auto_renew_account").isNull()? null
+                    : AccountId.fromString(node.get("auto_renew_account").asText());
+            final int autoRenewPeriod = node.get("auto_renew_period").asInt();
+            final Instant createdTimestamp = Instant.ofEpochSecond(node.get("created_timestamp").asLong());
+            final boolean deleted = node.get("deleted").asBoolean();
+            final PublicKey feeScheduleKey = node.get("fee_schedule_key").isNull()? null
+                    : PublicKey.fromString(node.get("fee_schedule_key").get("key").asText());
+            final String memo = node.get("memo").asText();
+            final PublicKey submitKey = node.get("submit_key").isNull()? null
+                    : PublicKey.fromString(node.get("submit_key").get("key").asText());
+            final Instant fromTimestamp = Instant.ofEpochSecond(node.get("timestamp").get("from").asLong());
+            final Instant toTimestamp = Instant.ofEpochSecond(node.get("timestamp").get("to").asLong());
+
+            final List<FixedFee> fixedFees = jsonArrayToStream(node.get("custom_fees").get("fixed_fees"))
+                    .map(n -> {
+                        final long amount = n.get("amount").asLong();
+                        final AccountId accountId = n.get("collector_account_id").isNull()?
+                                null : AccountId.fromString(n.get("collector_account_id").asText());
+                        final TokenId tokenId = n.get("denominating_token_id").isNull()?
+                                null : TokenId.fromString(n.get("denominating_token_id").asText());
+                        return new FixedFee(amount, accountId, tokenId);
+                    }).toList();
+
+            final List<PublicKey> feeExemptKeyList = jsonArrayToStream(node.get("fee_exempt_key_list"))
+                    .map(n -> PublicKey.fromString(n.get("key").asText()))
+                    .toList();
+
+            return Optional.of(
+                    new Topic(topicId, adminKey, autoRenewAccount, autoRenewPeriod, createdTimestamp, fixedFees,
+                            feeExemptKeyList, feeScheduleKey, submitKey, deleted, memo, fromTimestamp, toTimestamp)
+            );
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    @Override
+    public @NonNull Optional<TopicMessage> toTopicMessage(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            final JsonNode chunk = node.get("chunk_info");
+            ChunkInfo chunkInfo = null;
+            if (!chunk.isNull()) {
+                final TransactionId transactionId = TransactionId.fromString(chunk.get("initial_transaction_id").asText());
+                final int nonce = chunk.get("nonce").asInt();
+                final int number = chunk.get("number").asInt();
+                final int total = chunk.get("total").asInt();
+                final boolean scheduled = chunk.get("scheduled").asBoolean();
+                chunkInfo = new ChunkInfo(transactionId, nonce, number, total, scheduled);
+            }
+
+            final Instant consensusTimestamp =  Instant.ofEpochSecond(node.get("consensus_timestamp").asLong());
+            final String message = new String(Base64.getDecoder().decode(node.get("message").asText()));
+            final AccountId payerAccountId = AccountId.fromString(node.get("payer_account_id").asText());
+            final byte[] runningHash = node.get("running_hash").asText().getBytes();
+            final int runningHashVersion = node.get("running_hash_version").asInt();
+            final long sequenceNumber = node.get("sequence_number").asLong();
+            final TopicId topicId = TopicId.fromString(node.get("topic_id").asText());
+
+            return Optional.of(
+                    new TopicMessage(chunkInfo, consensusTimestamp, message, payerAccountId, runningHash,
+                            runningHashVersion, sequenceNumber, topicId)
+            );
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    @Override
+    public @NonNull List<TopicMessage> toTopicMessages(JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (!node.has("messages")) {
+            return List.of();
+        }
+
+        final JsonNode messages = node.get("messages");
+        if (!messages.isArray()) {
+            throw new IllegalArgumentException("Messages node is not an array: " + messages);
+        }
+
+        return jsonArrayToStream(messages)
+                .map(n -> toTopicMessage(n))
+                .filter(o -> o.isPresent())
+                .map(o -> o.get())
                 .toList();
     }
 

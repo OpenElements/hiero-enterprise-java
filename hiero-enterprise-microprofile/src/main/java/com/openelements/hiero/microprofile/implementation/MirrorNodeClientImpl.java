@@ -2,6 +2,7 @@ package com.openelements.hiero.microprofile.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
@@ -11,6 +12,7 @@ import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Result;
 import com.openelements.hiero.base.data.BalanceModification;
+import com.openelements.hiero.base.data.TopicMessage;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.implementation.MirrorNodeRestClient;
@@ -120,6 +122,14 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonObject> {
         Objects.requireNonNull(accountId, "accountId must not be null");
         final String path = "/api/v1/tokens/" + tokenId + "/balances?account.id=" + accountId;
         final Function<JsonObject, List<Balance>> dataExtractionFunction = node -> jsonConverter.toBalances(node);
+        return new RestBasedPage<>(restClient.getTarget(), dataExtractionFunction, path);
+    }
+
+    @Override
+    public @NonNull Page<TopicMessage> queryTopicMessages(TopicId topicId) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        final String path = "/api/v1/topics/" + topicId + "/messages";
+        final Function<JsonObject, List<TopicMessage>> dataExtractionFunction = node -> jsonConverter.toTopicMessages(node);
         return new RestBasedPage<>(restClient.getTarget(), dataExtractionFunction, path);
     }
 

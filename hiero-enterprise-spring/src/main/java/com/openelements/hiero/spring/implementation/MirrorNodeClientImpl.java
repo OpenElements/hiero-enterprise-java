@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
@@ -11,6 +12,7 @@ import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.TopicMessage;
 import com.openelements.hiero.base.data.Result;
 import com.openelements.hiero.base.data.BalanceModification;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
@@ -142,6 +144,14 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
         Objects.requireNonNull(accountId, "accountId must not be null");
         final String path = "/api/v1/tokens/" + tokenId +"/balances?account.id=" + accountId;
         final Function<JsonNode, List<Balance>> dataExtractionFunction = node -> jsonConverter.toBalances(node);
+        return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
+    }
+
+    @Override
+    public @NonNull Page<TopicMessage> queryTopicMessages(TopicId topicId) {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        final String path = "/api/v1/topics/" + topicId + "/messages";
+        final Function<JsonNode, List<TopicMessage>> dataExtractionFunction = node -> jsonConverter.toTopicMessages(node);
         return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
     }
 
