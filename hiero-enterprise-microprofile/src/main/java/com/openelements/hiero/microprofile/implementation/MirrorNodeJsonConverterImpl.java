@@ -4,6 +4,9 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
+import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TransactionId;
+import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRate;
 import com.openelements.hiero.base.data.ExchangeRates;
@@ -23,6 +26,9 @@ import com.openelements.hiero.base.data.NftTransfer;
 import com.openelements.hiero.base.data.TokenTransfer;
 import com.openelements.hiero.base.data.StakingRewardTransfer;
 import com.openelements.hiero.base.data.Transfer;
+import com.openelements.hiero.base.data.Topic;
+import com.openelements.hiero.base.data.TopicMessage;
+import com.openelements.hiero.base.data.ChunkInfo;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.protocol.data.TransactionType;
 import jakarta.json.JsonArray;
@@ -35,6 +41,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.Base64;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -312,6 +319,107 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .map(n -> toToken(n.asJsonObject()))
                 .filter(optional -> optional.isPresent())
                 .map(optional -> optional.get())
+                .toList();
+    }
+
+    @Override
+    public @NonNull Optional<Topic> toTopic(JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (jsonObject.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final TopicId topicId = TopicId.fromString(jsonObject.getString("topic_id"));
+            final PublicKey adminKey = jsonObject.get("admin_key").asJsonObject() == null? null
+                    : PublicKey.fromString(jsonObject.get("admin_key").asJsonObject().getString("key"));
+            final AccountId autoRenewAccount = AccountId.fromString(jsonObject.getString("auto_renew_account"));
+            final int autoRenewPeriod = jsonObject.getInt("auto_renew_period");
+            final Instant createdTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("created_timestamp")));
+            final boolean deleted = jsonObject.getBoolean("deleted");
+            final PublicKey feeScheduleKey = jsonObject.get("fee_schedule_key").asJsonObject() == null? null
+                    : PublicKey.fromString(jsonObject.get("fee_schedule_key").asJsonObject().getString("key"));
+            final String memo = jsonObject.getString("memo");
+            final PublicKey submitKey = jsonObject.get("submit_key").asJsonObject() == null? null
+                    : PublicKey.fromString(jsonObject.get("submit_key").asJsonObject().getString("key"));
+            final Instant fromTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.get("timestamp").asJsonObject().getString("from")));
+            final Instant toTimestamp = Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.get("timestamp").asJsonObject().getString("to")));
+
+            final List<FixedFee> fixedFees = jsonArrayToStream(jsonObject.get("custom_fees").asJsonObject().getJsonArray("fixed_fees"))
+                    .map(node -> {
+                        JsonObject obj = node.asJsonObject();
+                        final long amount = obj.getJsonNumber("amount").longValue();
+                        final AccountId accountId = obj.get("collector_account_id").asJsonObject() == null?
+                                null : AccountId.fromString(obj.getString("collector_account_id"));
+                        final TokenId tokenId = obj.get("denominating_token_id").asJsonObject() == null?
+                                null : TokenId.fromString(obj.getString("denominating_token_id"));
+                        return new FixedFee(amount, accountId, tokenId);
+                    }).toList();
+
+            final List<PublicKey> feeExemptKeyList = jsonArrayToStream(jsonObject.getJsonArray("fee_exempt_key_list"))
+                    .map(n -> PublicKey.fromString(n.asJsonObject().getString("key")))
+                    .toList();
+
+            return Optional.of(
+                    new Topic(topicId, adminKey, autoRenewAccount, autoRenewPeriod, createdTimestamp, fixedFees,
+                            feeExemptKeyList, feeScheduleKey, submitKey, deleted, memo, fromTimestamp, toTimestamp)
+            );
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
+        }
+    }
+
+    @Override
+    public @NonNull Optional<TopicMessage> toTopicMessage(JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (jsonObject.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final JsonObject chunk = jsonObject.get("chunk_info").asJsonObject();
+            ChunkInfo chunkInfo = null;
+            if (chunk != null){
+                final TransactionId transactionId = TransactionId.fromString(jsonObject.getString("initial_transaction_id"));
+                final int nonce = jsonObject.getInt("nonce");
+                final int number = jsonObject.getInt("number");
+                final int total = jsonObject.getInt("total");
+                final boolean scheduled = jsonObject.getBoolean("scheduled");
+                chunkInfo = new ChunkInfo(transactionId, nonce, number, total, scheduled);
+            }
+
+            final Instant consensusTimestamp =  Instant.ofEpochSecond((long) Double.parseDouble(jsonObject.getString("consensus_timestamp")));
+            final String message = new String(Base64.getDecoder().decode(jsonObject.getString("message")));
+            final AccountId payerAccountId = AccountId.fromString(jsonObject.getString("payer_account_id"));
+            final byte[] runningHash = jsonObject.getString("running_hash").getBytes();
+            final int runningHashVersion = jsonObject.getInt("running_hash_version");
+            final long sequenceNumber = Long.parseLong(jsonObject.getString("sequence_number"));
+            final TopicId topicId = TopicId.fromString(jsonObject.getString("topic_id"));
+
+            return Optional.of(
+                    new TopicMessage(chunkInfo, consensusTimestamp, message, payerAccountId, runningHash,
+                            runningHashVersion, sequenceNumber, topicId)
+            );
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
+        }
+    }
+
+    @Override
+    public @NonNull List<TopicMessage> toTopicMessages(JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (!jsonObject.containsKey("messages")) {
+            return List.of();
+        }
+        final JsonArray messages = jsonObject.getJsonArray("messages");
+        if (messages == null) {
+            throw new IllegalArgumentException("Messages array is not an array: " + messages);
+        }
+
+        return jsonArrayToStream(messages)
+                .map(n -> toTopicMessage(n.asJsonObject()))
+                .filter(o -> o.isPresent())
+                .map(o -> o.get())
                 .toList();
     }
 

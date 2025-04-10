@@ -2,6 +2,7 @@ package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRates;
@@ -12,6 +13,8 @@ import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Topic;
+import com.openelements.hiero.base.data.TopicMessage;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import java.util.List;
 import java.util.Objects;
@@ -81,6 +84,20 @@ public abstract class AbstractMirrorNodeClient<JSON> implements MirrorNodeClient
     public final Optional<TransactionInfo> queryTransaction(@NonNull String transactionId) throws HieroException {
         final JSON json = getRestClient().queryTransaction(transactionId);
         return getJsonConverter().toTransactionInfo(json);
+    }
+
+    @Override
+    @NonNull
+    public final Optional<Topic> queryTopicById(TopicId topicId) throws HieroException {
+        final JSON json = getRestClient().queryTopicById(topicId);
+        return getJsonConverter().toTopic(json);
+    }
+
+    @Override
+    @NonNull
+    public final Optional<TopicMessage> queryTopicMessageBySequenceNumber(TopicId topicId, long sequenceNumber) throws HieroException {
+        final JSON json = getRestClient().queryTopicMessageBySequenceNumber(topicId, sequenceNumber);
+        return getJsonConverter().toTopicMessage(json);
     }
 
     @Override

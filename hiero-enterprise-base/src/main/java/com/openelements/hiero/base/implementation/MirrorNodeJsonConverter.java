@@ -10,6 +10,8 @@ import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.Topic;
+import com.openelements.hiero.base.data.TopicMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,4 +50,13 @@ public interface MirrorNodeJsonConverter<JSON> {
     List<Balance> toBalances(JSON node);
 
     List<Token> toTokens(JSON node);
+
+    @NonNull
+    Optional<Topic> toTopic(JSON json);
+
+    @NonNull
+    Optional<TopicMessage> toTopicMessage(JSON json);
+
+    @NonNull
+    List<TopicMessage> toTopicMessages(JSON json);
 }
