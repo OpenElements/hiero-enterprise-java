@@ -58,7 +58,6 @@ public interface MirrorNodeRestClient<JSON> {
 
     @NonNull
     default JSON queryTopicById(TopicId topicId) throws HieroException {
-        System.out.println("/api/v1/topics/" + topicId);
         return doGetCall("/api/v1/topics/" + topicId);
     }
 
