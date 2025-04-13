@@ -23,6 +23,7 @@ import com.hedera.hashgraph.sdk.PublicKey;
 import com.hedera.hashgraph.sdk.Query;
 import com.hedera.hashgraph.sdk.SubscriptionHandle;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
+import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenBurnTransaction;
 import com.hedera.hashgraph.sdk.TokenCreateTransaction;
 import com.hedera.hashgraph.sdk.TokenMintTransaction;
@@ -67,6 +68,8 @@ import com.openelements.hiero.base.protocol.data.FileUpdateResult;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
@@ -459,6 +462,24 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
             return new TokenAssociateResult(receipt.transactionId, receipt.status);
         } catch (final Exception e) {
             throw new HieroException("Failed to execute associate token transaction", e);
+        }
+    }
+
+    @Override
+    public @NonNull TokenDissociateResult executeTokenDissociateTransaction(@NonNull TokenDissociateRequest request)
+            throws HieroException {
+        Objects.requireNonNull(request, "request must not be null");
+        try {
+            final TokenDissociateTransaction transaction = new TokenDissociateTransaction()
+                    .setMaxTransactionFee(request.maxTransactionFee())
+                    .setTransactionValidDuration(request.transactionValidDuration())
+                    .setAccountId(request.accountId())
+                    .setTokenIds(request.tokenIds());
+            sign(transaction, request.accountKey());
+            final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
+            return new TokenDissociateResult(receipt.transactionId, receipt.status);
+        } catch (final Exception e) {
+            throw new HieroException("Failed to execute dissociate token transaction", e);
         }
     }
 

@@ -28,6 +28,8 @@ import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
 import com.openelements.hiero.base.protocol.data.FileUpdateResult;
 import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
@@ -195,6 +197,17 @@ public interface ProtocolLayerClient {
      */
     @NonNull
     TokenAssociateResult executeTokenAssociateTransaction(@NonNull final TokenAssociateRequest request)
+            throws HieroException;
+
+    /**
+     * Executes a token dissociate transaction.
+     *
+     * @param request the request containing the details of the token dissociate transaction
+     * @return the result of the token dissociate transaction
+     * @throws HieroException if the transaction could not be executed
+     */
+    @NonNull
+    TokenDissociateResult executeTokenDissociateTransaction(@NonNull final TokenDissociateRequest request)
             throws HieroException;
 
     /**

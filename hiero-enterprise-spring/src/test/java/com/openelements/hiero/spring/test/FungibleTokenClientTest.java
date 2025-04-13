@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest(classes = TestConfig.class)
 public class FungibleTokenClientTest {
 
@@ -38,6 +40,61 @@ public class FungibleTokenClientTest {
         final Account account = accountClient.createAccount(1);
 
         Assertions.assertDoesNotThrow(() -> tokenClient.associateToken(tokenId, account));
+    }
+
+    @Test
+    void testDissociateToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId, account);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.dissociateToken(tokenId, account));
+    }
+
+    @Test
+    void testDissociateTokenThrowExceptionIfTokenNotAssociate() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        Assertions.assertThrows(HieroException.class, () -> tokenClient.dissociateToken(tokenId, account));
+    }
+
+    @Test
+    void testDissociateTokenWithMultipleToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId1, account);
+        tokenClient.associateToken(tokenId2, account);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.dissociateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testDissociateTokenWithMultipleTokenThrowExceptionIfTokenNotAssociate() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId1, account);
+
+        Assertions.assertThrows(HieroException.class, () -> tokenClient.dissociateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testDissociateTokenThrowExceptionIfListEmpty() throws HieroException {
+        final Account account = accountClient.createAccount(1);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> tokenClient.dissociateToken(List.of(), account));
     }
 
     @Test
