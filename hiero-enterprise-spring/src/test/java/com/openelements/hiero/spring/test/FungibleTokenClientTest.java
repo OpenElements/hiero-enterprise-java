@@ -32,7 +32,7 @@ public class FungibleTokenClientTest {
     }
 
     @Test
-    void associateToken() throws HieroException {
+    void testAssociateToken() throws HieroException {
         final String name = "TOKEN";
         final String symbol = "FT";
         final TokenId tokenId = tokenClient.createToken(name, symbol);
@@ -40,6 +40,51 @@ public class FungibleTokenClientTest {
         final Account account = accountClient.createAccount(1);
 
         Assertions.assertDoesNotThrow(() -> tokenClient.associateToken(tokenId, account));
+    }
+
+    @Test
+    void testAssociateTokenThrowExceptionForInvalidId() throws HieroException {
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(HieroException.class,
+                () -> tokenClient.associateToken(tokenId, userAccount.accountId(), userAccount.privateKey()));
+    }
+
+    @Test
+    void testAssociateTokenForNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> tokenClient.associateToken((TokenId) null, (String)null, null));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> tokenClient.associateToken((TokenId) null, null));
+    }
+
+    @Test
+    void testAssociateTokenWithMultipleToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.associateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testAssociateTokenWithMultipleTokenThrowExceptionForEmptyList() throws Exception {
+        //given
+        final String name = "Test NFT";
+        final String symbol = "TST";
+
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> tokenClient.associateToken(List.of(), userAccount.accountId(), userAccount.privateKey()));
     }
 
     @Test

@@ -915,23 +915,25 @@ public class ProtocolLayerDataCreationTests {
         //Given
         final Hbar maxTransactionFee = Hbar.fromTinybars(1000);
         final Duration transactionValidDuration = Duration.ofSeconds(120);
-        final TokenId tokenId = TokenId.fromString("0.0.12345");
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final List<TokenId> tokenIds = List.of(TokenId.fromString("0.0.12345"));
         final AccountId accountId = AccountId.fromString("0.0.54321");
         final PrivateKey accountPrivateKey = PrivateKey.generateECDSA();
 
         //Then
         Assertions.assertDoesNotThrow(
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, accountId,
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId,
                         accountPrivateKey));
         Assertions.assertDoesNotThrow(() -> TokenAssociateRequest.of(tokenId, accountId, accountPrivateKey));
+        Assertions.assertDoesNotThrow(() -> TokenAssociateRequest.of(tokenIds, accountId, accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, null, accountId,
                         accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, null,
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, null,
                         accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, accountId, null));
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId, null));
     }
 
     @Test

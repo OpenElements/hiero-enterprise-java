@@ -10,6 +10,8 @@ import com.openelements.hiero.base.NftClient;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+
+import com.openelements.hiero.base.data.Token;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +89,7 @@ public class NftClientTests {
     }
 
     @Test
-    void associateNft() throws Exception {
+    void testAssociateNft() throws Exception {
         //given
         final String name = "Test NFT";
         final String symbol = "TST";
@@ -101,7 +103,7 @@ public class NftClientTests {
     }
 
     @Test
-    void associateNftThrowExceptionForInvalidId() throws HieroException {
+    void testAssociateNftThrowExceptionForInvalidId() throws HieroException {
         //given
         final TokenId tokenId = TokenId.fromString("1.2.3");
         final Account userAccount = accountClient.createAccount(1);
@@ -117,12 +119,40 @@ public class NftClientTests {
                 () -> nftClient.associateNft((TokenId) null, null, null));
 
         Assertions.assertThrows(NullPointerException.class,
-                () -> nftClient.associateNft(null, null));
+                () -> nftClient.associateNft((TokenId) null, null));
     }
 
+    @Test
+    void testAssociateNftWithMultipleToken() throws Exception {
+        //given
+        final String name = "Test NFT";
+        final String symbol = "TST";
+
+        final TokenId tokenId1 = nftClient.createNftType(name, symbol);
+        final TokenId tokenId2 = nftClient.createNftType(name, symbol);
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertDoesNotThrow(() -> {
+            nftClient.associateNft(List.of(tokenId1, tokenId2), userAccount.accountId(), userAccount.privateKey());
+        });
+    }
 
     @Test
-    void testDissociateToken() throws HieroException {
+    void testAssociateNftWithMultipleTokenThrowExceptionForEmptyList() throws Exception {
+        //given
+        final String name = "Test NFT";
+        final String symbol = "TST";
+
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> nftClient.associateNft(List.of(), userAccount.accountId(), userAccount.privateKey()));
+    }
+
+    @Test
+    void testDissociateNft() throws HieroException {
         final String name = "Test NFT";
         final String symbol = "TST";
         final TokenId tokenId = nftClient.createNftType(name, symbol);
@@ -134,7 +164,7 @@ public class NftClientTests {
     }
 
     @Test
-    void testDissociateTokenThrowExceptionIfTokenNotAssociate() throws HieroException {
+    void testDissociateNftThrowExceptionIfTokenNotAssociate() throws HieroException {
         final String name = "Test NFT";
         final String symbol = "TST";
         final TokenId tokenId = nftClient.createNftType(name, symbol);
@@ -144,7 +174,7 @@ public class NftClientTests {
     }
 
     @Test
-    void testDissociateTokenWithMultipleTokens() throws HieroException {
+    void testDissociateNftWithMultipleTokens() throws HieroException {
         final String name = "Test NFT";
         final String symbol = "TST";
         final TokenId tokenId1 = nftClient.createNftType(name, symbol);
@@ -159,7 +189,7 @@ public class NftClientTests {
     }
 
     @Test
-    void testDissociateTokenWithMultipleTokensThrowExceptionIfTokenNotAssociated() throws HieroException {
+    void testDissociateNftWithMultipleTokensThrowExceptionIfTokenNotAssociated() throws HieroException {
         final String name = "Test NFT";
         final String symbol = "TST";
         final TokenId tokenId1 = nftClient.createNftType(name, symbol);
@@ -173,7 +203,7 @@ public class NftClientTests {
     }
 
     @Test
-    void testDissociateTokenThrowExceptionIfListEmpty() throws HieroException {
+    void testDissociateNftThrowExceptionIfListEmpty() throws HieroException {
         final Account account = accountClient.createAccount(1);
         Assertions.assertThrows(IllegalArgumentException.class, () -> nftClient.dissociateNft(List.of(), account));
     }
