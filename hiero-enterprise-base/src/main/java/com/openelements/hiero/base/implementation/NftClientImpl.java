@@ -69,6 +69,18 @@ public class NftClientImpl implements NftClient {
     }
 
     @Override
+    public void associateNft(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey) throws HieroException {
+        Objects.requireNonNull(tokenIds, "tokenIds must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        if (tokenIds.isEmpty()) {
+            throw new IllegalArgumentException("tokenIds must not be empty");
+        }
+        final TokenAssociateRequest request = TokenAssociateRequest.of(tokenIds, accountId, accountKey);
+        client.executeTokenAssociateTransaction(request);
+    }
+
+    @Override
     public void dissociateNft(@NonNull TokenId tokenId, @NonNull AccountId accountId, @NonNull PrivateKey accountKey) throws HieroException {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         Objects.requireNonNull(accountId, "accountId must not be null");

@@ -206,6 +206,31 @@ public interface NftClient {
     }
 
     /**
+     * Associate an account with an NFT type. If an account is associated with an NFT type, the account can hold NFTs of
+     * that type. Otherwise, the account cannot hold NFTs of that type and tranfer NFTs of that type will fail.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param accountId the  accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    void associateNft(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Associate an account with an NFT type. If an account is associated with an NFT type, the account can hold NFTs of
+     * that type. Otherwise, the account cannot hold NFTs of that type and tranfer NFTs of that type will fail.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param account the  account
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    default void associateNft(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        associateNft(tokenIds, account.accountId(), account.privateKey());
+    };
+
+    /**
      * Dissociate an account with an NFT type.
      *
      * @param tokenId the ID of the NFT type

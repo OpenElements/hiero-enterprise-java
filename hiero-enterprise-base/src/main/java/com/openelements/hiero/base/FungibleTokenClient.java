@@ -233,6 +233,29 @@ public interface FungibleTokenClient {
     }
 
     /**
+     * Associate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param accountId the accountId
+     * @param  accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the token
+     */
+    void associateToken(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Associate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param account the account
+     * @throws HieroException if the account could not be associated with the token
+     */
+    default void associateToken(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        associateToken(tokenIds, account.accountId(), account.privateKey());
+    };
+
+    /**
      * Dissociate an account with token.
      *
      * @param tokenId the ID of the token
@@ -293,7 +316,6 @@ public interface FungibleTokenClient {
         Objects.requireNonNull(account, "accountId must not be null");
         dissociateToken(tokenIds, account.accountId(), account.privateKey());
     };
-
 
     /**
      * Mint a Token.

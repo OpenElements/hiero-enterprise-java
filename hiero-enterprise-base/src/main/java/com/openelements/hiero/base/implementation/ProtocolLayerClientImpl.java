@@ -455,7 +455,7 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
             final TokenAssociateTransaction transaction = new TokenAssociateTransaction()
                     .setMaxTransactionFee(request.maxTransactionFee())
                     .setTransactionValidDuration(request.transactionValidDuration())
-                    .setTokenIds(List.of(request.tokenId()))
+                    .setTokenIds(request.tokenIds())
                     .setAccountId(request.accountId());
             sign(transaction, request.accountPrivateKey());
             final TransactionReceipt receipt = executeTransactionAndWaitOnReceipt(transaction);
