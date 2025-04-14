@@ -4,6 +4,8 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.data.Account;
+
+import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
@@ -229,6 +231,91 @@ public interface FungibleTokenClient {
         Objects.requireNonNull(account, "account must not be null");
         associateToken(tokenId, account.accountId(), account.privateKey());
     }
+
+    /**
+     * Associate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param accountId the accountId
+     * @param  accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the token
+     */
+    void associateToken(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Associate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param account the account
+     * @throws HieroException if the account could not be associated with the token
+     */
+    default void associateToken(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        associateToken(tokenIds, account.accountId(), account.privateKey());
+    };
+
+    /**
+     * Dissociate an account with token.
+     *
+     * @param tokenId the ID of the token
+     * @param accountId the accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the token
+     */
+    void dissociateToken(@NonNull TokenId tokenId, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Dissociate an account with token.
+     *
+     * @param tokenId the ID of the token
+     * @param accountId the accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the token
+     */
+    default void dissociateToken(@NonNull String tokenId, @NonNull String accountId, @NonNull String accountKey)
+            throws HieroException {
+        Objects.requireNonNull(tokenId, "tokenId must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        dissociateToken(TokenId.fromString(tokenId), AccountId.fromString(accountId), PrivateKey.fromString(accountKey));
+    };
+
+    /**
+     * Dissociate an account with token.
+     *
+     * @param tokenId the ID of the token
+     * @param account the account
+     * @throws HieroException if the account could not be associated with the token
+     */
+    default void dissociateToken(@NonNull TokenId tokenId, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        dissociateToken(tokenId, account.accountId(), account.privateKey());
+    };
+
+    /**
+     * Dissociate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param accountId the accountId
+     * @param  accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the token
+     */
+    void dissociateToken(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Dissociate an account with token.
+     *
+     * @param tokenIds list of the ID of the token
+     * @param account the account
+     * @throws HieroException if the account could not be associated with the token
+     */
+    default void dissociateToken(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        dissociateToken(tokenIds, account.accountId(), account.privateKey());
+    };
 
     /**
      * Mint a Token.

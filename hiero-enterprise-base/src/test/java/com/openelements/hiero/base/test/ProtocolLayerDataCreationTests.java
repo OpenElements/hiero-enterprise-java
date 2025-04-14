@@ -56,6 +56,8 @@ import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
 import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
 import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
 import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
@@ -647,6 +649,18 @@ public class ProtocolLayerDataCreationTests {
     }
 
     @Test
+    public void testTokenDissociateResultCreation() {
+        //Given
+        final TransactionId transactionId = TransactionId.generate(new AccountId(0, 0, 12345));
+        final Status status = Status.SUCCESS;
+
+        //Then
+        Assertions.assertDoesNotThrow(() -> new TokenDissociateResult(transactionId, status));
+        Assertions.assertThrows(NullPointerException.class, () -> new TokenDissociateResult(null, status));
+        Assertions.assertThrows(NullPointerException.class, () -> new TokenDissociateResult(transactionId, null));
+    }
+
+    @Test
     void testFileUpdateResultCreation() {
         //Given
         final TransactionId transactionId = TransactionId.generate(new AccountId(0, 0, 12345));
@@ -901,23 +915,51 @@ public class ProtocolLayerDataCreationTests {
         //Given
         final Hbar maxTransactionFee = Hbar.fromTinybars(1000);
         final Duration transactionValidDuration = Duration.ofSeconds(120);
-        final TokenId tokenId = TokenId.fromString("0.0.12345");
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final List<TokenId> tokenIds = List.of(TokenId.fromString("0.0.12345"));
         final AccountId accountId = AccountId.fromString("0.0.54321");
         final PrivateKey accountPrivateKey = PrivateKey.generateECDSA();
 
         //Then
         Assertions.assertDoesNotThrow(
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, accountId,
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId,
                         accountPrivateKey));
         Assertions.assertDoesNotThrow(() -> TokenAssociateRequest.of(tokenId, accountId, accountPrivateKey));
+        Assertions.assertDoesNotThrow(() -> TokenAssociateRequest.of(tokenIds, accountId, accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, null, accountId,
                         accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, null,
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, null,
                         accountPrivateKey));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenId, accountId, null));
+                () -> new TokenAssociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId, null));
+    }
+
+    @Test
+    void testTokenDissociateRequestCreation() {
+        //Given
+        final Hbar maxTransactionFee = Hbar.fromTinybars(1000);
+        final Duration transactionValidDuration = Duration.ofSeconds(120);
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final List<TokenId> tokenIds = List.of(TokenId.fromString("0.0.12345"));
+        final AccountId accountId = AccountId.fromString("0.0.54321");
+        final PrivateKey accountPrivateKey = PrivateKey.generateECDSA();
+
+        //Then
+        Assertions.assertDoesNotThrow(
+                () -> new TokenDissociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId,
+                        accountPrivateKey));
+        Assertions.assertDoesNotThrow(() -> TokenDissociateRequest.of(tokenIds, accountId, accountPrivateKey));
+        Assertions.assertDoesNotThrow(() -> TokenDissociateRequest.of(tokenId, accountId, accountPrivateKey));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenDissociateRequest(maxTransactionFee, transactionValidDuration, null, accountId,
+                        accountPrivateKey));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenDissociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, null,
+                        accountPrivateKey));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TokenDissociateRequest(maxTransactionFee, transactionValidDuration, tokenIds, accountId, null));
     }
 
     @Test

@@ -16,6 +16,8 @@ import com.openelements.hiero.base.implementation.NftClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
@@ -39,6 +41,7 @@ public class NftClientImplTest {
     ArgumentCaptor<TokenTransferRequest> tokenTransferCaptor = ArgumentCaptor.forClass(TokenTransferRequest.class);
     ArgumentCaptor<TokenBurnRequest> tokenBurnCaptor = ArgumentCaptor.forClass(TokenBurnRequest.class);
     ArgumentCaptor<TokenAssociateRequest> tokenAssociateCaptor = ArgumentCaptor.forClass(TokenAssociateRequest.class);
+    ArgumentCaptor<TokenDissociateRequest> tokenDissociateCaptor = ArgumentCaptor.forClass(TokenDissociateRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -462,7 +465,7 @@ public class NftClientImplTest {
                 .executeTokenAssociateTransaction(tokenAssociateCaptor.capture());
 
         final TokenAssociateRequest request = tokenAssociateCaptor.getValue();
-        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(List.of(tokenId), request.tokenIds());
         Assertions.assertEquals(accountId, request.accountId());
         Assertions.assertEquals(accountKey, request.accountPrivateKey());
     }
@@ -486,7 +489,7 @@ public class NftClientImplTest {
                 .executeTokenAssociateTransaction(tokenAssociateCaptor.capture());
 
         final TokenAssociateRequest request = tokenAssociateCaptor.getValue();
-        Assertions.assertEquals(tokenId, request.tokenId());
+        Assertions.assertEquals(List.of(tokenId), request.tokenIds());
         Assertions.assertEquals(accountId, request.accountId());
         Assertions.assertEquals(privateKey, request.accountPrivateKey());
     }
@@ -510,6 +513,118 @@ public class NftClientImplTest {
         Assertions.assertThrows(NullPointerException.class,
                 () -> nftClientImpl.associateNft((TokenId) null, (AccountId) null, (PrivateKey) null));
         Assertions.assertThrows(NullPointerException.class,
-                () -> nftClientImpl.associateNft(null, null));
+                () -> nftClientImpl.associateNft((TokenId) null, null));
+    }
+
+    @Test
+    void testAssociateNftWithMultipleToken() throws HieroException {
+        final TokenAssociateResult tokenAssociateResult = Mockito.mock(TokenAssociateResult.class);
+
+        final TokenId tokenId1 = TokenId.fromString("1.2.3");
+        final TokenId tokenId2 = TokenId.fromString("1.2.4");
+
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeTokenAssociateTransaction(any(TokenAssociateRequest.class)))
+                .thenReturn(tokenAssociateResult);
+
+        nftClientImpl.associateNft(List.of(tokenId1, tokenId2), accountId, accountKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeTokenAssociateTransaction(tokenAssociateCaptor.capture());
+
+        final TokenAssociateRequest request = tokenAssociateCaptor.getValue();
+        Assertions.assertEquals(List.of(tokenId1, tokenId2), request.tokenIds());
+        Assertions.assertEquals(accountId, request.accountId());
+        Assertions.assertEquals(accountKey, request.accountPrivateKey());
+    }
+
+    @Test
+    void testAssociateNftWithMultipleTokenThrowExceptionIfListEmpty() {
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> nftClientImpl.associateNft(List.of(), accountId, accountKey));
+        Assertions.assertEquals("tokenIds must not be empty", e.getMessage());
+    }
+
+    @Test
+    void testDissociateNft() throws HieroException {
+        final TokenDissociateResult tokenDissociateResult = Mockito.mock(TokenDissociateResult.class);
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeTokenDissociateTransaction(any(TokenDissociateRequest.class)))
+                .thenReturn(tokenDissociateResult);
+
+        nftClientImpl.dissociateNft(tokenId, accountId, accountKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeTokenDissociateTransaction(tokenDissociateCaptor.capture());
+
+        final TokenDissociateRequest request = tokenDissociateCaptor.getValue();
+        Assertions.assertEquals(List.of(tokenId), request.tokenIds());
+        Assertions.assertEquals(accountId, request.accountId());
+        Assertions.assertEquals(accountKey, request.accountKey());
+    }
+
+    @Test
+    void testDissociateNftThrowsExceptionForInvalidId() throws HieroException {
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+        final Account account = new Account(accountId, accountKey.getPublicKey(), accountKey);
+
+        when(protocolLayerClient.executeTokenDissociateTransaction(any(TokenDissociateRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenDissociateTransaction"));
+
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.dissociateNft(tokenId, accountId, accountKey));
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.dissociateNft(tokenId, account));
+    }
+
+    @Test
+    void testDissociateNftNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.dissociateNft((TokenId) null, null, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> nftClientImpl.dissociateNft((TokenId) null, null));
+    }
+
+    @Test
+    void testDissociateNftWithMultipleToken() throws HieroException {
+        final TokenDissociateResult tokenDissociateResult = Mockito.mock(TokenDissociateResult.class);
+
+        final TokenId tokenId1 = TokenId.fromString("1.2.3");
+        final TokenId tokenId2 = TokenId.fromString("1.2.4");
+
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        when(protocolLayerClient.executeTokenDissociateTransaction(any(TokenDissociateRequest.class)))
+                .thenReturn(tokenDissociateResult);
+
+        nftClientImpl.dissociateNft(List.of(tokenId1, tokenId2), accountId, accountKey);
+
+        verify(protocolLayerClient, times(1))
+                .executeTokenDissociateTransaction(tokenDissociateCaptor.capture());
+
+        final TokenDissociateRequest request = tokenDissociateCaptor.getValue();
+        Assertions.assertEquals(List.of(tokenId1, tokenId2), request.tokenIds());
+        Assertions.assertEquals(accountId, request.accountId());
+        Assertions.assertEquals(accountKey, request.accountKey());
+    }
+
+    @Test
+    void testDissociateNftWithMultipleTokenThrowExceptionIfListEmpty() {
+        final AccountId accountId = AccountId.fromString("1.2.3");
+        final PrivateKey accountKey = PrivateKey.generateECDSA();
+
+        IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> nftClientImpl.dissociateNft(List.of(), accountId, accountKey));
+        Assertions.assertEquals("tokenIds must not be empty", e.getMessage());
     }
 }

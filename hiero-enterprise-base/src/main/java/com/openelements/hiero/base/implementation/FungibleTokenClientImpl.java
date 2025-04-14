@@ -7,8 +7,9 @@ import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenType;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
-import com.openelements.hiero.base.protocol.*;
+import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
@@ -18,6 +19,7 @@ import com.openelements.hiero.base.protocol.data.TokenMintResult;
 import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.Objects;
 
 public class FungibleTokenClientImpl implements FungibleTokenClient {
@@ -63,6 +65,39 @@ public class FungibleTokenClientImpl implements FungibleTokenClient {
             throws HieroException {
         final TokenAssociateRequest request = TokenAssociateRequest.of(tokenId, accountId, accountKey);
         client.executeTokenAssociateTransaction(request);
+    }
+
+    @Override
+    public void associateToken(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey) throws HieroException {
+        Objects.requireNonNull(tokenIds, "tokenIds must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        if (tokenIds.isEmpty()) {
+            throw new IllegalArgumentException("tokenIds must not be empty");
+        }
+        final TokenAssociateRequest request = TokenAssociateRequest.of(tokenIds, accountId, accountKey);
+        client.executeTokenAssociateTransaction(request);
+    }
+
+    @Override
+    public void dissociateToken(@NonNull TokenId tokenId, @NonNull AccountId accountId, @NonNull PrivateKey accountKey) throws HieroException {
+        Objects.requireNonNull(tokenId, "tokenId must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        final TokenDissociateRequest request = TokenDissociateRequest.of(tokenId, accountId, accountKey);
+        client.executeTokenDissociateTransaction(request);
+    }
+
+    @Override
+    public void dissociateToken(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey) throws HieroException {
+        Objects.requireNonNull(tokenIds, "tokenIds must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        if (tokenIds.isEmpty()) {
+            throw new IllegalArgumentException("tokenIds must not be empty");
+        }
+        final TokenDissociateRequest request = TokenDissociateRequest.of(tokenIds, accountId, accountKey);
+        client.executeTokenDissociateTransaction(request);
     }
 
     @Override
