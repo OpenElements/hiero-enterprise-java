@@ -8,21 +8,20 @@ import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.FungibleTokenClient;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.NftClient;
+import com.openelements.hiero.base.data.Account;
+import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
-import com.openelements.hiero.base.data.Balance;
-import com.openelements.hiero.base.data.Account;
-import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
 import com.openelements.hiero.test.HieroTestUtils;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Optional;
-
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class TokenRepositoryTest {
     @Autowired
     private TokenRepository tokenRepository;
@@ -42,11 +41,12 @@ public class TokenRepositoryTest {
     @Test
     void testNullParam() {
         Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.findByAccount((String) null));
-        Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.findById((String)null));
-        Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.getBalances((String)null));
+        Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.findById((String) null));
+        Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.getBalances((String) null));
         Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.getBalancesForAccount(null, "1.2.3"));
         Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.getBalancesForAccount("1.2.3", null));
-        Assertions.assertThrows(NullPointerException.class, () -> tokenRepository.getBalancesForAccount((String)null, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> tokenRepository.getBalancesForAccount((String) null, null));
     }
 
     @Test
@@ -101,7 +101,6 @@ public class TokenRepositoryTest {
         // when
         final Optional<TokenInfo> fungiToken = tokenRepository.findById(fungiTokenId);
         final Optional<TokenInfo> nftToken = tokenRepository.findById(nftTokenId);
-
 
         // then
         Assertions.assertTrue(fungiToken.isPresent());

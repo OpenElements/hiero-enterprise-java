@@ -7,11 +7,11 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 public record TopicCreateResult(@NonNull TransactionId transactionId, @NonNull Status status,
-                                @NonNull TopicId fileId) implements TransactionResult {
+                                @NonNull TopicId topicId) implements TransactionResult {
 
     public TopicCreateResult {
         Objects.requireNonNull(transactionId, "transactionId must not be null");
         Objects.requireNonNull(status, "status must not be null");
-        Objects.requireNonNull(fileId, "fileId must not be null");
+        Objects.requireNonNull(topicId, "topicId must not be null");
     }
 }

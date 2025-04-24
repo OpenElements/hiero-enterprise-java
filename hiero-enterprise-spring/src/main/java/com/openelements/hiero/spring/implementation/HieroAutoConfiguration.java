@@ -6,6 +6,7 @@ import com.openelements.hiero.base.FungibleTokenClient;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.NftClient;
 import com.openelements.hiero.base.SmartContractClient;
+import com.openelements.hiero.base.TopicClient;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.implementation.AccountClientImpl;
 import com.openelements.hiero.base.implementation.AccountRepositoryImpl;
@@ -13,15 +14,20 @@ import com.openelements.hiero.base.implementation.FileClientImpl;
 import com.openelements.hiero.base.implementation.FungibleTokenClientImpl;
 import com.openelements.hiero.base.implementation.NetworkRepositoryImpl;
 import com.openelements.hiero.base.implementation.NftClientImpl;
+import com.openelements.hiero.base.implementation.TopicClientImpl;
 import com.openelements.hiero.base.implementation.NftRepositoryImpl;
+import com.openelements.hiero.base.implementation.TopicRepositoryImpl;
 import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.implementation.TokenRepositoryImpl;
+import com.openelements.hiero.base.implementation.TransactionRepositoryImpl;
 import com.openelements.hiero.base.mirrornode.AccountRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.NetworkRepository;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
+import com.openelements.hiero.base.mirrornode.TransactionRepository;
+import com.openelements.hiero.base.mirrornode.TopicRepository;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import java.net.URI;
@@ -85,6 +91,11 @@ public class HieroAutoConfiguration {
     }
 
     @Bean
+    TopicClient topicClient(final ProtocolLayerClient protocolLayerClient, HieroContext hieroContext) {
+        return new TopicClientImpl(protocolLayerClient, hieroContext.getOperatorAccount());
+    }
+
+    @Bean
     @ConditionalOnProperty(prefix = "spring.hiero", name = "mirrorNodeSupported",
             havingValue = "true", matchIfMissing = true)
     MirrorNodeClient mirrorNodeClient(final HieroContext hieroContext) {
@@ -143,6 +154,20 @@ public class HieroAutoConfiguration {
             havingValue = "true", matchIfMissing = true)
     TokenRepository tokenRepository(final MirrorNodeClient mirrorNodeClient) {
         return new TokenRepositoryImpl(mirrorNodeClient);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "spring.hiero", name = "mirrorNodeSupported",
+            havingValue = "true", matchIfMissing = true)
+    TransactionRepository transactionRepository(final MirrorNodeClient mirrorNodeClient) {
+        return new TransactionRepositoryImpl(mirrorNodeClient);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "spring.hiero", name = "mirrorNodeSupported",
+            havingValue = "true", matchIfMissing = true)
+    TopicRepository topicRepository(final MirrorNodeClient mirrorNodeClient) {
+        return new TopicRepositoryImpl(mirrorNodeClient);
     }
 
     @Bean

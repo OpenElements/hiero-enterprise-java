@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableHiero
 @SpringBootConfiguration
 @ComponentScan
-public class TestConfig {
+public class HieroTestConfig {
 
     @Bean
     HieroTestUtils hieroTestUtils(MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 class ContractVerificationClientImplementationTest {
 
     @Autowired

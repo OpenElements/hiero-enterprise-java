@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 /**
  * Network settings for the Hedera Testnet.
  */
-public final class HederTestnetSettings implements NetworkSettings {
+public final class HederaTestnetSettings implements NetworkSettings {
 
     /**
      * The network identifier.

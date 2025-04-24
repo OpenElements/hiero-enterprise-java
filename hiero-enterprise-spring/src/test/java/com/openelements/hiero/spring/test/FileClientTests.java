@@ -3,20 +3,18 @@ package com.openelements.hiero.spring.test;
 import com.hedera.hashgraph.sdk.FileId;
 import com.openelements.hiero.base.FileClient;
 import com.openelements.hiero.base.HieroException;
-
+import com.openelements.hiero.base.protocol.data.FileCreateRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.IntStream;
-
-import com.openelements.hiero.base.protocol.data.FileCreateRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class FileClientTests {
 
     @Autowired

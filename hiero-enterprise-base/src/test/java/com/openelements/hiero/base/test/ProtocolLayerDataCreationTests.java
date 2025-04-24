@@ -54,6 +54,8 @@ import com.openelements.hiero.base.protocol.data.TopicSubmitMessageResult;
 import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
 import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
+import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
+import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
 
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
@@ -233,11 +235,55 @@ public class ProtocolLayerDataCreationTests {
         //given
         final Hbar validMaxTransactionFee = Hbar.fromTinybars(1000);
         final Duration validTransactionDuration = Duration.ofSeconds(120);
+        final PrivateKey adminKey = PrivateKey.generateECDSA();
 
-        Assertions.assertDoesNotThrow(() -> new TopicCreateRequest(validMaxTransactionFee, validTransactionDuration));
-        Assertions.assertThrows(NullPointerException.class,
-                () -> new TopicCreateRequest(null, validTransactionDuration));
-        Assertions.assertThrows(NullPointerException.class, () -> new TopicCreateRequest(validMaxTransactionFee, null));
+        Assertions.assertDoesNotThrow(() -> new TopicCreateRequest(
+                validMaxTransactionFee, validTransactionDuration, adminKey, null, null));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicCreateRequest(null, null, adminKey, null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicCreateRequest(null, validTransactionDuration, null, null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicCreateRequest(validMaxTransactionFee, null, null, null, null)
+        );
+    }
+
+    @Test
+    void testTopicUpdateRequestCreation() {
+        //given
+        final Hbar validMaxTransactionFee = Hbar.fromTinybars(1000);
+        final Duration validTransactionDuration = Duration.ofSeconds(120);
+        final PrivateKey adminKey = PrivateKey.generateECDSA();
+        final TopicId topicId = TopicId.fromString("1.2.3");
+
+
+        Assertions.assertDoesNotThrow(() -> new TopicUpdateRequest(
+                validMaxTransactionFee, validTransactionDuration, topicId, adminKey, null, null, null));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicUpdateRequest(
+                        validMaxTransactionFee, null, null, null, null, null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicUpdateRequest(
+                        null, validTransactionDuration, null, null, null, null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicUpdateRequest(
+                        null, null, topicId, null, null, null, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new TopicUpdateRequest(
+                        null, null, null, adminKey, null, null, null)
+        );
     }
 
     @Test
@@ -1032,7 +1078,7 @@ public class ProtocolLayerDataCreationTests {
         Assertions.assertDoesNotThrow(() -> TopicSubmitMessageRequest.of(validTopicId, validMessage));
         Assertions.assertDoesNotThrow(() -> TopicSubmitMessageRequest.of(validTopicId, validMessageBytes));
         Assertions.assertDoesNotThrow(
-                () -> new TopicSubmitMessageRequest(validMaxTransactionFee, validTransactionValidDuration, validTopicId,
+                () -> new TopicSubmitMessageRequest(validMaxTransactionFee, validTransactionValidDuration, validTopicId, null,
                         validMessage.getBytes(StandardCharsets.UTF_8)));
         Assertions.assertThrows(NullPointerException.class, () -> TopicSubmitMessageRequest.of(null, validMessage));
         Assertions.assertThrows(NullPointerException.class,
@@ -1043,10 +1089,10 @@ public class ProtocolLayerDataCreationTests {
                 () -> TopicSubmitMessageRequest.of(validTopicId, largeMessage));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TopicSubmitMessageRequest(validMaxTransactionFee, validTransactionValidDuration, null,
-                        validMessage.getBytes(StandardCharsets.UTF_8)));
+                       null , validMessage.getBytes(StandardCharsets.UTF_8)));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TopicSubmitMessageRequest(validMaxTransactionFee, validTransactionValidDuration, validTopicId,
-                        null));
+                        null, null));
     }
 
     @Test
@@ -1056,22 +1102,21 @@ public class ProtocolLayerDataCreationTests {
         final Duration transactionValidDuration = Duration.ofSeconds(10);
         final String topicIdString = "0.0.12345";
         final TopicId topicId = TopicId.fromString(topicIdString);
+        final PrivateKey adminKey = PrivateKey.generateECDSA();
 
         //then
-        Assertions.assertDoesNotThrow(() -> TopicDeleteRequest.of(topicId));
-        Assertions.assertDoesNotThrow(
-                () -> new TopicDeleteRequest(maxTransactionFee, transactionValidDuration, topicId));
-        Assertions.assertDoesNotThrow(() -> new TopicDeleteRequest(null, transactionValidDuration, topicId));
-        Assertions.assertDoesNotThrow(() -> new TopicDeleteRequest(maxTransactionFee, null, topicId));
-        Assertions.assertDoesNotThrow(() -> new TopicDeleteRequest(null, null, topicId));
-        Assertions.assertThrows(NullPointerException.class, () -> TopicDeleteRequest.of(null));
+        Assertions.assertDoesNotThrow(() -> TopicDeleteRequest.of(adminKey,topicId));
+        Assertions.assertDoesNotThrow(() -> new TopicDeleteRequest(maxTransactionFee, transactionValidDuration, adminKey, topicId));
+
+        Assertions.assertThrows(NullPointerException.class, () -> TopicDeleteRequest.of(null, null));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TopicDeleteRequest(maxTransactionFee, transactionValidDuration, null));
+                () -> new TopicDeleteRequest(maxTransactionFee, null, null, null));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TopicDeleteRequest(null, transactionValidDuration, null));
+                () -> new TopicDeleteRequest(null, transactionValidDuration, null, null));
         Assertions.assertThrows(NullPointerException.class,
-                () -> new TopicDeleteRequest(maxTransactionFee, null, null));
-        Assertions.assertThrows(NullPointerException.class, () -> new TopicDeleteRequest(null, null, null));
+                () -> new TopicDeleteRequest(null, null, adminKey, null));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TopicDeleteRequest(null, null, null, topicId));
     }
 
     @Test
@@ -1089,5 +1134,19 @@ public class ProtocolLayerDataCreationTests {
                 () -> new TopicCreateResult(validTransactionId, null, validTopicId));
         Assertions.assertThrows(NullPointerException.class,
                 () -> new TopicCreateResult(validTransactionId, validStatus, null));
+    }
+
+    @Test
+    void testTopicUpdateResultCreation() {
+        //given
+        final TransactionId validTransactionId = TransactionId.fromString("0.0.123451@1697590800.123456789");
+        final Status validStatus = Status.SUCCESS;
+
+        //then
+        Assertions.assertDoesNotThrow(() -> new TopicUpdateResult(validTransactionId, validStatus));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TopicUpdateResult(null, validStatus));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> new TopicUpdateResult(validTransactionId, null));
     }
 }
