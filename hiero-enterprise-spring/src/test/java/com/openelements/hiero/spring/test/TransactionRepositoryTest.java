@@ -4,21 +4,20 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.AccountClient;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
+import com.openelements.hiero.base.data.BalanceModification;
 import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.Result;
-import com.openelements.hiero.base.data.BalanceModification;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.protocol.data.TransactionType;
 import com.openelements.hiero.test.HieroTestUtils;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class TransactionRepositoryTest {
     @Autowired
     private TransactionRepository transactionRepository;

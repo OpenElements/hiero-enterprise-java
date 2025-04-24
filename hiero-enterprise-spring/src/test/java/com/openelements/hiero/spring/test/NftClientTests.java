@@ -3,10 +3,10 @@ package com.openelements.hiero.spring.test;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.PrivateKey;
 import com.hedera.hashgraph.sdk.TokenId;
-import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
+import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.NftClient;
+import com.openelements.hiero.base.data.Account;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class NftClientTests {
 
     @Autowired
@@ -40,7 +40,7 @@ public class NftClientTests {
     @Test
     void testCreateNftForNullParam() {
         Assertions.assertThrows(
-                NullPointerException.class, () -> nftClient.createNftType((String)null, null)
+                NullPointerException.class, () -> nftClient.createNftType((String) null, null)
         );
         Assertions.assertThrows(
                 NullPointerException.class, () -> nftClient.createNftType(null, null, (PrivateKey) null)
@@ -187,7 +187,7 @@ public class NftClientTests {
         final List<Long> serial = nftClient.mintNfts(tokenId, metadata1, metadata2);
 
         Assertions.assertDoesNotThrow(() -> nftClient.burnNft(tokenId, serial.get(0)));
-        Assertions.assertDoesNotThrow(() -> nftClient.burnNft(tokenId, serial.get(1),supplierAccount.privateKey()));
+        Assertions.assertDoesNotThrow(() -> nftClient.burnNft(tokenId, serial.get(1), supplierAccount.privateKey()));
     }
 
     @Test
@@ -202,7 +202,8 @@ public class NftClientTests {
         final List<Long> serials = nftClient.mintNfts(tokenId, metadata1, metadata2);
 
         Assertions.assertDoesNotThrow(() -> nftClient.burnNfts(tokenId, Set.of(serials.get(0))));
-        Assertions.assertDoesNotThrow(() -> nftClient.burnNfts(tokenId, Set.of(serials.get(1)),supplierAccount.privateKey()));
+        Assertions.assertDoesNotThrow(
+                () -> nftClient.burnNfts(tokenId, Set.of(serials.get(1)), supplierAccount.privateKey()));
     }
 
     @Test
