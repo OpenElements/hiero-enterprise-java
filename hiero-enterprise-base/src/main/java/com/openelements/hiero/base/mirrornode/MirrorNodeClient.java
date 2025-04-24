@@ -2,6 +2,7 @@ package com.openelements.hiero.base.mirrornode;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.Balance;
@@ -15,6 +16,8 @@ import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.Topic;
+import com.openelements.hiero.base.data.TopicMessage;
 import com.openelements.hiero.base.data.Result;
 import com.openelements.hiero.base.data.BalanceModification;
 import java.util.List;
@@ -375,6 +378,77 @@ public interface MirrorNodeClient {
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         Objects.requireNonNull(accountId, "accountId must not be null");
         return queryTokenBalancesForAccount(TokenId.fromString(tokenId), AccountId.fromString(accountId));
+    }
+
+    /**
+     * Return Topic for given topicId.
+     *
+     * @param topicId id of the topic
+     * @return Optional of Topic
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    Optional<Topic> queryTopicById(TopicId topicId) throws HieroException;
+
+    /**
+     * Return Topic for given topicId.
+     *
+     * @param topicId id of the topic
+     * @return Optional of Topic
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    default Optional<Topic> queryTopicById(String topicId) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        return queryTopicById(TopicId.fromString(topicId));
+    }
+
+    /**
+     * Return TopicMessages for given topicId.
+     *
+     * @param topicId id of the topic
+     * @return Page of TopicMessage
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    Page<TopicMessage> queryTopicMessages(TopicId topicId) throws HieroException;
+
+    /**
+     * Return TopicMessages for given topicId.
+     *
+     * @param topicId id of the topic
+     * @return Page of TopicMessage
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    default Page<TopicMessage> queryTopicMessages(String topicId) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        return queryTopicMessages(TopicId.fromString(topicId));
+    }
+
+    /**
+     * Return TopicMessage for given topicId.
+     *
+     * @param topicId id of the topic
+     * @param sequenceNumber sequenceNumber of the message
+     * @return Optional of TopicMessage
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    Optional<TopicMessage> queryTopicMessageBySequenceNumber(TopicId topicId, long sequenceNumber) throws HieroException;
+
+    /**
+     * Return TopicMessage for given topicId.
+     *
+     * @param topicId id of the topic
+     * @param sequenceNumber sequenceNumber of the message
+     * @return Optional of TopicMessage
+     * @throws HieroException if the search fails
+     */
+    @NonNull
+    default Optional<TopicMessage> queryTopicMessageBySequenceNumber(String topicId, long sequenceNumber) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        return queryTopicMessageBySequenceNumber(TopicId.fromString(topicId), sequenceNumber);
     }
 
     @NonNull

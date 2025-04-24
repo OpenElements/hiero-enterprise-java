@@ -2,6 +2,7 @@ package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
+import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -53,6 +54,16 @@ public interface MirrorNodeRestClient<JSON> {
     @NonNull
     default  JSON queryTokenById(TokenId tokenId) throws HieroException {
         return doGetCall("/api/v1/tokens/" + tokenId);
+    }
+
+    @NonNull
+    default JSON queryTopicById(TopicId topicId) throws HieroException {
+        return doGetCall("/api/v1/topics/" + topicId);
+    }
+
+    @NonNull
+    default JSON queryTopicMessageBySequenceNumber(TopicId topicId, long sequenceNumber) throws HieroException {
+        return doGetCall("/api/v1/topics/" + topicId + "/messages/" + sequenceNumber);
     }
 
     @NonNull
