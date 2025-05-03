@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.Hbar;
 import com.hedera.hashgraph.sdk.Status;
 import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.data.Account;
+import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
 import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
 import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
@@ -22,7 +23,6 @@ import com.openelements.hiero.base.protocol.data.FileDeleteResult;
 import com.openelements.hiero.base.protocol.data.FileInfoRequest;
 import com.openelements.hiero.base.protocol.data.FileInfoResponse;
 import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
-import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.test.HieroTestUtils;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class ProtocolLayerClientTests {
 
     @Autowired

@@ -1,10 +1,10 @@
 package com.openelements.hiero.spring.test;
 
 import com.hedera.hashgraph.sdk.TokenId;
-import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.AccountClient;
-import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.FungibleTokenClient;
+import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.Account;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class FungibleTokenClientTest {
 
     @Autowired
@@ -178,6 +178,6 @@ public class FungibleTokenClientTest {
 
         long totalSupply = tokenClient.mintToken(tokenId, 1L);
 
-        Assertions.assertDoesNotThrow(() -> tokenClient.transferToken(tokenId,  toAccount.accountId(), totalSupply));
+        Assertions.assertDoesNotThrow(() -> tokenClient.transferToken(tokenId, toAccount.accountId(), totalSupply));
     }
 }
