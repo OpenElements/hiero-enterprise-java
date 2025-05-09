@@ -8,14 +8,13 @@ import com.openelements.hiero.base.data.Topic;
 import com.openelements.hiero.base.data.TopicMessage;
 import com.openelements.hiero.base.mirrornode.TopicRepository;
 import com.openelements.hiero.test.HieroTestUtils;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Optional;
-
-@SpringBootTest(classes = TestConfig.class)
+@SpringBootTest(classes = HieroTestConfig.class)
 public class TopicRepositoryTest {
     @Autowired
     private TopicRepository topicRepository;
