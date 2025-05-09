@@ -32,15 +32,15 @@ jobs:
 
       - name: Prepare Hedera Solo
         id: solo
-        uses: OpenElements/hedera-solo-action@v0.6
+        uses: OpenElements/hedera-solo-action@v0.7
         with:
           installMirrorNode: true
 
       - name: Build with Maven
         env:
           spring_profiles_active: solo
-          HEDERA_ACCOUNT_ID: ${{ steps.solo.outputs.accountId }}
-          HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
+          HEDERA_ACCOUNT_ID: ${{ steps.solo.outputs.ecdsaAccountId }}
+          HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.ecdsaPrivateKey }}
           HEDERA_NETWORK: hiero-solo-action
         run: ./mvnw verify
 
