@@ -44,6 +44,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>hiero-enterprise-test</artifactId>
       <scope>test</scope>

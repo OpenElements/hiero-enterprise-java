@@ -23,15 +23,15 @@ import com.hedera.hashgraph.sdk.PublicKey;
 import com.hedera.hashgraph.sdk.Query;
 import com.hedera.hashgraph.sdk.SubscriptionHandle;
 import com.hedera.hashgraph.sdk.TokenAssociateTransaction;
-import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenBurnTransaction;
 import com.hedera.hashgraph.sdk.TokenCreateTransaction;
+import com.hedera.hashgraph.sdk.TokenDissociateTransaction;
 import com.hedera.hashgraph.sdk.TokenMintTransaction;
 import com.hedera.hashgraph.sdk.TopicCreateTransaction;
-import com.hedera.hashgraph.sdk.TopicUpdateTransaction;
 import com.hedera.hashgraph.sdk.TopicDeleteTransaction;
 import com.hedera.hashgraph.sdk.TopicMessageQuery;
 import com.hedera.hashgraph.sdk.TopicMessageSubmitTransaction;
+import com.hedera.hashgraph.sdk.TopicUpdateTransaction;
 import com.hedera.hashgraph.sdk.Transaction;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
 import com.hedera.hashgraph.sdk.TransactionRecord;
@@ -41,6 +41,10 @@ import com.openelements.hiero.base.HieroContext;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.data.ContractParam;
+import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor;
+import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor.ReceiveRecordHandler;
+import com.openelements.hiero.base.protocol.ProtocolLayerClient;
+import com.openelements.hiero.base.protocol.TransactionListener;
 import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
 import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
 import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
@@ -65,34 +69,33 @@ import com.openelements.hiero.base.protocol.data.FileInfoRequest;
 import com.openelements.hiero.base.protocol.data.FileInfoResponse;
 import com.openelements.hiero.base.protocol.data.FileUpdateRequest;
 import com.openelements.hiero.base.protocol.data.FileUpdateResult;
-import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
-import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
-import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 import com.openelements.hiero.base.protocol.data.TokenBurnRequest;
 import com.openelements.hiero.base.protocol.data.TokenBurnResult;
 import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
 import com.openelements.hiero.base.protocol.data.TokenCreateResult;
+import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
+import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
 import com.openelements.hiero.base.protocol.data.TokenMintRequest;
 import com.openelements.hiero.base.protocol.data.TokenMintResult;
 import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import com.openelements.hiero.base.protocol.data.TokenTransferResult;
 import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
 import com.openelements.hiero.base.protocol.data.TopicCreateResult;
-import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
-import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
 import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
 import com.openelements.hiero.base.protocol.data.TopicDeleteResult;
 import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicMessageResult;
 import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicSubmitMessageResult;
-import com.openelements.hiero.base.protocol.TransactionListener;
+import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
+import com.openelements.hiero.base.protocol.data.TopicUpdateResult;
 import com.openelements.hiero.base.protocol.data.TransactionType;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -108,9 +111,18 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
 
     private final HieroContext hieroContext;
 
+    private final AtomicReference<ReceiveRecordInterceptor> recordInterceptor = new AtomicReference<>(
+            ReceiveRecordInterceptor.DEFAULT_INTERCEPTOR);
+
     public ProtocolLayerClientImpl(@NonNull final HieroContext hieroContext) {
         this.hieroContext = Objects.requireNonNull(hieroContext, "hieroContext must not be null");
         listeners = new CopyOnWriteArrayList<>();
+    }
+
+    public void setRecordInterceptor(
+            @NonNull final ReceiveRecordInterceptor recordInterceptor) {
+        Objects.requireNonNull(recordInterceptor, "recordInterceptor must not be null");
+        this.recordInterceptor.set(recordInterceptor);
     }
 
     @Override
@@ -618,7 +630,10 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
         try {
             log.debug("Waiting for record of transaction '{}' of type {}", receipt.transactionId,
                     transaction.getClass().getSimpleName());
-            return receipt.transactionId.getRecord(hieroContext.getClient());
+
+            final ReceiveRecordHandler data = new ReceiveRecordHandler(transaction, receipt,
+                    r -> r.transactionId.getRecord(hieroContext.getClient()));
+            return recordInterceptor.get().getRecordFor(data);
         } catch (final Exception e) {
             throw new HieroException("Failed to receive record of transaction '" + receipt.transactionId + "' of type "
                     + transaction.getClass(), e);

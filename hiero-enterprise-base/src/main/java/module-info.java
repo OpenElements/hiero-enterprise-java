@@ -9,6 +9,7 @@ module com.openelements.hiero.base {
     exports com.openelements.hiero.base.implementation.data to com.openelements.hiero.base.test;
     exports com.openelements.hiero.base.config.implementation;
     exports com.openelements.hiero.base.protocol.data;
+    exports com.openelements.hiero.base.interceptors to com.openelements.hiero.base.test;
 
     uses com.openelements.hiero.base.config.NetworkSettingsProvider;
     provides com.openelements.hiero.base.config.NetworkSettingsProvider with com.openelements.hiero.base.config.hedera.HederaNetworkSettingsProvider;
