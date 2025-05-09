@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest(classes = HieroTestConfig.class)
 public class FungibleTokenClientTest {
 
@@ -30,7 +32,7 @@ public class FungibleTokenClientTest {
     }
 
     @Test
-    void associateToken() throws HieroException {
+    void testAssociateToken() throws HieroException {
         final String name = "TOKEN";
         final String symbol = "FT";
         final TokenId tokenId = tokenClient.createToken(name, symbol);
@@ -38,6 +40,106 @@ public class FungibleTokenClientTest {
         final Account account = accountClient.createAccount(1);
 
         Assertions.assertDoesNotThrow(() -> tokenClient.associateToken(tokenId, account));
+    }
+
+    @Test
+    void testAssociateTokenThrowExceptionForInvalidId() throws HieroException {
+        //given
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(HieroException.class,
+                () -> tokenClient.associateToken(tokenId, userAccount.accountId(), userAccount.privateKey()));
+    }
+
+    @Test
+    void testAssociateTokenForNullParam() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> tokenClient.associateToken((TokenId) null, (String)null, null));
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> tokenClient.associateToken((TokenId) null, null));
+    }
+
+    @Test
+    void testAssociateTokenWithMultipleToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.associateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testAssociateTokenWithMultipleTokenThrowExceptionForEmptyList() throws Exception {
+        //given
+        final String name = "Test NFT";
+        final String symbol = "TST";
+
+        final Account userAccount = accountClient.createAccount(1);
+
+        //then
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> tokenClient.associateToken(List.of(), userAccount.accountId(), userAccount.privateKey()));
+    }
+
+    @Test
+    void testDissociateToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId, account);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.dissociateToken(tokenId, account));
+    }
+
+    @Test
+    void testDissociateTokenThrowExceptionIfTokenNotAssociate() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        Assertions.assertThrows(HieroException.class, () -> tokenClient.dissociateToken(tokenId, account));
+    }
+
+    @Test
+    void testDissociateTokenWithMultipleToken() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId1, account);
+        tokenClient.associateToken(tokenId2, account);
+
+        Assertions.assertDoesNotThrow(() -> tokenClient.dissociateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testDissociateTokenWithMultipleTokenThrowExceptionIfTokenNotAssociate() throws HieroException {
+        final String name = "TOKEN";
+        final String symbol = "FT";
+        final TokenId tokenId1 = tokenClient.createToken(name, symbol);
+        final TokenId tokenId2 = tokenClient.createToken(name, symbol);
+        final Account account = accountClient.createAccount(1);
+
+        tokenClient.associateToken(tokenId1, account);
+
+        Assertions.assertThrows(HieroException.class, () -> tokenClient.dissociateToken(List.of(tokenId1, tokenId2), account));
+    }
+
+    @Test
+    void testDissociateTokenThrowExceptionIfListEmpty() throws HieroException {
+        final Account account = accountClient.createAccount(1);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> tokenClient.dissociateToken(List.of(), account));
     }
 
     @Test

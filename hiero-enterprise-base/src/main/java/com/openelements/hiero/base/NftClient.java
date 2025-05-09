@@ -7,6 +7,8 @@ import com.openelements.hiero.base.data.Account;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import com.openelements.hiero.base.data.Token;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -202,6 +204,93 @@ public interface NftClient {
         Objects.requireNonNull(account, "account must not be null");
         associateNft(tokenId, account.accountId(), account.privateKey());
     }
+
+    /**
+     * Associate an account with an NFT type. If an account is associated with an NFT type, the account can hold NFTs of
+     * that type. Otherwise, the account cannot hold NFTs of that type and tranfer NFTs of that type will fail.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param accountId the  accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    void associateNft(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Associate an account with an NFT type. If an account is associated with an NFT type, the account can hold NFTs of
+     * that type. Otherwise, the account cannot hold NFTs of that type and tranfer NFTs of that type will fail.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param account the  account
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    default void associateNft(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        associateNft(tokenIds, account.accountId(), account.privateKey());
+    };
+
+    /**
+     * Dissociate an account with an NFT type.
+     *
+     * @param tokenId the ID of the NFT type
+     * @param accountId the  accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    void dissociateNft(@NonNull TokenId tokenId, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Dissociate an account with an NFT type.
+     *
+     * @param tokenId the ID of the NFT type
+     * @param accountId the  accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    default void dissociateNft(@NonNull String tokenId, @NonNull String accountId, @NonNull String accountKey)
+            throws HieroException {
+        Objects.requireNonNull(tokenId, "tokenId must not be null");
+        Objects.requireNonNull(accountId, "accountId must not be null");
+        Objects.requireNonNull(accountKey, "accountKey must not be null");
+        dissociateNft(TokenId.fromString(tokenId), AccountId.fromString(accountId), PrivateKey.fromString(accountKey));
+    };
+
+    /**
+     * Dissociate an account with an NFT type.
+     *
+     * @param tokenId the ID of the NFT type
+     * @param account the  account
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    default void dissociateNft(@NonNull TokenId tokenId, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        dissociateNft(tokenId, account.accountId(), account.privateKey());
+    };
+
+    /**
+     * Dissociate an account with an NFT type.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param accountId the  accountId
+     * @param accountKey the account privateKey
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    void dissociateNft(@NonNull List<TokenId> tokenIds, @NonNull AccountId accountId, @NonNull PrivateKey accountKey)
+            throws HieroException;
+
+    /**
+     * Dissociate an account with an NFT type.
+     *
+     * @param tokenIds the List of ID for NFT type
+     * @param account the  account
+     * @throws HieroException if the account could not be associated with the NFT type
+     */
+    default void dissociateNft(@NonNull List<TokenId> tokenIds, @NonNull Account account) throws HieroException {
+        Objects.requireNonNull(account, "accountId must not be null");
+        dissociateNft(tokenIds, account.accountId(), account.privateKey());
+    };
 
     /**
      * Mint a new NFT of the given type. The NFT is minted by the operator account. The operator account is used as
