@@ -15,6 +15,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Micrometer support for Hiero. This configuration class is used to create a {@link ReceiveRecordInterceptor} that will
+ * measure metrics for Hiero transactions. The config is only loaded if the {@code spring.hiero.metrics.enabled}
+ * property is set to {@code true} or not set at all. Next to that, the {@code MetricsAutoConfiguration} configuration
+ * must be on the classpath.
+ */
 @AutoConfiguration
 @ConditionalOnProperty(name = "spring.hiero.metrics.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnClass(name = "org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration")
@@ -25,6 +31,12 @@ public class MicrometerSupportConfig {
     public static final String TIMER_NAME = "hiero.transaction.record.time";
     public static final String COUNTER_NAME = "hiero.transaction.record";
 
+    /**
+     * Creates a {@link ReceiveRecordInterceptor} that will measure metrics for Hiero transactions.
+     *
+     * @param meterRegistry the {@link MeterRegistry} to use for metrics
+     * @return the {@link ReceiveRecordInterceptor} to use for metrics
+     */
     @Bean
     @NonNull
     public ReceiveRecordInterceptor interceptRecordReceive(@NonNull final MeterRegistry meterRegistry) {
