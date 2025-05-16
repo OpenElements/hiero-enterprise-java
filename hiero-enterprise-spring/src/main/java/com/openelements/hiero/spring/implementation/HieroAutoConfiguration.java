@@ -14,20 +14,21 @@ import com.openelements.hiero.base.implementation.FileClientImpl;
 import com.openelements.hiero.base.implementation.FungibleTokenClientImpl;
 import com.openelements.hiero.base.implementation.NetworkRepositoryImpl;
 import com.openelements.hiero.base.implementation.NftClientImpl;
-import com.openelements.hiero.base.implementation.TopicClientImpl;
 import com.openelements.hiero.base.implementation.NftRepositoryImpl;
-import com.openelements.hiero.base.implementation.TopicRepositoryImpl;
 import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.implementation.TokenRepositoryImpl;
+import com.openelements.hiero.base.implementation.TopicClientImpl;
+import com.openelements.hiero.base.implementation.TopicRepositoryImpl;
 import com.openelements.hiero.base.implementation.TransactionRepositoryImpl;
+import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor;
 import com.openelements.hiero.base.mirrornode.AccountRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.NetworkRepository;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
-import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.mirrornode.TopicRepository;
+import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import java.net.URI;
@@ -35,15 +36,19 @@ import java.net.URL;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.context.annotation.ApplicationScope;
 
 @AutoConfiguration
 @EnableConfigurationProperties({HieroProperties.class, HieroNetworkProperties.class})
+@Import({MicrometerSupportConfig.class})
 public class HieroAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(HieroAutoConfiguration.class);
@@ -61,8 +66,13 @@ public class HieroAutoConfiguration {
     }
 
     @Bean
-    ProtocolLayerClient protocolLevelClient(final HieroContext hieroContext) {
-        return new ProtocolLayerClientImpl(hieroContext);
+    ProtocolLayerClient protocolLevelClient(final HieroContext hieroContext,
+            @Autowired(required = false) final ReceiveRecordInterceptor interceptor) {
+        ProtocolLayerClientImpl protocolLayerClient = new ProtocolLayerClientImpl(hieroContext);
+        if (interceptor != null) {
+            protocolLayerClient.setRecordInterceptor(interceptor);
+        }
+        return protocolLayerClient;
     }
 
     @Bean
