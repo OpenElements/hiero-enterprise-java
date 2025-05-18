@@ -3,22 +3,13 @@ package com.openelements.hiero.base.mirrornode;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.data.AccountInfo;
-import com.openelements.hiero.base.data.Balance;
-import com.openelements.hiero.base.data.ExchangeRates;
-import com.openelements.hiero.base.data.NetworkFee;
-import com.openelements.hiero.base.data.NetworkStake;
-import com.openelements.hiero.base.data.NetworkSupplies;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.NftMetadata;
-import com.openelements.hiero.base.data.Page;
-import com.openelements.hiero.base.data.Token;
-import com.openelements.hiero.base.data.TokenInfo;
-import com.openelements.hiero.base.data.TransactionInfo;
+import com.openelements.hiero.base.data.*;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A client for querying the Hiero Mirror Node REST API.
@@ -136,7 +127,7 @@ public interface MirrorNodeClient {
      */
     @NonNull
     default Optional<Nft> queryNftsByAccountAndTokenIdAndSerial(@NonNull AccountId accountId, @NonNull TokenId tokenId,
-            long serialNumber) throws HieroException {
+                                                                long serialNumber) throws HieroException {
         Objects.requireNonNull(accountId, "newAccountId must not be null");
         return queryNftsByTokenIdAndSerial(tokenId, serialNumber)
                 .filter(nft -> Objects.equals(nft.owner(), accountId));
@@ -153,7 +144,7 @@ public interface MirrorNodeClient {
      */
     @NonNull
     default Optional<Nft> queryNftsByAccountAndTokenIdAndSerial(@NonNull String accountId, @NonNull String tokenId,
-            long serialNumber) throws HieroException {
+                                                                long serialNumber) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         return queryNftsByAccountAndTokenIdAndSerial(AccountId.fromString(accountId), TokenId.fromString(tokenId),
@@ -179,7 +170,28 @@ public interface MirrorNodeClient {
      * @throws HieroException if an error occurs
      */
     @NonNull
-    Optional<TransactionInfo> queryTransaction(@NonNull String transactionId) throws HieroException;
+    Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes,
+                                               long chargedTxFee,
+                                               String consensusTimeStamp,
+                                               String entityId,
+                                               String maxFee,
+                                               String memoBase64,
+                                               String name,
+                                               List<NftTransfers> nftTransfers,
+                                               String node,
+                                               int nonce,
+                                               @Nullable String parentConsensusTimestamp,
+                                               String result,
+                                               boolean scheduled,
+                                               List<StakingRewardTransfers> stakingRewardTransfers,
+                                               List<TokenTransfers> tokenTransfers,
+                                               String transactionHash,
+                                               @NonNull String transactionId,
+                                               List<Transfers> transfers,
+                                               String validDurationSeconds,
+                                               String validStartTimestamp) throws HieroException;
+
+    Optional<TransactionInfo> queryTransaction(String transactionId) throws HieroException;
 
     /**
      * Queries the account information for a specific account ID.

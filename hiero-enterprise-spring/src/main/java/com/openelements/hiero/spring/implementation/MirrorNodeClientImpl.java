@@ -5,12 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.NftMetadata;
-import com.openelements.hiero.base.data.Page;
-import com.openelements.hiero.base.data.TransactionInfo;
-import com.openelements.hiero.base.data.Balance;
-import com.openelements.hiero.base.data.Token;
+import com.openelements.hiero.base.data.*;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.implementation.MirrorNodeRestClient;
@@ -19,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.web.client.RestClient;
 
 public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
@@ -88,14 +84,20 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
     }
 
     @Override
-    public Optional<TransactionInfo> queryTransaction(@NonNull final String transactionId) throws HieroException {
+    public @NonNull Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes, long chargedTxFee, String consensusTimeStamp, String entityId, String maxFee, String memoBase64, String name, List<NftTransfers> nftTransfers, String node, int nonce, @Nullable String parentConsensusTimestamp, String result, boolean scheduled, List<StakingRewardTransfers> stakingRewardTransfers, List<TokenTransfers> tokenTransfers, String transactionHash, @NonNull String transactionId, List<Transfers> transfers, String validDurationSeconds, String validStartTimestamp) throws HieroException {
+
         final JsonNode jsonNode = mirrorNodeRestClient.queryTransaction(transactionId);
-        //TODO: I assume there is a better check
-        if (jsonNode == null || !jsonNode.fieldNames().hasNext()) {
+        if (jsonNode == null || jsonNode.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new TransactionInfo(transactionId));
     }
+
+    @Override
+    public Optional<TransactionInfo> queryTransaction(String transactionId) throws HieroException {
+        return Optional.empty();
+    }
+
 
     @Override
     public Page<Token> queryTokensForAccount(@NonNull AccountId accountId) throws HieroException {

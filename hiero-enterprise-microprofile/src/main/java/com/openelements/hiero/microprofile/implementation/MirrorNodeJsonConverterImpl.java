@@ -150,9 +150,6 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
 
         final JsonArray transactionsNode = jsonObject.getJsonArray("transactions");
 
-
-
-
         return jsonArrayToStream(transactionsNode)
                 .map(n -> {
                     try {
