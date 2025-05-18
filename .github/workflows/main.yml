@@ -40,6 +40,6 @@ jobs:
           apiKey: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
           projectName: 'hiero-enterprise-java'
           projectVersion: 'main'
-          bomFilename: "/target/bom.xml"
+          bomFilename: "target/bom.xml"
           autoCreate: true
 
