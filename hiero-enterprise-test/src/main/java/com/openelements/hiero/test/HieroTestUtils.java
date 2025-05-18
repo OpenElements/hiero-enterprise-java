@@ -62,7 +62,7 @@ public class HieroTestUtils implements Serializable {
                     throw new RuntimeException("Error in mirror node query!", e);
                 }
                 if (!done) {
-                    if (LocalDateTime.now().isAfter(start.plusSeconds(600))) {
+                    if (LocalDateTime.now().isAfter(start.plusSeconds(1000))) {
                         throw new RuntimeException("Timeout waiting for transaction");
                     }
                     try {
