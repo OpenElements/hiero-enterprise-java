@@ -3,12 +3,7 @@ package com.openelements.hiero.microprofile.implementation;
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.NftMetadata;
-import com.openelements.hiero.base.data.Page;
-import com.openelements.hiero.base.data.TransactionInfo;
-import com.openelements.hiero.base.data.Token;
-import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.*;
 import com.openelements.hiero.base.implementation.AbstractMirrorNodeClient;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import com.openelements.hiero.base.implementation.MirrorNodeRestClient;
@@ -18,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonObject> {
 
@@ -64,8 +60,8 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonObject> {
     }
 
     @Override
-    public @NonNull Optional<TransactionInfo> queryTransaction(@NonNull String transactionId) throws HieroException {
-        throw new RuntimeException("Not implemented");
+    public @NonNull Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes, long chargedTxFee, String consensusTimeStamp, String entityId, String maxFee, String memoBase64, String name, List<NftTransfers> nftTransfers, String node, int nonce, @Nullable String parentConsensusTimestamp, String result, boolean scheduled, List<StakingRewardTransfers> stakingRewardTransfers, List<TokenTransfers> tokenTransfers, String transactionHash, @NonNull String transactionId, List<Transfers> transfers, String validDurationSeconds, String validStartTimestamp) throws HieroException {
+        return Optional.empty();
     }
 
     @Override

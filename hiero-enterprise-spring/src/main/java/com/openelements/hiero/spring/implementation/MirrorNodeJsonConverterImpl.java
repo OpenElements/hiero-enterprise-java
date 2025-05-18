@@ -176,8 +176,6 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .map(n -> {
                     try {
 
-
-
                         // Converting NftTransfers Object.
                         JsonNode nftTransfersNode= transactionsNode.get("nft_transfers");
                         List<NftTransfers> nftTransfers= new ArrayList<>();

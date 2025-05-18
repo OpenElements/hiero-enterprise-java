@@ -52,7 +52,6 @@ public record TransactionInfo(@Nullable  Byte bytes,
             );
         Objects.requireNonNull(transactionId, "transactionId must not be null");
 
-
     }
 
         public TransactionInfo (Byte bytes,
@@ -96,8 +95,6 @@ public record TransactionInfo(@Nullable  Byte bytes,
             this.transfers= transfers;
             this.validDurationSeconds= validDurationSeconds;
             this.validStartTimestamp= validStartTimestamp;
-
-
         }
     }
 
