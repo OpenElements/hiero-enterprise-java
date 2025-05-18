@@ -34,6 +34,7 @@
       <groupId>io.grpc</groupId>
       <artifactId>grpc-inprocess</artifactId>
     </dependency>
+
   </dependencies>
 
   <build>

@@ -2,36 +2,15 @@ package com.openelements.hiero.microprofile.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;
-import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
-import com.openelements.hiero.base.data.AccountInfo;
-import com.openelements.hiero.base.data.ExchangeRate;
-import com.openelements.hiero.base.data.ExchangeRates;
-import com.openelements.hiero.base.data.NetworkFee;
-import com.openelements.hiero.base.data.NetworkStake;
-import com.openelements.hiero.base.data.NetworkSupplies;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.TransactionInfo;
-import com.openelements.hiero.base.data.Token;
-import com.openelements.hiero.base.data.TokenInfo;
-import com.openelements.hiero.base.data.Balance;
-import com.openelements.hiero.base.data.CustomFee;
-import com.openelements.hiero.base.data.FixedFee;
-import com.openelements.hiero.base.data.FractionalFee;
-import com.openelements.hiero.base.data.RoyaltyFee;
+import com.openelements.hiero.base.data.*;
 import com.openelements.hiero.base.implementation.MirrorNodeJsonConverter;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
-
 import java.time.Instant;
 import java.math.BigInteger;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -39,6 +18,8 @@ import jakarta.json.JsonValue;
 import org.jspecify.annotations.NonNull;
 
 public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<JsonObject> {
+
+    private boolean scheduled;
 
     @Override
     public @NonNull Optional<Nft> toNft(@NonNull JsonObject jsonObject) {
@@ -166,12 +147,110 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
             return List.of();
         }
 
+
         final JsonArray transactionsNode = jsonObject.getJsonArray("transactions");
+
+
+
+
         return jsonArrayToStream(transactionsNode)
                 .map(n -> {
                     try {
-                        final String transactionId = n.asJsonObject().getString("transaction_id");
-                        return new TransactionInfo(transactionId);
+                        JsonObject transactionsObject= n.asJsonObject();
+
+                        // Converting NftTransfers Object.
+                        JsonArray nftTransfersNode= n.asJsonObject().getJsonArray("nft_transfers");
+                        List<NftTransfers> nftTransfers= new ArrayList<>();
+
+                         if(nftTransfersNode !=null){
+                            for(JsonValue value: nftTransfersNode){
+                                JsonObject nftTransfersObject = value.asJsonObject();
+
+
+                                final boolean isApproval= nftTransfersObject.getBoolean("is_approval");
+                                final String receiverAccountId= nftTransfersObject.getString("receiver_account_id");
+                                final String senderAccountId= nftTransfersObject.getString("sender_account_id", null);
+                                final int serialNumber= nftTransfersObject.getInt("serial_number");
+                                final String tokenId= nftTransfersObject.getString("token_id");
+
+                                nftTransfers.add(new NftTransfers(isApproval, receiverAccountId, senderAccountId,serialNumber, tokenId));
+                            }
+                         }
+
+                        // Converting StakingRewardTransfers Object.
+                         JsonArray stakingRewardTransfersNode = n.asJsonObject().getJsonArray("staking_reward_transfers");
+                          List<StakingRewardTransfers> stakingRewardTransfers= new ArrayList<>();
+
+                          if(stakingRewardTransfersNode !=null && !stakingRewardTransfersNode.isEmpty()){
+                         for(JsonValue value: stakingRewardTransfersNode ){
+                                stakingRewardTransfers.add(new StakingRewardTransfers());
+                            }
+                        }
+
+                        // Converting TokenTransfers Object.
+                         JsonArray tokenTransfersNode = n.asJsonObject().getJsonArray("token_transfers");
+                         List<TokenTransfers> tokenTransfers= new ArrayList<>();
+
+                         if(tokenTransfersNode !=null && !tokenTransfersNode.isEmpty()){
+                         for(JsonValue value: tokenTransfersNode ){
+                             tokenTransfers.add(new TokenTransfers());
+                            }
+                         }
+
+                        // Converting Transfers Object.
+                         JsonArray transfersNode= n.asJsonObject().getJsonArray("transfers");
+                         List<Transfers> transfers= new ArrayList<>();
+
+                         if(transfersNode != null){
+                             for(JsonValue value: transfersNode){
+                                 JsonObject transfersNodeObject = value.asJsonObject();
+
+                                 final String account= transfersNodeObject.getString("account");
+                                 final long amount= transfersNodeObject.getJsonNumber("amount").longValue();
+                                 final boolean isApproval= transfersNodeObject.containsKey("is_approval") ? transfersNodeObject.getBoolean("is_approval"): false;
+
+                                 transfers.add(new Transfers(account, amount, isApproval));
+                             }
+                         }
+
+                        final Byte bytes = transactionsObject.containsKey("bytes") ? (byte) transactionsObject.getInt("bytes") : null;
+                        final long chargedTxFee= transactionsObject.getJsonNumber("charged_tx_fee").longValue();
+                        final String consensusTimeStamp = transactionsObject.getString("consensus_timestamp");
+                        final String entityId = transactionsObject.getString("entity_id");
+                        final String maxFee= transactionsObject.getString("max_fee");
+                        final String memoBase64= transactionsObject.getString("memo_base64");
+                        final String name= transactionsObject.getString("name");
+                        final String node= transactionsObject.getString("node");
+                        final int nonce= transactionsObject.getInt("nonce");
+                        final String parentConsensusTimestamp= transactionsObject.getString("parent_consensus_timestamp", null);
+                        final String result= transactionsObject.getString("result");
+                        final boolean scheduled= transactionsObject.getBoolean("scheduled");
+                        final String transactionHash= transactionsObject.getString("transaction_hash");
+                        final String transactionId = transactionsObject.getString("transaction_id");
+                        final String validDurationSeconds= transactionsObject.getString("valid_duration_seconds");
+                        final String validStartTimestamp= transactionsObject.getString("valid_start_timestamp");
+
+                        return new TransactionInfo(
+                                bytes,
+                                chargedTxFee,
+                                consensusTimeStamp,
+                                entityId,
+                                maxFee,
+                                memoBase64,
+                                name,
+                                nftTransfers,
+                                node,
+                                nonce,
+                                parentConsensusTimestamp,
+                                result,
+                                scheduled,
+                                stakingRewardTransfers,
+                                tokenTransfers,
+                                transactionHash,
+                                transactionId,
+                                transfers,
+                                validDurationSeconds,
+                                validStartTimestamp );
                     } catch (final Exception e) {
                         throw new IllegalStateException("Can not parse JSON: " + n, e);
                     }
