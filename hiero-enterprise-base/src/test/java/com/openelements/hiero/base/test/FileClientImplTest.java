@@ -21,7 +21,10 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -438,7 +441,6 @@ public class FileClientImplTest {
                 NullPointerException.class, () -> fileClientImpl.updateExpirationTime(null, null)
         );
     }
-
     @Test
     void testIsDeletedReturnsTrueForDeletedFile() throws HieroException {
         final FileId fileId = FileId.fromString("1.2.3");
