@@ -7,11 +7,15 @@ import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.protocol.data.*;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeEach;import com.openelements.hiero.base.protocol.data.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -158,10 +162,8 @@ public class AccountClientImplTest {
 
     @Test
     void DeleteAccount_withSameFromAndToAccount_throwsIllegalArgumentException() {
-        // Arrange
         Account account = mock(Account.class);
 
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 accountClientImpl.deleteAccount(account, account)
         );
