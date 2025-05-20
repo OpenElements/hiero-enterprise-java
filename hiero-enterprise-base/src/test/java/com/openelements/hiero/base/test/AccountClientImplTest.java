@@ -7,7 +7,7 @@ import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.protocol.data.*;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
-import org.junit.jupiter.api.BeforeEach;import com.openelements.hiero.base.protocol.data.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
