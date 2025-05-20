@@ -15,6 +15,8 @@ import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import javax.swing.text.html.Option;
+
 public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonObject> {
 
     private final MirrorNodeRestClientImpl restClient;
@@ -60,9 +62,19 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonObject> {
     }
 
     @Override
-    public @NonNull Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes, long chargedTxFee, String consensusTimeStamp, String entityId, String maxFee, String memoBase64, String name, List<NftTransfers> nftTransfers, String node, int nonce, @Nullable String parentConsensusTimestamp, String result, boolean scheduled, List<StakingRewardTransfers> stakingRewardTransfers, List<TokenTransfers> tokenTransfers, String transactionHash, @NonNull String transactionId, List<Transfers> transfers, String validDurationSeconds, String validStartTimestamp) throws HieroException {
-        return Optional.empty();
+    public @NonNull Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes, long chargedTxFee, String consensusTimeStamp, String entityId, String maxFee, String memoBase64, String name, List<NftTransfers> nftTransfers, String nodeString, int nonce, @Nullable String parentConsensusTimestamp, String result, boolean scheduled, List<StakingRewardTransfers> stakingRewardTransfers, List<TokenTransfers> tokenTransfers, String transactionHash, @NonNull String transactionId, List<Transfers> transfers, String validDurationSeconds, String validStartTimestamp) throws HieroException {
+
+        final String path= "/api/v1/transactions";
+        final Function<JsonObject, List<TransactionInfo>> dataExtractionFunction= node -> jsonConverter.toTransactionInfos(node);
+
+        RestBasedPage<TransactionInfo> page = new RestBasedPage<>(
+                restClient.getTarget(), dataExtractionFunction, path);
+
+        List<TransactionInfo> results = page.getData();
+
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
+
 
     @Override
     public Page<Token> queryTokensForAccount(@NonNull AccountId accountId) throws HieroException {

@@ -27,6 +27,7 @@ public record TransactionInfo(@Nullable  Byte bytes,
          String validDurationSeconds,
          String validStartTimestamp
 ) {
+
     public TransactionInfo(@NonNull String transactionId){
             this(
                     null,                // bytes

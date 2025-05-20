@@ -3,6 +3,7 @@ package com.openelements.hiero.test;
 import com.hedera.hashgraph.sdk.Status;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.TransactionListener;

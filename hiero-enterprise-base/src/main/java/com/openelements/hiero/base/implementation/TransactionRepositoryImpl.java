@@ -6,12 +6,10 @@ import com.openelements.hiero.base.data.*;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
 
 
 public class TransactionRepositoryImpl implements TransactionRepository {
@@ -33,46 +31,19 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     public Optional<TransactionInfo> findById(@NonNull final String transactionId) throws HieroException {
         Objects.requireNonNull(transactionId, "transactionId must not be null");
 
+        //query the mirrorNode using the transactionId.
 
-        @Nullable Byte bytes = 0;
-        long chargedTxFee = 0;
-        String consensusTimeStamp = "";
-        String entityId = "";
-        String maxFee = "";
-        String memoBase64 = "";
-        String name = "";
-        List<NftTransfers> nftTransfers = List.of();
-        String node = "";
-        int nonce = 0;
-        @Nullable  String parentConsensusTimestamp = "";
-        String result = "";
-        boolean scheduled =false;
-        List<StakingRewardTransfers> stakingRewardTransfers = List.of();
-        List<TokenTransfers> tokenTransfers = List.of();
-        String transactionHash = "";
-        List<Transfers> transfers = List.of();
-        String validDurationSeconds = "";
-        String validStartTimestamp = "";
 
-        return this.mirrorNodeClient.queryTransaction( bytes,
-                                                 chargedTxFee,
-                                                 consensusTimeStamp,
-                                                 entityId,
-                                                 maxFee,
-                                                 memoBase64,
-                                                 name,
-                                                 nftTransfers,
-                                                 node,
-                                                 nonce,
-                                                 parentConsensusTimestamp,
-                                                 result,
-                                                 scheduled,
-                                                 stakingRewardTransfers,
-                                                 tokenTransfers,
-                                                 transactionHash,
-                                                 transactionId,
-                                                 transfers,
-                                                 validDurationSeconds,
-                                                 validStartTimestamp);
+        //Check whether the response is null or empty.
+
+
+        // return the TransactionInfo object wrapped in an Optional
+
+        return Optional.empty();
     }
+
+
+
+
+
 }

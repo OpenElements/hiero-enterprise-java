@@ -78,25 +78,61 @@ public class MirrorNodeClientImpl extends AbstractMirrorNodeClient<JsonNode> {
     public Page<TransactionInfo> queryTransactionsByAccount(@NonNull final AccountId accountId) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         final String path = "/api/v1/transactions?account.id=" + accountId;
-        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction = n -> jsonConverter.toTransactionInfos(
-                n);
+        final Function<JsonNode, List<TransactionInfo>> dataExtractionFunction = n -> jsonConverter.toTransactionInfos(n);
         return new RestBasedPage<>(objectMapper, restClient.mutate().clone(), path, dataExtractionFunction);
     }
 
     @Override
-    public @NonNull Optional<TransactionInfo> queryTransaction(@Nullable Byte bytes, long chargedTxFee, String consensusTimeStamp, String entityId, String maxFee, String memoBase64, String name, List<NftTransfers> nftTransfers, String node, int nonce, @Nullable String parentConsensusTimestamp, String result, boolean scheduled, List<StakingRewardTransfers> stakingRewardTransfers, List<TokenTransfers> tokenTransfers, String transactionHash, @NonNull String transactionId, List<Transfers> transfers, String validDurationSeconds, String validStartTimestamp) throws HieroException {
+
+    public @NonNull Optional<TransactionInfo> queryTransaction( @Nullable Byte bytes,
+                                                                long chargedTxFee,
+                                                                String consensusTimeStamp,
+                                                                String entityId,
+                                                                String maxFee,
+                                                                String memoBase64,
+                                                                String name,
+                                                                List<NftTransfers> nftTransfers,
+                                                                String node,
+                                                                int nonce,
+                                                                @Nullable String parentConsensusTimestamp,
+                                                                String result,
+                                                                boolean scheduled,
+                                                                List<StakingRewardTransfers> stakingRewardTransfers,
+                                                                List<TokenTransfers> tokenTransfers,
+                                                                String transactionHash,
+                                                                @NonNull String transactionId,
+                                                                List<Transfers> transfers,
+                                                                String validDurationSeconds,
+                                                                String validStartTimestamp ) throws HieroException {
+
+
 
         final JsonNode jsonNode = mirrorNodeRestClient.queryTransaction(transactionId);
         if (jsonNode == null || jsonNode.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new TransactionInfo(transactionId));
+        return Optional.of(new TransactionInfo( bytes,
+                chargedTxFee,
+                consensusTimeStamp,
+                entityId,
+                maxFee,
+                memoBase64,
+                name,
+                nftTransfers,
+                node,
+                nonce,
+                parentConsensusTimestamp,
+                result,
+                scheduled,
+                stakingRewardTransfers,
+                tokenTransfers,
+                transactionHash,
+                transactionId,
+                transfers,
+                validDurationSeconds,
+                validStartTimestamp) );
     }
 
-    @Override
-    public Optional<TransactionInfo> queryTransaction(String transactionId) throws HieroException {
-        return Optional.empty();
-    }
 
 
     @Override

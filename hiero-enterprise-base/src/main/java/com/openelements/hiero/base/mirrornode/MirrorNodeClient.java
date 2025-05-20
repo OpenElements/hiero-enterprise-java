@@ -191,8 +191,6 @@ public interface MirrorNodeClient {
                                                String validDurationSeconds,
                                                String validStartTimestamp) throws HieroException;
 
-    Optional<TransactionInfo> queryTransaction(String transactionId) throws HieroException;
-
     /**
      * Queries the account information for a specific account ID.
      *
