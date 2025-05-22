@@ -24,6 +24,8 @@ import com.openelements.hiero.base.protocol.data.TokenCreateRequest;
 import com.openelements.hiero.base.protocol.data.TokenCreateResult;
 import com.openelements.hiero.base.protocol.data.TokenTransferRequest;
 import com.openelements.hiero.base.protocol.data.TokenTransferResult;
+import com.openelements.hiero.base.protocol.data.TokenMintResult;
+import com.openelements.hiero.base.protocol.data.TokenMintRequest;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -42,6 +44,7 @@ public class NftClientImplTest {
     ArgumentCaptor<TokenBurnRequest> tokenBurnCaptor = ArgumentCaptor.forClass(TokenBurnRequest.class);
     ArgumentCaptor<TokenAssociateRequest> tokenAssociateCaptor = ArgumentCaptor.forClass(TokenAssociateRequest.class);
     ArgumentCaptor<TokenDissociateRequest> tokenDissociateCaptor = ArgumentCaptor.forClass(TokenDissociateRequest.class);
+    ArgumentCaptor<TokenMintRequest> tokenMintCaptor = ArgumentCaptor.forClass(TokenMintRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -626,5 +629,239 @@ public class NftClientImplTest {
         IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> nftClientImpl.dissociateNft(List.of(), accountId, accountKey));
         Assertions.assertEquals("tokenIds must not be empty", e.getMessage());
+    }
+
+    @Test
+    void testMintNft() throws HieroException {
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = "Hello Hiero".getBytes();
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.serials()).thenReturn(List.of(1L));
+
+        final long result = nftClientImpl.mintNft(tokenId, metadata);
+
+        verify(operationalAccount, times(1)).privateKey();
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+
+        Assertions.assertEquals(supplyKey, capture.supplyKey());
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(List.of(metadata), capture.metadata());
+
+        Assertions.assertEquals(1L, result);
+    }
+
+    @Test
+    void testMintNftWithSupplyKey() throws HieroException {
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = "Hello Hiero".getBytes();
+
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.serials()).thenReturn(List.of(1L));
+
+        final long result = nftClientImpl.mintNft(tokenId, supplyKey, metadata);
+
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+
+        Assertions.assertEquals(supplyKey, capture.supplyKey());
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(List.of(metadata), capture.metadata());
+
+        Assertions.assertEquals(1L, result);
+    }
+
+    @Test
+    void testMintNftThrowExceptionIfMetadataGreaterThenMaxLen() {
+        final String message = "each metadata entry must be less than 100 bytes";
+
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = new byte[101];
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+
+        final IllegalArgumentException e1 = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> nftClientImpl.mintNft(tokenId, metadata)
+        );
+        final IllegalArgumentException e2 = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> nftClientImpl.mintNft(tokenId, supplyKey, metadata)
+        );
+
+        Assertions.assertEquals(message, e1.getMessage());
+        Assertions.assertEquals(message, e2.getMessage());
+    }
+
+    @Test
+    void testMintNftThrowExceptionForInvalidId() throws HieroException {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = "Hello Hiero".getBytes();
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenTransferTransaction"));
+
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.mintNft(tokenId, metadata));
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.mintNft(tokenId, supplyKey, metadata));
+    }
+
+    @Test
+    void testMintNftThrowExceptionForNullValue() {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = "Hello Hiero".getBytes();
+
+        Assertions.assertThrows(NullPointerException.class, () -> nftClientImpl.mintNft((TokenId) null, metadata));
+        Assertions.assertThrows(NullPointerException.class, () -> nftClientImpl.mintNft(tokenId, null));
+
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNft((TokenId) null, supplyKey, metadata)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNft(tokenId, null, metadata)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNft(tokenId, supplyKey, null)
+        );
+    }
+
+    @Test
+    void testMintNfts() throws HieroException {
+        final List<Long> serials = List.of(1L, 2L);
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata1 = "Hello Hiero1".getBytes();
+        final byte[] metadata2 = "Hello Hiero2".getBytes();
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.serials()).thenReturn(serials);
+
+        final List<Long> result = nftClientImpl.mintNfts(tokenId, metadata1, metadata2);
+
+        verify(operationalAccount, times(1)).privateKey();
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+
+        Assertions.assertEquals(supplyKey, capture.supplyKey());
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(List.of(metadata1, metadata2), capture.metadata());
+
+        Assertions.assertEquals(serials, result);
+    }
+
+    @Test
+    void testMintNftsWithSupplyKey() throws HieroException {
+        final List<Long> serials = List.of(1L, 2L);
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata1 = "Hello Hiero1".getBytes();
+        final byte[] metadata2 = "Hello Hiero2".getBytes();
+
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.serials()).thenReturn(serials);
+
+        final List<Long> result = nftClientImpl.mintNfts(tokenId, supplyKey, metadata1, metadata2);
+
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+
+        Assertions.assertEquals(supplyKey, capture.supplyKey());
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(List.of(metadata1, metadata2), capture.metadata());
+
+        Assertions.assertEquals(serials, result);
+    }
+
+    @Test
+    void testMintNftsThrowExceptionIfMetadataGreaterThenMaxLen() {
+        final String message = "each metadata entry must be less than 100 bytes";
+
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata1 = new byte[101];
+        final byte[] metadata2 = "Hello Hiero".getBytes();
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+
+        final IllegalArgumentException e1 = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> nftClientImpl.mintNfts(tokenId, metadata1, metadata2)
+        );
+        final IllegalArgumentException e2 = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> nftClientImpl.mintNfts(tokenId, supplyKey, metadata1, metadata2)
+        );
+
+        Assertions.assertEquals(message, e1.getMessage());
+        Assertions.assertEquals(message, e2.getMessage());
+    }
+
+    @Test
+    void testMintNftsThrowExceptionForInvalidId() throws HieroException {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata1 = "Hello Hiero1".getBytes();
+        final byte[] metadata2 = "Hello Hiero2".getBytes();
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenTransferTransaction"));
+
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.mintNfts(tokenId, metadata1, metadata2));
+        Assertions.assertThrows(HieroException.class, () -> nftClientImpl.mintNfts(tokenId, supplyKey, metadata1, metadata2));
+    }
+
+    @Test
+    void testMintNftsThrowExceptionForNullValue() {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("1.2.3");
+        final byte[] metadata = "Hello Hiero".getBytes();
+
+        Assertions.assertThrows(NullPointerException.class, () -> nftClientImpl.mintNfts((TokenId) null, metadata));
+        Assertions.assertThrows(NullPointerException.class, () -> nftClientImpl.mintNfts(tokenId, null));
+
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNfts((TokenId) null, supplyKey, null)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNfts(tokenId, (PrivateKey) null, metadata)
+        );
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> nftClientImpl.mintNfts(tokenId, supplyKey, null)
+        );
     }
 }
