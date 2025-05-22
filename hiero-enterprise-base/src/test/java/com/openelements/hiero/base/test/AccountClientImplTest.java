@@ -5,19 +5,25 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.data.Account;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.protocol.data.*;
+import com.openelements.hiero.base.protocol.data.AccountCreateResult;
+import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
+import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
+import com.openelements.hiero.base.protocol.data.AccountDeleteRequest;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 public class AccountClientImplTest {
 
@@ -35,7 +41,6 @@ public class AccountClientImplTest {
         AccountId accountId = AccountId.fromString("0.0.12345");
         Hbar expectedBalance = new Hbar(10);
 
-        // Mock the response
         AccountBalanceResponse mockResponse = mock(AccountBalanceResponse.class);
         when(mockResponse.hbars()).thenReturn(expectedBalance);
 
@@ -98,7 +103,6 @@ public class AccountClientImplTest {
         });
     }
 
-    //tests for createAccount method
     @Test
     void testCreateAccount_successful() throws HieroException {
         Hbar initialBalance = Hbar.from(100);
