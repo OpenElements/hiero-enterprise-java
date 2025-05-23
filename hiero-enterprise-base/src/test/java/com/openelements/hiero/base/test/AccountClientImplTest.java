@@ -5,18 +5,25 @@ import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.data.Account;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
-import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
-import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
 import com.openelements.hiero.base.protocol.data.AccountCreateResult;
+import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
+import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
+import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
+import com.openelements.hiero.base.protocol.data.AccountDeleteRequest;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 public class AccountClientImplTest {
 
@@ -34,7 +41,6 @@ public class AccountClientImplTest {
         AccountId accountId = AccountId.fromString("0.0.12345");
         Hbar expectedBalance = new Hbar(10);
 
-        // Mock the response
         AccountBalanceResponse mockResponse = mock(AccountBalanceResponse.class);
         when(mockResponse.hbars()).thenReturn(expectedBalance);
 
@@ -97,7 +103,6 @@ public class AccountClientImplTest {
         });
     }
 
-    //tests for createAccount method
     @Test
     void testCreateAccount_successful() throws HieroException {
         Hbar initialBalance = Hbar.from(100);
@@ -144,5 +149,46 @@ public class AccountClientImplTest {
 
         Exception exception = assertThrows(HieroException.class, () -> accountClientImpl.createAccount(initialBalance));
         assertEquals("Transaction failed", exception.getMessage());
+    }
+
+
+    @Test
+    void DeleteAccount_throwsHieroException() throws HieroException {
+        Account mockAccount = mock(Account.class);
+
+        doThrow(new HieroException("Deletion failed")).when(mockProtocolLayerClient)
+                .executeAccountDeleteTransaction(any(AccountDeleteRequest.class));
+
+        HieroException exception = assertThrows(HieroException.class,
+                () -> accountClientImpl.deleteAccount(mockAccount));
+        assertEquals("Deletion failed", exception.getMessage());
+    }
+
+    @Test
+    void DeleteAccount_withSameFromAndToAccount_throwsIllegalArgumentException() {
+        Account account = mock(Account.class);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                accountClientImpl.deleteAccount(account, account)
+        );
+
+        assertEquals("transferFoundsToAccount must be different from toDelete", exception.getMessage());
+    }
+
+    @Test
+    void DeleteAccount_nullAccount_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> accountClientImpl.deleteAccount(null));
+    }
+
+    @Test
+    void DeleteAccount_withTransfer_nullAccount_throwsNullPointerException() {
+        Account toAccount = mock(Account.class);
+        assertThrows(NullPointerException.class, () -> accountClientImpl.deleteAccount(null, toAccount));
+    }
+
+    @Test
+    void DeleteAccount_withSameAccount_throwsIllegalArgumentException() {
+        Account account = mock(Account.class);
+        assertThrows(IllegalArgumentException.class, () -> accountClientImpl.deleteAccount(account, account));
     }
 }
