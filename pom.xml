@@ -52,6 +52,9 @@
     <quarkus.version>3.17.2</quarkus.version>
     <google.auto.version>1.1.1</google.auto.version>
     <jboss-logging.version>3.6.1.Final</jboss-logging.version>
+    <solidity-enterprise.version>0.3.0</solidity-enterprise.version>
+    <web3j.version>4.12.3</web3j.version>
+
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.3.1</maven-surefire-plugin.version>
@@ -119,6 +122,11 @@
             <artifactId>javax.annotation-api</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.open-elements.solidity</groupId>
+        <artifactId>abi-parser</artifactId>
+        <version>${solidity-enterprise.version}</version>
       </dependency>
       <dependency>
         <groupId>io.grpc</groupId>
@@ -199,6 +207,11 @@
         <groupId>com.google.auto.service</groupId>
         <artifactId>auto-service-annotations</artifactId>
         <version>${google.auto.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.web3j</groupId>
+        <artifactId>abi</artifactId>
+        <version>${web3j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
