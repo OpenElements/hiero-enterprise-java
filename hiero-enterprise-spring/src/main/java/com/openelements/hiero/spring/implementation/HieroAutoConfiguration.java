@@ -1,12 +1,6 @@
 package com.openelements.hiero.spring.implementation;
 
-import com.openelements.hiero.base.AccountClient;
-import com.openelements.hiero.base.FileClient;
-import com.openelements.hiero.base.FungibleTokenClient;
-import com.openelements.hiero.base.HieroContext;
-import com.openelements.hiero.base.NftClient;
-import com.openelements.hiero.base.SmartContractClient;
-import com.openelements.hiero.base.TopicClient;
+import com.openelements.hiero.base.*;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.implementation.AccountClientImpl;
 import com.openelements.hiero.base.implementation.AccountRepositoryImpl;
@@ -81,8 +75,8 @@ public class HieroAutoConfiguration {
     }
 
     @Bean
-    SmartContractClient smartContractClient(final ProtocolLayerClient protocolLayerClient, FileClient fileClient) {
-        return new SmartContractClientImpl(protocolLayerClient, fileClient);
+    SmartContractClient smartContractClient(final ProtocolLayerClient protocolLayerClient, FileClient fileClient, IFileReader fileReader) {
+        return new SmartContractClientImpl(protocolLayerClient, fileClient, fileReader);
     }
 
     @Bean
