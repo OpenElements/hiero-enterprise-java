@@ -1,11 +1,6 @@
 package com.openelements.hiero.microprofile;
 
-import com.openelements.hiero.base.AccountClient;
-import com.openelements.hiero.base.FileClient;
-import com.openelements.hiero.base.FungibleTokenClient;
-import com.openelements.hiero.base.HieroContext;
-import com.openelements.hiero.base.NftClient;
-import com.openelements.hiero.base.SmartContractClient;
+import com.openelements.hiero.base.*;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.implementation.AccountClientImpl;
 import com.openelements.hiero.base.implementation.AccountRepositoryImpl;
@@ -79,8 +74,8 @@ public class ClientProvider {
     @Produces
     @ApplicationScoped
     SmartContractClient createSmartContractClient(@NonNull final ProtocolLayerClient protocolLayerClient,
-            @NonNull final FileClient fileClient) {
-        return new SmartContractClientImpl(protocolLayerClient, fileClient);
+            @NonNull final FileClient fileClient, @NonNull IFileReader fileReader) {
+        return new SmartContractClientImpl(protocolLayerClient, fileClient,  fileReader);
     }
 
     @NonNull
