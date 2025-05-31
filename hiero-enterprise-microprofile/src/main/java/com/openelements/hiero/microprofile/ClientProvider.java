@@ -74,8 +74,8 @@ public class ClientProvider {
     @Produces
     @ApplicationScoped
     SmartContractClient createSmartContractClient(@NonNull final ProtocolLayerClient protocolLayerClient,
-            @NonNull final FileClient fileClient, @NonNull IFileReader fileReader) {
-        return new SmartContractClientImpl(protocolLayerClient, fileClient,  fileReader);
+            @NonNull final FileClient fileClient) {
+        return new SmartContractClientImpl(protocolLayerClient, fileClient);
     }
 
     @NonNull

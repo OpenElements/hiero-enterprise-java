@@ -5,7 +5,6 @@ import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileId;
 import com.openelements.hiero.base.FileClient;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.IFileReader;
 import com.openelements.hiero.base.SmartContractClient;
 import com.openelements.hiero.base.data.ContractCallResult;
 import com.openelements.hiero.base.data.ContractParam;
@@ -29,12 +28,10 @@ public class SmartContractClientImpl implements SmartContractClient {
     private final ProtocolLayerClient protocolLayerClient;
 
     private final FileClient fileClient;
-    private final IFileReader fileReader;
 
-    public SmartContractClientImpl(@NonNull final ProtocolLayerClient protocolLayerClient, FileClient fileClient, IFileReader fileReader) {
+    public SmartContractClientImpl(@NonNull final ProtocolLayerClient protocolLayerClient, FileClient fileClient) {
         this.protocolLayerClient = Objects.requireNonNull(protocolLayerClient, "protocolLevelClient must not be null");
         this.fileClient = Objects.requireNonNull(fileClient, "fileClient must not be null");
-        this.fileReader = Objects.requireNonNull(fileReader, "fileReader must not be null");
     }
 
     @NonNull
@@ -77,7 +74,7 @@ public class SmartContractClientImpl implements SmartContractClient {
             @Nullable final ContractParam<?>... constructorParams)
             throws HieroException {
         try {
-            final byte[] bytes = fileReader.readAllBytes(pathToBin);
+            final byte[] bytes = Files.readAllBytes(pathToBin);
             return createContract(bytes, constructorParams);
         } catch (Exception e) {
             throw new HieroException("Failed to create contract from path " + pathToBin, e);

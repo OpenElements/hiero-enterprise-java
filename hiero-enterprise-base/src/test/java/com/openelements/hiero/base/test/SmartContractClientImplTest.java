@@ -4,12 +4,12 @@ import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.FileId;
 import com.openelements.hiero.base.FileClient;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.IFileReader;
 import com.openelements.hiero.base.data.ContractParam;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.ContractCreateRequest;
 import com.openelements.hiero.base.protocol.data.ContractCreateResult;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,9 +33,6 @@ public class SmartContractClientImplTest {
     @Mock
     private ProtocolLayerClient protocolLayerClient;
 
-    @Mock
-    private IFileReader fileReader;
-
     @InjectMocks
     private SmartContractClientImpl smartContractClient;
 
@@ -48,7 +46,7 @@ public class SmartContractClientImplTest {
 
     private ContractCreateResult resultMock;
 
-    private Path path;
+    private Path tempPath;
 
     private byte[] contents;
 
@@ -57,16 +55,20 @@ public class SmartContractClientImplTest {
     public void init() throws IOException {
         fileClient = Mockito.mock(FileClient.class);
         protocolLayerClient = Mockito.mock(ProtocolLayerClient.class);
-        fileReader= Mockito.mock(IFileReader.class);
-        smartContractClient = Mockito.spy(new SmartContractClientImpl(protocolLayerClient, fileClient, fileReader));
+        smartContractClient = Mockito.spy(new SmartContractClientImpl(protocolLayerClient, fileClient));
         contractId = ContractId.fromString("0.0.123");
         fileId = FileId.fromString("0.0.123");
         constructorParams = ContractParam.string("paramValue");
         resultMock = Mockito.mock(ContractCreateResult.class);
-        path= Mockito.mock(Path.class);
+        tempPath= Files.createTempFile("testContract", ".bin");
         contents = "contractBytecode".getBytes();
+        Files.write(tempPath, contents);
 
+    }
 
+    @AfterEach
+    public void doCleanUp() throws IOException{
+        Files.deleteIfExists(tempPath);
     }
 
     @Test
@@ -104,7 +106,7 @@ public class SmartContractClientImplTest {
     }
 
     @Test
-    public void testCreateContract_UsingContent_WithContractParams() throws HieroException {
+    public void testCreateContract_UsingContents_WithContractParams() throws HieroException {
 
         when(fileClient.createFile(contents)).thenReturn(fileId);
         when(protocolLayerClient.executeContractCreateTransaction(any(ContractCreateRequest.class))).thenReturn(resultMock);
@@ -113,6 +115,7 @@ public class SmartContractClientImplTest {
         returnedContractId = smartContractClient.createContract(contents, constructorParams);
 
         assertEquals(contractId, returnedContractId);
+
         verify(fileClient).createFile(contents);
         verify(protocolLayerClient).executeContractCreateTransaction(any());
         verify(fileClient).deleteFile(fileId);
@@ -120,7 +123,7 @@ public class SmartContractClientImplTest {
     }
 
     @Test
-    public void testCreateContract_UsingContent_WithOutContractParams() throws HieroException {
+    public void testCreateContract_UsingContents_WithOutContractParams() throws HieroException {
 
         when(fileClient.createFile(contents)).thenReturn(fileId);
         when(protocolLayerClient.executeContractCreateTransaction(any(ContractCreateRequest.class))).thenReturn(resultMock);
@@ -129,13 +132,14 @@ public class SmartContractClientImplTest {
         returnedContractId = smartContractClient.createContract(contents);
 
         assertEquals(contractId, returnedContractId);
+
         verify(fileClient).createFile(contents);
         verify(protocolLayerClient).executeContractCreateTransaction(any());
         verify(fileClient).deleteFile(fileId);
     }
 
     @Test
-    public void testCreateContract_UsingContent_ThrowsException() throws HieroException {
+    public void testCreateContract_UsingContents_ThrowsException() throws HieroException {
         when(protocolLayerClient.executeContractCreateTransaction(Mockito.any())).thenThrow(new RuntimeException("Failed"));
         HieroException hieroException = assertThrows(HieroException.class, () -> smartContractClient.createContract(contents, constructorParams));
 
@@ -146,42 +150,42 @@ public class SmartContractClientImplTest {
     @Test
     public void testCreateContract_UsingPath_WithContractParams() throws HieroException, IOException {
 
-        when(fileReader.readAllBytes(path)).thenReturn(contents);
-        doReturn(contractId).when(smartContractClient).createContract(contents, constructorParams);
+        when(fileClient.createFile(contents)).thenReturn(fileId);
+        when(protocolLayerClient.executeContractCreateTransaction(any(ContractCreateRequest.class))).thenReturn(resultMock);
+        when(resultMock.contractId()).thenReturn(contractId);
 
-        returnedContractId = smartContractClient.createContract(path, constructorParams);
+        returnedContractId= smartContractClient.createContract(Files.readAllBytes(tempPath), constructorParams);
 
         assertNotNull(returnedContractId);
         assertEquals(contractId, returnedContractId);
 
-        verify(fileReader).readAllBytes(path);
-        verify(smartContractClient).createContract(contents, constructorParams);
-
+        verify(fileClient).createFile(contents);
+        verify(protocolLayerClient).executeContractCreateTransaction(any(ContractCreateRequest.class));
+        verify(fileClient).deleteFile(fileId);
 
     }
 
     @Test
     public void testCreateContract_UsingPath_WithOutContractParams() throws HieroException, IOException {
-        when(fileReader.readAllBytes(path)).thenReturn(contents);
-        doReturn(contractId).when(smartContractClient).createContract(contents);
+        when(fileClient.createFile(contents)).thenReturn(fileId);
+        when(protocolLayerClient.executeContractCreateTransaction(any(ContractCreateRequest.class))).thenReturn(resultMock);
+        when(resultMock.contractId()).thenReturn(contractId);
 
-        returnedContractId = smartContractClient.createContract(path);
+        returnedContractId= smartContractClient.createContract(Files.readAllBytes(tempPath));
 
         assertNotNull(returnedContractId);
         assertEquals(contractId, returnedContractId);
 
-        verify(fileReader).readAllBytes(path);
-        verify(smartContractClient).createContract(contents);
-
+        verify(fileClient).createFile(contents);
+        verify(protocolLayerClient).executeContractCreateTransaction(any(ContractCreateRequest.class));
+        verify(fileClient).deleteFile(fileId);
     }
 
     @Test
     public void testCreateContract_UsingPath_ThrowsException() throws HieroException {
         when(protocolLayerClient.executeContractCreateTransaction(Mockito.any())).thenThrow(new RuntimeException("Failed"));
-        HieroException hieroException = assertThrows(HieroException.class, () -> smartContractClient.createContract(path, constructorParams));
+        HieroException hieroException = assertThrows(HieroException.class, () -> smartContractClient.createContract(tempPath, constructorParams));
 
-        assertTrue(hieroException.getMessage().contains("Failed to create contract from path " + path));
-
+        assertTrue(hieroException.getMessage().contains("Failed to create contract from path " + tempPath));
     }
-
 }

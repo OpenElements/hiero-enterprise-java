@@ -75,8 +75,8 @@ public class HieroAutoConfiguration {
     }
 
     @Bean
-    SmartContractClient smartContractClient(final ProtocolLayerClient protocolLayerClient, FileClient fileClient, IFileReader fileReader) {
-        return new SmartContractClientImpl(protocolLayerClient, fileClient, fileReader);
+    SmartContractClient smartContractClient(final ProtocolLayerClient protocolLayerClient, FileClient fileClient) {
+        return new SmartContractClientImpl(protocolLayerClient, fileClient);
     }
 
     @Bean
