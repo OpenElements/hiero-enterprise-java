@@ -1,24 +1,20 @@
 package com.openelements.hiero.base.test;
 
+import com.hedera.hashgraph.sdk.*;
 import com.openelements.hiero.base.implementation.AccountClientImpl;
-import com.hedera.hashgraph.sdk.AccountId;
 import com.openelements.hiero.base.data.Account;
-import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.protocol.data.AccountCreateResult;
-import com.openelements.hiero.base.protocol.data.AccountCreateRequest;
-import com.openelements.hiero.base.protocol.data.AccountBalanceResponse;
-import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
-import com.openelements.hiero.base.protocol.data.AccountDeleteRequest;
+import com.openelements.hiero.base.protocol.data.*;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doThrow;
@@ -153,42 +149,64 @@ public class AccountClientImplTest {
 
 
     @Test
-    void DeleteAccount_throwsHieroException() throws HieroException {
-        Account mockAccount = mock(Account.class);
-
-        doThrow(new HieroException("Deletion failed")).when(mockProtocolLayerClient)
-                .executeAccountDeleteTransaction(any(AccountDeleteRequest.class));
-
-        HieroException exception = assertThrows(HieroException.class,
-                () -> accountClientImpl.deleteAccount(mockAccount));
-        assertEquals("Deletion failed", exception.getMessage());
-    }
-
-    @Test
-    void DeleteAccount_withSameFromAndToAccount_throwsIllegalArgumentException() {
-        Account account = mock(Account.class);
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                accountClientImpl.deleteAccount(account, account)
-        );
-
-        assertEquals("transferFoundsToAccount must be different from toDelete", exception.getMessage());
-    }
-
-    @Test
     void DeleteAccount_nullAccount_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> accountClientImpl.deleteAccount(null));
     }
 
+
     @Test
-    void DeleteAccount_withTransfer_nullAccount_throwsNullPointerException() {
+    void DeleteAccount_successful() throws HieroException {
+        Account mockAccount = mock(Account.class);
+
+        accountClientImpl.deleteAccount(mockAccount);
+
+        verify(mockProtocolLayerClient, times(1))
+                .executeAccountDeleteTransaction(any());
+    }
+
+
+    @Test
+    void DeleteAccount_withTransfer_nullFromAccount_throwsException() {
         Account toAccount = mock(Account.class);
-        assertThrows(NullPointerException.class, () -> accountClientImpl.deleteAccount(null, toAccount));
+
+        assertThrows(NullPointerException.class, () -> {
+            accountClientImpl.deleteAccount(null, toAccount);
+        });
     }
 
     @Test
-    void DeleteAccount_withSameAccount_throwsIllegalArgumentException() {
-        Account account = mock(Account.class);
-        assertThrows(IllegalArgumentException.class, () -> accountClientImpl.deleteAccount(account, account));
+    void deleteAccount_withNullToAccount_shouldNotThrow() {
+        AccountId accountId = AccountId.fromString("0.0.123");
+        PrivateKey privateKey = PrivateKey.generate();
+        Account fromAccount = new Account(accountId, privateKey.getPublicKey(), privateKey);
+
+        assertDoesNotThrow(() -> accountClientImpl.deleteAccount(fromAccount, null),
+                "deleteAccount should not throw when toAccount is null (should fallback to operator)");
+    }
+
+    @Test
+    void deleteAccount_withTransfer_throwsHieroException() throws HieroException {
+        PrivateKey fromPrivateKey = PrivateKey.generate();
+        PublicKey fromPublicKey = fromPrivateKey.getPublicKey();
+        AccountId fromAccountId = AccountId.fromString("0.0.1234");
+
+        PrivateKey toPrivateKey = PrivateKey.generate();
+        PublicKey toPublicKey = toPrivateKey.getPublicKey();
+        AccountId toAccountId = AccountId.fromString("0.0.5678");
+
+        Account fromAccount = new Account(fromAccountId, fromPublicKey, fromPrivateKey);
+        Account toAccount = new Account(toAccountId, toPublicKey, toPrivateKey);
+
+        doThrow(new HieroException("Transfer deletion failed"))
+                .when(mockProtocolLayerClient)
+                .executeAccountDeleteTransaction(any());
+
+        HieroException exception = assertThrows(HieroException.class, () ->
+                accountClientImpl.deleteAccount(fromAccount, toAccount)
+        );
+
+        assertEquals("Transfer deletion failed", exception.getMessage());
+
+        verify(mockProtocolLayerClient, times(1)).executeAccountDeleteTransaction(any());
     }
 }
