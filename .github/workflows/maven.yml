@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, solo]
+    runs-on: [self-hosted, test-solo]
 
     steps:
       - name: Checkout Repo
