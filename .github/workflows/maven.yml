@@ -30,6 +30,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Clean up existing Solo deployment
+        run: |
+          kubectl delete deployment solo-deployment --namespace solo --context kind-solo-e2e || true
+          kubectl delete namespace solo --context kind-solo-e2e || true
+
       - name: Prepare Hedera Solo
         id: solo
         uses: hiero-ledger/hiero-solo-action@8c976203a7b809c121f9844581f65ef9782c254f
@@ -43,4 +48,3 @@ jobs:
           HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
           HEDERA_NETWORK: hiero-solo-action
         run: ./mvnw verify
-
