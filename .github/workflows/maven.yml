@@ -30,6 +30,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Cleanup Previous Runs
+        shell: bash
+        run: |
+          rm -rf ~/.solo
+          kind delete cluster --name solo-e2e || true
+
       - name: Prepare Hedera Solo
         id: solo
         uses: Ndacyayisenga-droid/solo-interprise-action@v1.0.0
