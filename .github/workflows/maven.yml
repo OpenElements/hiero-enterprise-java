@@ -37,7 +37,7 @@ jobs:
 
       - name: Prepare Hedera Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@8c976203a7b809c121f9844581f65ef9782c254f
+        uses: Ndacyayisenga-droid/solo-interprise-action@v1.0.0
         with:
           installMirrorNode: true
 
