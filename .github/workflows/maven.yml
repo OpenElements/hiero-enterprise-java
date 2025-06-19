@@ -36,9 +36,9 @@ jobs:
           rm -rf ~/.solo
           kind delete cluster --name solo-e2e || true
 
-      - name: Prepare Hedera Solo
+      - name: Prepare Hiero Solo
         id: solo
-        uses: Ndacyayisenga-droid/solo-interprise-action@v1.0.0
+        uses: hiero-ledger/hiero-solo-action@8c976203a7b809c121f9844581f65ef9782c254f #v0.8
         with:
           installMirrorNode: true
 
