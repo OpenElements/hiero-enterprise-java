@@ -36,6 +36,12 @@ jobs:
           rm -rf ~/.solo
           kind delete cluster --name solo-e2e || true
 
+      - name: Fix Kubernetes Repository
+        shell: bash
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/kubernetes.list
+          sudo apt-get update
+
       - name: Prepare Hiero Solo
         id: solo
         uses: hiero-ledger/hiero-solo-action@8c976203a7b809c121f9844581f65ef9782c254f #v0.8
