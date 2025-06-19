@@ -30,11 +30,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Clean up existing Solo deployment
-        run: |
-          kubectl delete deployment solo-deployment --namespace solo --context kind-solo-e2e || true
-          kubectl delete namespace solo --context kind-solo-e2e || true
-
       - name: Prepare Hedera Solo
         id: solo
         uses: Ndacyayisenga-droid/solo-interprise-action@v1.0.0
