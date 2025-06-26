@@ -20,6 +20,8 @@ import com.openelements.hiero.base.protocol.data.TokenAssociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenAssociateResult;
 import com.openelements.hiero.base.protocol.data.TokenDissociateRequest;
 import com.openelements.hiero.base.protocol.data.TokenDissociateResult;
+import com.openelements.hiero.base.protocol.data.TokenMintRequest;
+import com.openelements.hiero.base.protocol.data.TokenMintResult;
 
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -36,6 +38,7 @@ public class FungibleClientImplTest {
     ArgumentCaptor<TokenCreateRequest> tokenCreateCaptor = ArgumentCaptor.forClass(TokenCreateRequest.class);
     ArgumentCaptor<TokenAssociateRequest> tokenAssociateCaptor = ArgumentCaptor.forClass(TokenAssociateRequest.class);
     ArgumentCaptor<TokenDissociateRequest> tokenDissociateCaptor = ArgumentCaptor.forClass(TokenDissociateRequest.class);
+    ArgumentCaptor<TokenMintRequest> tokenMintCaptor = ArgumentCaptor.forClass(TokenMintRequest.class);
 
     @BeforeEach
     public void setup() {
@@ -421,5 +424,115 @@ public class FungibleClientImplTest {
         IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> fungibleClientImpl.dissociateToken(List.of(), accountId, accountKey));
         Assertions.assertEquals("tokenIds must not be empty", e.getMessage());
+    }
+
+    @Test
+    void testMintToken() throws HieroException {
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+        final long totalSupply = 20;
+        final PrivateKey privateKey = PrivateKey.generateECDSA();
+
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final long amount = 10;
+
+        when(operationalAccount.privateKey()).thenReturn(privateKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.totalSupply()).thenReturn(totalSupply);
+
+        final long result = fungibleClientImpl.mintToken(tokenId, amount);
+
+        verify(operationalAccount, times(1)).privateKey();
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+        verify(tokenMintResult, times(1)).totalSupply();
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(privateKey, capture.supplyKey());
+        Assertions.assertEquals(amount, capture.amount());
+        Assertions.assertEquals(totalSupply, result);
+    }
+
+    @Test
+    void testMintTokenWithSupplyKey() throws HieroException {
+        final TokenMintResult tokenMintResult = Mockito.mock(TokenMintResult.class);
+        final long totalSupply = 20;
+
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final long amount = 10;
+
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenReturn(tokenMintResult);
+        when(tokenMintResult.totalSupply()).thenReturn(totalSupply);
+
+        final long result = fungibleClientImpl.mintToken(tokenId, supplyKey, amount);
+
+        verify(protocolLayerClient, times(1))
+                .executeMintTokenTransaction(tokenMintCaptor.capture());
+        verify(tokenMintResult, times(1)).totalSupply();
+
+        final TokenMintRequest capture = tokenMintCaptor.getValue();
+        Assertions.assertEquals(tokenId, capture.tokenId());
+        Assertions.assertEquals(supplyKey, capture.supplyKey());
+        Assertions.assertEquals(amount, capture.amount());
+        Assertions.assertEquals(totalSupply, result);
+    }
+
+    @Test
+    void testMintTokenThrowExceptionIfAmountLessThanEqualToZero() {
+        final String message = "amount must be greater than 0";
+
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final long amount = 0;
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+
+        final IllegalArgumentException e1 = Assertions.assertThrows(
+                IllegalArgumentException.class, () -> fungibleClientImpl.mintToken(tokenId, amount)
+        );
+        final IllegalArgumentException e2 = Assertions.assertThrows(
+                IllegalArgumentException.class, () -> fungibleClientImpl.mintToken(tokenId, supplyKey, amount)
+        );
+
+        Assertions.assertEquals(message, e1.getMessage());
+        Assertions.assertEquals(message, e2.getMessage());
+    }
+
+    @Test
+    void testMintTokenThrowExceptionForInvalidTokenId() throws HieroException {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final long amount = 10;
+
+        when(operationalAccount.privateKey()).thenReturn(supplyKey);
+        when(protocolLayerClient.executeMintTokenTransaction(any(TokenMintRequest.class)))
+                .thenThrow(new HieroException("Failed to execute transaction of type TokenMintTransaction"));
+
+        Assertions.assertThrows(HieroException.class, () -> fungibleClientImpl.mintToken(tokenId, amount));
+        Assertions.assertThrows(HieroException.class, () -> fungibleClientImpl.mintToken(tokenId, supplyKey, amount));
+    }
+
+    @Test
+    void testMintTokenThrowExceptionForNullParams() {
+        final PrivateKey supplyKey = PrivateKey.generateECDSA();
+        final TokenId tokenId = TokenId.fromString("0.0.1");
+        final long amount = 10;
+
+        final NullPointerException e1 = Assertions.assertThrows(
+                NullPointerException.class, () -> fungibleClientImpl.mintToken((TokenId) null, amount)
+        );
+        final NullPointerException e2 = Assertions.assertThrows(
+                NullPointerException.class, () -> fungibleClientImpl.mintToken(null, supplyKey, amount)
+        );
+        final NullPointerException e3 = Assertions.assertThrows(
+                NullPointerException.class, () -> fungibleClientImpl.mintToken(tokenId, null, amount)
+        );
+
+        Assertions.assertEquals("tokenId must not be null", e1.getMessage());
+        Assertions.assertEquals("tokenId must not be null", e2.getMessage());
+        Assertions.assertEquals("supplyKey must not be null", e3.getMessage());
     }
 }
