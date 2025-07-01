@@ -11,6 +11,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
@@ -21,6 +23,8 @@ public class HieroTestContext implements HieroContext {
     private final Account operationalAccount;
 
     private final Client client;
+
+    private final Set<String> mirronNodeEnpoint;
 
     public HieroTestContext() {
         final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
@@ -57,6 +61,7 @@ public class HieroTestContext implements HieroContext {
         final Map<String, AccountId> nodes = new HashMap<>();
         networkSettings.getConsensusNodes()
                 .forEach(consensusNode -> nodes.put(consensusNode.getAddress(), consensusNode.getAccountId()));
+        mirronNodeEnpoint = networkSettings.getConsensusServiceAddress();
         client = Client.forNetwork(nodes);
         if (!networkSettings.getMirrorNodeAddresses().isEmpty()) {
             try {
@@ -75,5 +80,10 @@ public class HieroTestContext implements HieroContext {
 
     public Client getClient() {
         return client;
+    }
+
+    @Override
+    public @NonNull Set<String> getMirrorNodeEndPoint() {
+        return mirronNodeEnpoint;
     }
 }

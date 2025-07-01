@@ -32,6 +32,9 @@ public final class HederaTestnetSettings implements NetworkSettings {
     }
 
     @Override
+    public @NonNull Set<String> getConsensusServiceAddress() {return Set.of("testnet.mirrornode.hedera.com:443");}
+
+    @Override
     public @NonNull Set<ConsensusNode> getConsensusNodes() {
         return Set.of(new ConsensusNode("0.testnet.hedera.com", "50211", "0.0.3"));
     }

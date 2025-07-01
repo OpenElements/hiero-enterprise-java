@@ -1,18 +1,27 @@
 package com.openelements.hiero.spring.test;
 
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.SubscriptionHandle;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.TopicClient;
+import com.openelements.hiero.test.HieroTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @SpringBootTest(classes = HieroTestConfig.class)
 public class TopicClientTest {
     @Autowired
     private TopicClient topicClient;
+
+    @Autowired
+    private HieroTestUtils hieroTestUtils;
 
     @Test
     void testCreateTopic() throws HieroException {
@@ -197,5 +206,23 @@ public class TopicClientTest {
         final byte[] message = "Hello Hiero".getBytes();
         final PrivateKey submitKey = PrivateKey.generateECDSA();
         Assertions.assertThrows(HieroException.class, () -> topicClient.submitMessage(topicId, submitKey, message));
+    }
+
+    @Test
+    void testSubscribeTopic() throws HieroException {
+        final List<String> messages = new ArrayList<>();
+        final TopicId topicId = topicClient.createTopic();
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        final SubscriptionHandle handle = topicClient.subscribeTopic(topicId, (message) -> {
+            messages.add(message.toString());
+            System.out.println(Arrays.toString(message.contents));
+        });
+
+        topicClient.submitMessage(topicId, "Hello Hiero");
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        Assertions.assertNotNull(handle);
+        Assertions.assertEquals(1, messages.size());
     }
 }
