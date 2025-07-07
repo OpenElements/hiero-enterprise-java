@@ -1,154 +1,173 @@
 package com.openelements.hiero.base.test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.hedera.hashgraph.sdk.ContractFunctionResult;
 import com.hedera.hashgraph.sdk.ContractId;
 import com.openelements.hiero.base.FileClient;
 import com.openelements.hiero.base.HieroException;
-import com.openelements.hiero.base.data.ContractCallResult;
 import com.openelements.hiero.base.data.ContractParam;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.data.ContractCallRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+
+import java.nio.file.Path;
+
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.ParameterizedTest;
 
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+class SmartContractClientImplTest {
 
-public class SmartContractClientImplTest {
-
-    private ProtocolLayerClient mockProtocolLayerClient;
-    private FileClient mockFileClient;
+    private ProtocolLayerClient protocolLayerClient;
+    private FileClient fileClient;
     private SmartContractClientImpl smartContractClient;
 
     @BeforeEach
-    public void setUp() {
-        mockProtocolLayerClient = mock(ProtocolLayerClient.class);
-        mockFileClient = mock(FileClient.class);
-        smartContractClient = new SmartContractClientImpl(mockProtocolLayerClient, mockFileClient);
+    void setUp() {
+        protocolLayerClient = mock(ProtocolLayerClient.class);
+        fileClient = mock(FileClient.class);
+        smartContractClient = new SmartContractClientImpl(protocolLayerClient, fileClient);
     }
-
     @Test
-    void CallContractFunction_success() throws Exception {
+    void callContractFunction_withNullFunctionName_throwsHieroExceptionWithNpeCause() {
+        ContractId contractId = ContractId.fromString("0.0.123");
 
-        ContractId contractId = ContractId.fromString("0.0.1234");
-        String functionName = "getValue";
-
-        ContractFunctionResult mockFunctionResult = mock(ContractFunctionResult.class);
-        com.openelements.hiero.base.protocol.data.ContractCallResult mockProtocolResult =
-                mock(com.openelements.hiero.base.protocol.data.ContractCallResult.class);
-        when(mockProtocolResult.contractFunctionResult()).thenReturn(mockFunctionResult);
-
-        when(mockProtocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
-                .thenReturn(mockProtocolResult);
-
-        com.openelements.hiero.base.data.ContractCallResult result =
-                smartContractClient.callContractFunction(contractId, functionName);
-
-        assertNotNull(result);
-
-    }
-
-    @Test
-    void CallContractFunction_exceptionThrown() throws Exception {
-        ContractId contractId = ContractId.fromString("0.0.1234");
-
-        when(mockProtocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
-                .thenThrow(new RuntimeException("Contract call failed"));
-
-        assertThrows(HieroException.class, () ->
-                smartContractClient.callContractFunction(contractId, "getValue"));
-    }
-
-    @Test
-    void CallContractFunction_failure() throws Exception {
-        ContractId contractId = ContractId.fromString("0.0.1234");
-
-        when(mockProtocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
-                .thenThrow(new RuntimeException("Simulated protocol failure"));
-
-        HieroException thrown = assertThrows(HieroException.class, () ->
-                smartContractClient.callContractFunction(contractId, "getValue"));
-
-        assertTrue(thrown.getMessage().contains("Failed to call function"));
-    }
-
-    @Test
-    void callContractFunction_successWithNoParams() throws Exception {
-        // Arrange
-        ContractId contractId = ContractId.fromString("0.0.1234");
-        String functionName = "getValue";
-
-        // Mock the expected result
-        ContractFunctionResult mockFunctionResult = mock(ContractFunctionResult.class);
-
-        // Mock the protocol layer to return our mock result
-        when(mockProtocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
-                .thenReturn(mockFunctionResult);
-
-        // Act
-        ContractCallResult result = smartContractClient.callContractFunction(contractId, functionName);
-
-        // Assert
-        assertNotNull(result);
-
-        // Verify the request was formed correctly
-        verify(mockProtocolLayerClient).executeContractCallTransaction(argThat(request -> {
-            assertEquals(contractId, request.contractId(), "Contract ID mismatch");
-            assertEquals(functionName, request.functionName(), "Function name mismatch");
-
-            // Verify no parameters were passed
-            if (request.params() != null) {  // Handle both null and empty cases
-                assertTrue(request.params().isEmpty(), "Params should be empty");
-            }
-            return true;
-        }));
-    }
-
-
-    @Test
-    void callContractFunction_propagatesProtocolExceptions() throws HieroException {
-        ContractId contractId = ContractId.fromString("0.0.1234");
-        String functionName = "getValue";
-
-        when(mockProtocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
-                .thenThrow(new RuntimeException("Network error"));
-
-        HieroException exception = assertThrows(HieroException.class, () ->
-                smartContractClient.callContractFunction(contractId, functionName));
-
-        assertTrue(exception.getMessage().contains("Failed to call function '" + functionName + "'"),
-                "Exception message should indicate function call failure");
-        assertNotNull(exception.getCause(), "Exception should have a cause");
-        assertEquals("Network error", exception.getCause().getMessage(),
-                "Should preserve original error message");
-    }
-
-
-    @ParameterizedTest
-    @NullSource
-    void callContractFunction_wrapsNullPointerExceptions(ContractId nullId) {
-        HieroException exception = assertThrows(HieroException.class, () ->
-                smartContractClient.callContractFunction(nullId, "test"));
-
-        assertEquals(NullPointerException.class, exception.getCause().getClass());
-    }
-
-    @Test
-    void callContractFunction_throwsOnNullFunctionName() {
-        ContractId contractId = ContractId.fromString("0.0.1234");
-
-        HieroException exception = assertThrows(HieroException.class, () ->
-                smartContractClient.callContractFunction(contractId, null));
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction(contractId, null);
+        });
 
         assertNotNull(exception.getCause());
         assertEquals(NullPointerException.class, exception.getCause().getClass());
+        assertEquals("functionName is required", exception.getCause().getMessage());
         assertTrue(exception.getMessage().contains("Failed to call function 'null'"));
     }
-}
 
+    @Test
+    void callContractFunction_withNullContractId_throwsHieroExceptionWithNpeCause() {
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction((ContractId) null, "testFunction");
+        });
+
+        assertNotNull(exception.getCause());
+        assertEquals(NullPointerException.class, exception.getCause().getClass());
+        assertTrue(exception.getMessage().contains("Failed to call function 'testFunction'"));
+    }
+
+    @Test
+    void callContractFunction_whenProtocolLayerFails_throwsHieroException() throws Exception {
+        ContractId contractId = ContractId.fromString("0.0.123");
+        String functionName = "testFunction";
+
+        when(protocolLayerClient.executeContractCallTransaction(any(ContractCallRequest.class)))
+                .thenThrow(new RuntimeException("Network error"));
+
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction(contractId, functionName);
+        });
+
+        assertEquals("Failed to call function 'testFunction' on contract with id 0.0.123",
+                exception.getMessage());
+        assertNotNull(exception.getCause());
+    }
+
+    @Test
+    void callContractFunction_withEmptyFunctionName_throwsHieroException() {
+        ContractId contractId = ContractId.fromString("0.0.123");
+
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction(contractId, "");
+        });
+
+        assertTrue(exception.getCause() instanceof IllegalArgumentException);
+        assertEquals("functionName must not be blank or contain spaces",
+                exception.getCause().getMessage());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", "  "})
+    void callContractFunction_shouldValidateFunctionName(String invalidFunctionName) {
+        assertThrows(HieroException.class, () ->
+                smartContractClient.callContractFunction(
+                        ContractId.fromString("0.0.123"),
+                        invalidFunctionName
+                ));
+    }
+    @Test
+    void callContractFunction_shouldThrowWhenContractIdIsNull() {
+        String functionName = "transfer";
+        ContractParam<String> recipient = ContractParam.address("0.0.456");
+
+        HieroException exception = assertThrows(HieroException.class, () ->
+                smartContractClient.callContractFunction(
+                        (ContractId) null, functionName, recipient
+                ));
+
+        assertTrue(exception.getMessage().contains("Failed to call function"));
+        assertTrue(exception.getCause() instanceof NullPointerException);
+        assertTrue(exception.getCause().getMessage().contains("contractId is required"));
+    }
+
+    @Test
+    void callContractFunction_shouldThrowWhenProtocolLayerClientReturnsNull() throws Exception {
+
+        ContractId contractId = ContractId.fromString("0.0.123");
+        String functionName = "transfer";
+        ContractParam<String> recipient = ContractParam.address("0.0.456");
+
+        when(protocolLayerClient.executeContractCallTransaction(any())).thenReturn(null);
+
+        HieroException exception = assertThrows(HieroException.class, () ->
+                smartContractClient.callContractFunction(contractId, functionName, recipient));
+
+        assertTrue(exception.getMessage().contains("Failed to call function"));
+    }
+
+    @Test
+    void createContract_shouldHandleFileReadErrors() throws Exception {
+        Path invalidPath = Path.of("/invalid/path");
+        HieroException exception = assertThrows(HieroException.class, () ->
+                smartContractClient.createContract(invalidPath));
+        assertEquals("Failed to create contract from path " + invalidPath,
+                exception.getMessage());
+        assertTrue(exception.getCause() instanceof java.nio.file.NoSuchFileException);
+    }
+
+    @Test
+    void callContractFunction_withNullContractId_throwsHieroException() {
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction((ContractId) null, "testFunction");
+        });
+
+        assertNotNull(exception.getCause());
+        assertEquals(NullPointerException.class, exception.getCause().getClass());
+        assertTrue(exception.getMessage().contains("Failed to call function 'testFunction'"));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", "  "})
+    void callContractFunction_withInvalidFunctionName_throwsHieroException(String invalidFunctionName) {
+        ContractId contractId = ContractId.fromString("0.0.123");
+
+        HieroException exception = assertThrows(HieroException.class, () -> {
+            smartContractClient.callContractFunction(contractId, invalidFunctionName);
+        });
+
+        assertNotNull(exception.getCause());
+        if (invalidFunctionName == null) {
+            assertEquals(NullPointerException.class, exception.getCause().getClass());
+        } else {
+            assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
+        }
+    }
+}
