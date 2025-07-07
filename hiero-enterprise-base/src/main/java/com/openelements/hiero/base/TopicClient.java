@@ -328,7 +328,8 @@ public interface TopicClient {
      * @return SubscriptionHandle for the Topic
      * @throws HieroException if Topic could not be subscribed
      */
-    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription) throws HieroException;
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription)
+            throws HieroException;
 
     /**
      * Subscribe to a Topic
@@ -337,7 +338,32 @@ public interface TopicClient {
      * @return SubscriptionHandle for the Topic
      * @throws HieroException if Topic could not be subscribed
      */
-    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription) throws HieroException {
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription)
+            throws HieroException {
         return subscribeTopic(TopicId.fromString(topicId), subscription);
+    }
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                      long limit) throws HieroException;
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription,
+                                              long limit) throws HieroException {
+        return subscribeTopic(TopicId.fromString(topicId), subscription, limit);
     }
 }

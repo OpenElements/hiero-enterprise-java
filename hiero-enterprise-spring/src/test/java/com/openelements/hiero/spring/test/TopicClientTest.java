@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest(classes = HieroTestConfig.class)
@@ -210,19 +209,58 @@ public class TopicClientTest {
 
     @Test
     void testSubscribeTopic() throws HieroException {
+        final String msg = "Hello Hiero";
         final List<String> messages = new ArrayList<>();
         final TopicId topicId = topicClient.createTopic();
         hieroTestUtils.waitForMirrorNodeRecords();
 
-        final SubscriptionHandle handle = topicClient.subscribeTopic(topicId, (message) -> {
-            messages.add(message.toString());
-            System.out.println(Arrays.toString(message.contents));
+        final SubscriptionHandle handler = topicClient.subscribeTopic(topicId, (message) -> {
+            messages.add(new String(message.contents));
         });
 
-        topicClient.submitMessage(topicId, "Hello Hiero");
+        topicClient.submitMessage(topicId, msg);
         hieroTestUtils.waitForMirrorNodeRecords();
 
-        Assertions.assertNotNull(handle);
+        Assertions.assertNotNull(handler);
         Assertions.assertEquals(1, messages.size());
+        Assertions.assertEquals(msg,messages.getFirst());
+    }
+
+    @Test
+    void testSubscribeTopicWithLimit() throws HieroException {
+        final String msg = "Hello Hiero";
+        final long limit = 1;
+
+        final List<String> messages = new ArrayList<>();
+        final TopicId topicId = topicClient.createTopic();
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        final SubscriptionHandle handler = topicClient.subscribeTopic(topicId, (message) -> {
+            messages.add(new String(message.contents));
+        }, limit);
+
+        topicClient.submitMessage(topicId, msg);
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        topicClient.submitMessage(topicId, msg);
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        Assertions.assertNotNull(handler);
+        Assertions.assertEquals(limit, messages.size());
+    }
+
+    @Test
+    void testSubscribeTopicWithInvalidLimit() throws HieroException {
+        final String msg = "limit must be greater than 0";
+        final long limit = 0;
+
+        final TopicId topicId = topicClient.createTopic();
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        final IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class, () -> topicClient.subscribeTopic(
+                topicId, (message) -> {/**/}, limit
+        ));
+
+        Assertions.assertEquals(msg, e.getMessage());
     }
 }

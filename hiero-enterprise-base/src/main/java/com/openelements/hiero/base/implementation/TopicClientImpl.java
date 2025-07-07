@@ -221,4 +221,18 @@ public class TopicClientImpl implements TopicClient {
         TopicMessageResult result = client.executeTopicMessageQuery(request);
         return result.subscriptionHandle();
     }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             long limit) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        if (limit == 0) {
+            throw new IllegalArgumentException("limit must be greater than 0");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, limit);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
 }
