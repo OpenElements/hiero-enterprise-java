@@ -17,6 +17,7 @@ import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
 import com.openelements.hiero.base.protocol.data.TopicMessageResult;
 import org.jspecify.annotations.NonNull;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -232,6 +233,50 @@ public class TopicClientImpl implements TopicClient {
         }
 
         TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, limit);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             Instant startTime, Instant endTime) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        Objects.requireNonNull(startTime, "startTime must not be null");
+        Objects.requireNonNull(endTime, "endTime must not be null");
+
+        if (startTime.isBefore(Instant.now())) {
+            throw  new IllegalArgumentException("startTime must be greater than currentTime");
+        }
+        if (endTime.isBefore(startTime)) {
+            throw  new IllegalArgumentException("endTime must be greater than starTime");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, startTime, endTime);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             @NonNull Instant startTime, @NonNull Instant endTime, long limit)
+            throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        Objects.requireNonNull(startTime, "startTime must not be null");
+        Objects.requireNonNull(endTime, "endTime must not be null");
+
+        if (startTime.isBefore(Instant.now())) {
+            throw  new IllegalArgumentException("startTime must be greater than currentTime");
+        }
+        if (endTime.isBefore(startTime)) {
+            throw  new IllegalArgumentException("endTime must be greater than starTime");
+        }
+        if (limit == 0) {
+            throw new IllegalArgumentException("limit must be greater than 0");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, startTime, endTime, limit);
         TopicMessageResult result = client.executeTopicMessageQuery(request);
         return result.subscriptionHandle();
     }

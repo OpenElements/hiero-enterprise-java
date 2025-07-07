@@ -7,10 +7,12 @@ import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.TopicClient;
 import com.openelements.hiero.test.HieroTestUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -262,5 +264,28 @@ public class TopicClientTest {
         ));
 
         Assertions.assertEquals(msg, e.getMessage());
+    }
+
+    @Test
+    @Disabled
+    // To fix
+    void testSubscribeTopicWithStartAndEndTime() throws  HieroException {
+        final TopicId topicId = topicClient.createTopic();
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        final Instant startTime = Instant.now().plusSeconds(60);
+        final Instant endTime = startTime.plusSeconds(120);
+
+        final List<String> messages = new ArrayList<>();
+
+        final SubscriptionHandle handler = topicClient.subscribeTopic(topicId, (message) -> {
+            messages.add(new String(message.contents));
+        }, startTime, endTime);
+
+        topicClient.submitMessage(topicId, "Hello Hiero");
+        hieroTestUtils.waitForMirrorNodeRecords();
+
+        Assertions.assertNotNull(handler);
+        Assertions.assertEquals(1, messages.size());
     }
 }
