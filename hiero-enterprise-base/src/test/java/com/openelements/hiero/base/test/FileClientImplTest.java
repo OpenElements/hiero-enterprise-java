@@ -441,4 +441,67 @@ public class FileClientImplTest {
                 NullPointerException.class, () -> fileClientImpl.updateExpirationTime(null, null)
         );
     }
+    @Test
+    void isDeleted_ReturnsTrue_WhenFileIsDeleted() throws HieroException {
+        FileId fileId = FileId.fromString("0.0.123");
+        FileInfoResponse response = new FileInfoResponse(
+                fileId,
+                0,
+                true,
+                Instant.now().plusSeconds(100)
+        );
+
+        when(protocolLayerClient.executeFileInfoQuery(FileInfoRequest.of(fileId)))
+                .thenReturn(response);
+
+
+        boolean result = fileClientImpl.isDeleted(fileId);
+
+
+        assertTrue(result);
+    }
+
+    @Test
+    void isDeleted_ReturnsFalse_WhenFileIsNotDeleted() throws HieroException {
+        FileId fileId = FileId.fromString("0.0.123");
+        FileInfoResponse response = new FileInfoResponse(
+                fileId,
+                0,
+                false,
+                Instant.now().plusSeconds(100)
+        );
+
+        when(protocolLayerClient.executeFileInfoQuery(FileInfoRequest.of(fileId)))
+                .thenReturn(response);
+        boolean result = fileClientImpl.isDeleted(fileId);
+
+        assertFalse(result);
+    }
+    @Test
+    void testIsDeletedThrowsExceptionForNullFileId() {
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> fileClientImpl.isDeleted(null)
+        );
+        assertEquals("fileId must not be null", exception.getMessage());
+    }
+
+    @Test
+    void isDeleted_ThrowsHieroException_WhenQueryFails() throws HieroException {
+        FileId fileId = FileId.fromString("0.0.123");
+        when(protocolLayerClient.executeFileInfoQuery(FileInfoRequest.of(fileId)))
+                .thenThrow(new HieroException("Query failed"));
+
+        assertThrows(HieroException.class, () -> fileClientImpl.isDeleted(fileId));
+    }
+
+    @Test
+    void isDeleted_ThrowsNullPointerException_WhenFileIdIsNull() {
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> fileClientImpl.isDeleted(null)
+        );
+        assertEquals("fileId must not be null", exception.getMessage());
+    }
+
 }
