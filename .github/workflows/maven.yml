@@ -42,12 +42,6 @@ jobs:
           which jq
           jq --version
 
-      - name: Cleanup Previous Runs
-        shell: bash
-        run: |
-          rm -rf ~/.solo
-          kind delete cluster --name solo-e2e || true
-
       - name: Fix Kubernetes Repository
         shell: bash
         run: |
@@ -56,7 +50,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@v0.9 #v0.8
+        uses: hiero-ledger/hiero-solo-action@v0.10.0
         with:
           installMirrorNode: true
 
