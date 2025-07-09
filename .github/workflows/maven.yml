@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, solo]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repo
