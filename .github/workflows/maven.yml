@@ -53,6 +53,7 @@ jobs:
         uses: hiero-ledger/hiero-solo-action@v0.10.0
         with:
           installMirrorNode: true
+          mirrorNodePortRest: 8080
 
       - name: Build with Maven
         env:
