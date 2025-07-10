@@ -41,6 +41,14 @@ public interface NetworkSettings {
     Set<String> getMirrorNodeAddresses();
 
     /**
+     * Returns the consensus service address.
+     *
+     * @return the consensus service addresses
+     */
+    @NonNull
+    Set<String> getConsensusServiceAddress();
+
+    /**
      * Returns the consensus nodes.
      *
      * @return the consensus nodes
