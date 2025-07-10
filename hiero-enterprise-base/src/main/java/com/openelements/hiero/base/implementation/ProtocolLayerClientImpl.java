@@ -42,7 +42,7 @@ import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.data.ContractParam;
 import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor;
-import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor.ReceiveRecordHandler;
+import com.openelements.hiero.base.interceptors.ReceiveRecordInterceptor.InvocationContext;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.protocol.TransactionListener;
 import com.openelements.hiero.base.protocol.data.AccountBalanceRequest;
@@ -97,6 +97,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -630,14 +631,25 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
         try {
             log.debug("Waiting for record of transaction '{}' of type {}", receipt.transactionId,
                     transaction.getClass().getSimpleName());
-
-            final ReceiveRecordHandler data = new ReceiveRecordHandler(transaction, receipt,
-                    r -> r.transactionId.getRecord(hieroContext.getClient()));
+            final InvocationContext data = createInvocationContextForRecordReceive(transaction, receipt);
             return recordInterceptor.get().getRecordFor(data);
         } catch (final Exception e) {
             throw new HieroException("Failed to receive record of transaction '" + receipt.transactionId + "' of type "
                     + transaction.getClass(), e);
         }
+    }
+
+    private <T extends Transaction<T>> InvocationContext createInvocationContextForRecordReceive(T transaction,
+            TransactionReceipt receipt) {
+        final Function<TransactionReceipt, TransactionRecord> innerInvocation = r -> {
+            try {
+                return r.transactionId.getRecord(hieroContext.getClient());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to get Record", e);
+            }
+        };
+        final InvocationContext data = new InvocationContext(transaction, receipt, innerInvocation);
+        return data;
     }
 
     @NonNull

@@ -40,11 +40,11 @@ public class MicrometerSupportConfig {
     @Bean
     @NonNull
     public ReceiveRecordInterceptor interceptRecordReceive(@NonNull final MeterRegistry meterRegistry) {
-        return handler -> {
-            final String transactionType = handler.transaction().getClass().getSimpleName();
+        return invocationContext -> {
+            final String transactionType = invocationContext.transaction().getClass().getSimpleName();
             final Set<Tag> tags = new HashSet<>();
             tags.add(Tag.of(TRANSACTION_TYPE_TAG, transactionType));
-            if (handler.transaction() instanceof ContractExecuteTransaction contractExecuteTransaction) {
+            if (invocationContext.transaction() instanceof ContractExecuteTransaction contractExecuteTransaction) {
                 tags.add(Tag.of(CONTRACT_ID_TAG,
                         contractExecuteTransaction.getContractId().toString()));
             }
@@ -52,7 +52,7 @@ public class MicrometerSupportConfig {
             final Counter counter = meterRegistry.counter(COUNTER_NAME, tags);
             return timer.record(() -> {
                 try {
-                    final TransactionRecord transactionRecord = handler.handle();
+                    final TransactionRecord transactionRecord = invocationContext.proceed();
                     counter.increment();
                     return transactionRecord;
                 } catch (Exception e) {

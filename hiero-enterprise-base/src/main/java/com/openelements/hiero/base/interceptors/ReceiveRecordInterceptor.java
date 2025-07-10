@@ -4,6 +4,7 @@ import com.hedera.hashgraph.sdk.Transaction;
 import com.hedera.hashgraph.sdk.TransactionReceipt;
 import com.hedera.hashgraph.sdk.TransactionRecord;
 import java.util.Objects;
+import java.util.function.Function;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -17,60 +18,43 @@ public interface ReceiveRecordInterceptor {
     /**
      * Default interceptor that does nothing.
      */
-    ReceiveRecordInterceptor DEFAULT_INTERCEPTOR = data -> data.handle();
+    ReceiveRecordInterceptor DEFAULT_INTERCEPTOR = invocationContext -> invocationContext.proceed();
 
     /**
      * Intercept the call for receiving a record for a transaction.
      *
-     * @param handler the handler that will be used to receive the record
+     * @param invocationContext the context that will be used to receive the record
      * @return the record for the transaction
      * @throws Exception if the interceptor fails
      */
     @NonNull
-    TransactionRecord getRecordFor(@NonNull ReceiveRecordHandler handler) throws Exception;
+    TransactionRecord getRecordFor(@NonNull InvocationContext invocationContext)
+            throws Exception;
 
     /**
      * Handler for receiving a record for a transaction.
      *
-     * @param transaction the transaction for which the record is received
-     * @param receipt     the receipt for the transaction
-     * @param function    the function that will be used to receive the record
+     * @param transaction     the transaction for which the record is received
+     * @param receipt         the receipt for the transaction
+     * @param innerInvocation the function that will be used to receive the record
      */
-    record ReceiveRecordHandler(@NonNull Transaction transaction, @NonNull TransactionReceipt receipt,
-                                @NonNull ReceiveRecordFunction function) {
+    record InvocationContext(@NonNull Transaction transaction, @NonNull TransactionReceipt receipt,
+                             @NonNull Function<TransactionReceipt, TransactionRecord> innerInvocation) {
 
-        public ReceiveRecordHandler {
+        public InvocationContext {
             Objects.requireNonNull(transaction, "transaction must not be null");
             Objects.requireNonNull(receipt, "receipt must not be null");
-            Objects.requireNonNull(function, "handler must not be null");
+            Objects.requireNonNull(innerInvocation, "innerInvocation must not be null");
         }
 
         /**
          * Handle the call for receiving a record for a transaction.
          *
          * @return the record for the transaction
-         * @throws Exception if the interceptor fails
          */
         @NonNull
-        public TransactionRecord handle() throws Exception {
-            return function.handle(receipt);
+        public TransactionRecord proceed() {
+            return innerInvocation.apply(receipt);
         }
-    }
-
-    /**
-     * Function that will be used to receive the record for a transaction.
-     */
-    @FunctionalInterface
-    interface ReceiveRecordFunction {
-
-        /**
-         * Handle the call for receiving a record for a transaction.
-         *
-         * @param receipt the receipt for the transaction
-         * @return the record for the transaction
-         * @throws Exception if the interceptor fails
-         */
-        @NonNull
-        TransactionRecord handle(@NonNull TransactionReceipt receipt) throws Exception;
     }
 }
