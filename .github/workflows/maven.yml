@@ -50,7 +50,7 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@v0.10.0
+        uses: OpenElements/hedera-solo-action@v0.3
         with:
           installMirrorNode: true
           mirrorNodePortRest: 8080
