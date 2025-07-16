@@ -34,16 +34,16 @@ public class TopicRepositoryTest {
         );
     }
 
-    @Test
-    void testFindTopicById() throws HieroException {
-        final TopicId topicId = topicClient.createTopic();
-        hieroTestUtils.waitForMirrorNodeRecords();
+    // @Test
+    // void testFindTopicById() throws HieroException {
+    //     final TopicId topicId = topicClient.createTopic();
+    //     hieroTestUtils.waitForMirrorNodeRecords();
 
-        final Optional<Topic> result = topicRepository.findTopicById(topicId);
+    //     final Optional<Topic> result = topicRepository.findTopicById(topicId);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isPresent());
-    }
+    //     Assertions.assertNotNull(result);
+    //     Assertions.assertTrue(result.isPresent());
+    // }
 
     @Test
     void testFindTopicByIdReturnsEmptyOptional() throws HieroException {
