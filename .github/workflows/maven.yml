@@ -53,7 +53,6 @@ jobs:
         uses: OpenElements/hedera-solo-action@v0.3
         with:
           installMirrorNode: true
-          mirrorNodePortRest: 8080
 
       - name: Build with Maven
         env:
