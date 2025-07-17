@@ -32,7 +32,7 @@ jobs:
 
       - name: Prepare Hedera Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@v0.8
+        uses: OpenElements/hedera-solo-action@v0.3
         with:
           installMirrorNode: true
 
