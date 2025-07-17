@@ -30,11 +30,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Prepare Hedera Solo
+      - name: Prepare Hiero Solo
         id: solo
-        uses: OpenElements/hedera-solo-action@v0.3
+        uses: hiero-ledger/hiero-solo-action@a39acf8cfbaa2feb195a86530d0ab643a45aa541 # v0.10
         with:
           installMirrorNode: true
+          hieroVersion: v0.63.7
 
       - name: Build with Maven
         env:
