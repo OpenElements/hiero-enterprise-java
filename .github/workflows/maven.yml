@@ -31,15 +31,18 @@ jobs:
           mirrorNodeVersion: v0.133.0
           mirrorNodePortRest: 5551
           mirrorNodePortGrpc: 5600
+          mirrorNodePortWeb3Rest: 8545
 
       - name: Wait for Mirror Node
         run: |
-          echo "Waiting for Mirror Node to be ready on http://localhost:5551..."
-          until curl --output /dev/null --silent --head --fail http://localhost:5551/health; do
+          echo "Waiting for Mirror Node REST API to be ready on http://localhost:5551..."
+          until curl --output /dev/null --silent --head --fail http://localhost:5551/api/v1/network/supply; do
             echo "Mirror Node not ready, waiting..."
+            kubectl get svc -n solo
+            curl --silent http://localhost:5551/api/v1/network/supply || echo "No response from /api/v1/network/supply"
             sleep 5
           done
-          echo "Mirror Node is ready!"
+          echo "Mirror Node REST API is ready!"
 
       - name: Build with Maven
         env:
