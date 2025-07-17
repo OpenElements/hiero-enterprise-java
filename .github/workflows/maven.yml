@@ -28,11 +28,14 @@ jobs:
         with:
           installMirrorNode: true
           hieroVersion: v0.63.7
+          mirrorNodeVersion: v0.133.0
+          mirrorNodePortRest: 5551
+          mirrorNodePortGrpc: 5600
 
       - name: Wait for Mirror Node
         run: |
-          echo "Waiting for Mirror Node to be ready on http://localhost:8080..."
-          until curl --output /dev/null --silent --head --fail http://localhost:8080/api/v1/health; do
+          echo "Waiting for Mirror Node to be ready on http://localhost:5551..."
+          until curl --output /dev/null --silent --head --fail http://localhost:5551/health; do
             echo "Mirror Node not ready, waiting..."
             sleep 5
           done
@@ -44,5 +47,5 @@ jobs:
           HEDERA_ACCOUNT_ID: ${{ steps.solo.outputs.accountId }}
           HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
           HEDERA_NETWORK: hiero-solo-action
-          MIRROR_NODE_URL: http://localhost:8080
+          MIRROR_NODE_URL: http://localhost:5551
         run: ./mvnw verify -B -e -X
