@@ -51,4 +51,4 @@ jobs:
           HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
           HEDERA_NETWORK: hiero-solo-action
           MIRROR_NODE_URL: http://localhost:5551
-        run: ./mvnw verify -B -e -X
+        run: ./mvnw verify
