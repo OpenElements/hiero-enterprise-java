@@ -11,14 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      hiero-solo:
-        image: ghcr.io/hiero-ledger/hiero-solo:v0.63.7
-        ports:
-          - 8080:8080
-        env:
-          installMirrorNode: true
-
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
