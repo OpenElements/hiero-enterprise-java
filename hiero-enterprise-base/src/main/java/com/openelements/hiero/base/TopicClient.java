@@ -1,10 +1,14 @@
 package com.openelements.hiero.base;
 
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.SubscriptionHandle;
 import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TopicMessage;
 import org.jspecify.annotations.NonNull;
 
+import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Interface for interacting with a Hiero network. This interface provides methods for interacting with Hiero Topic,
@@ -317,4 +321,106 @@ public interface TopicClient {
         Objects.requireNonNull(message, "message cannot be null");
         submitMessage(TopicId.fromString(topicId), PrivateKey.fromString(submitKey), message);
     };
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription)
+            throws HieroException;
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription)
+            throws HieroException {
+        return subscribeTopic(TopicId.fromString(topicId), subscription);
+    }
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                      long limit) throws HieroException;
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription,
+                                              long limit) throws HieroException {
+        return subscribeTopic(TopicId.fromString(topicId), subscription, limit);
+    }
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param startTime time to start subscribing to a topic
+     * @param endTime time to stop subscribing to a topic
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                      @NonNull Instant startTime, @NonNull Instant endTime) throws HieroException;
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param startTime time to start subscribing to a topic
+     * @param endTime time to stop subscribing to a topic
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription,
+                                              @NonNull Instant startTime, @NonNull Instant endTime) throws HieroException {
+        return subscribeTopic(TopicId.fromString(topicId), subscription, startTime, endTime);
+    }
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param startTime time to start subscribing to a topic
+     * @param endTime time to stop subscribing to a topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                      @NonNull Instant startTime, @NonNull Instant endTime, long limit)
+            throws HieroException;
+
+    /**
+     * Subscribe to a Topic
+     *
+     * @param topicId the topicId of topic
+     * @param startTime time to start subscribing to a topic
+     * @param endTime time to stop subscribing to a topic
+     * @param limit the number of message to return
+     * @return SubscriptionHandle for the Topic
+     * @throws HieroException if Topic could not be subscribed
+     */
+    default SubscriptionHandle subscribeTopic(@NonNull String topicId, @NonNull Consumer<TopicMessage> subscription,
+                                              @NonNull Instant startTime, @NonNull Instant endTime, long limit)
+            throws HieroException {
+        return subscribeTopic(TopicId.fromString(topicId), subscription, startTime, endTime, limit);
+    }
 }

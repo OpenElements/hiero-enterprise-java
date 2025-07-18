@@ -434,7 +434,7 @@ public class ProtocolLayerClientImpl implements ProtocolLayerClient {
                 query.setLimit(request.limit());
             }
             final SubscriptionHandle subscribe = query.subscribe(hieroContext.getClient(), request.subscription());
-            return new TopicMessageResult();
+            return new TopicMessageResult(subscribe);
         } catch (final Exception e) {
             throw new HieroException("Failed to execute query message transaction", e);
         }
