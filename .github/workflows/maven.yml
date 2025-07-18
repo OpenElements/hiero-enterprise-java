@@ -1,3 +1,11 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
 name: Java CI with Maven
 
 on:
@@ -50,5 +58,4 @@ jobs:
           HEDERA_ACCOUNT_ID: ${{ steps.solo.outputs.accountId }}
           HEDERA_PRIVATE_KEY: ${{ steps.solo.outputs.privateKey }}
           HEDERA_NETWORK: hiero-solo-action
-          MIRROR_NODE_URL: http://localhost:5551
         run: ./mvnw verify
