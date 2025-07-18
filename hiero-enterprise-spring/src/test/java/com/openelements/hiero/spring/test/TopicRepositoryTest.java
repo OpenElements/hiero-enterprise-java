@@ -37,13 +37,15 @@ public class TopicRepositoryTest {
     @Test
     void testFindTopicById() throws HieroException {
         final TopicId topicId = topicClient.createTopic();
-        hieroTestUtils.waitForMirrorNodeRecords();
+        topicClient.submitMessage(topicId, "topic test visibility");
+        hieroTestUtils.waitForMirrorNodeRecords(); // Wait until the topic appears on mirror node via message
 
         final Optional<Topic> result = topicRepository.findTopicById(topicId);
 
         Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isPresent());
+        Assertions.assertTrue(result.isPresent(), "Expected topic to be present, but it was not found.");
     }
+
 
     @Test
     void testFindTopicByIdReturnsEmptyOptional() throws HieroException {
