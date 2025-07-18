@@ -35,14 +35,24 @@ public class TopicRepositoryTest {
     }
 
     @Test
-    void testFindTopicById() throws HieroException {
+    void testFindTopicById() throws HieroException, InterruptedException {
         final TopicId topicId = topicClient.createTopic();
-        topicClient.submitMessage(topicId, "topic test visibility");
-        hieroTestUtils.waitForMirrorNodeRecords(); // Wait until the topic appears on mirror node via message
+        topicClient.submitMessage(topicId, "trigger-indexing");
+        hieroTestUtils.waitForMirrorNodeRecords();
 
-        final Optional<Topic> result = topicRepository.findTopicById(topicId);
+        Optional<Topic> result = Optional.empty();
+        long timeoutMillis = 10000;
+        long startTime = System.currentTimeMillis();
 
-        Assertions.assertNotNull(result);
+        while (System.currentTimeMillis() - startTime < timeoutMillis) {
+            result = topicRepository.findTopicById(topicId);
+            if (result.isPresent()) {
+                break;
+            }
+            Thread.sleep(500);
+        }
+
+        Assertions.assertNotNull(result, "Expected non-null Optional from topicRepository.");
         Assertions.assertTrue(result.isPresent(), "Expected topic to be present, but it was not found.");
     }
 
