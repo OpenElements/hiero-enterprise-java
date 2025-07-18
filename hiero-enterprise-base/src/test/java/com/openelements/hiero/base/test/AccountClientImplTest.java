@@ -30,7 +30,7 @@ public class AccountClientImplTest {
     }
 
     @Test
-    public void testGetAccountBalance_ValidPositiveBalance() throws HieroException {
+    public void testGetAccountBalanceValidPositiveBalance() throws HieroException {
         AccountId accountId = AccountId.fromString("0.0.12345");
         Hbar expectedBalance = new Hbar(10);
 
@@ -48,7 +48,7 @@ public class AccountClientImplTest {
     }
 
     @Test
-    public void testGetAccountBalance_ZeroBalance() throws HieroException {
+    public void testGetAccountBalanceZeroBalance() throws HieroException {
         AccountId accountId = AccountId.fromString("0.0.67890");
         Hbar expectedBalance = new Hbar(0);
 
@@ -65,7 +65,7 @@ public class AccountClientImplTest {
     }
 
     @Test
-    public void testGetAccountBalance_InvalidAccount_ThrowsException() throws HieroException {
+    public void testGetAccountBalanceInvalidAccountThrowsException() throws HieroException {
         AccountId invalidAccountId = AccountId.fromString("0.0.9999999");
 
         when(mockProtocolLayerClient.executeAccountBalanceQuery(
@@ -78,14 +78,14 @@ public class AccountClientImplTest {
     }
 
     @Test
-    public void testGetAccountBalance_NullThrowsException() {
+    public void testGetAccountBalanceNullThrowsException() {
         assertThrows(NullPointerException.class, () -> {
             accountClientImpl.getAccountBalance((AccountId) null);
         });
     }
 
     @Test
-    public void testGetAccountBalance_ProtocolLayerClientFails() throws HieroException {
+    public void testGetAccountBalanceProtocolLayerClientFails() throws HieroException {
         AccountId accountId = AccountId.fromString("0.0.12345");
 
         when(mockProtocolLayerClient.executeAccountBalanceQuery(
@@ -99,7 +99,7 @@ public class AccountClientImplTest {
 
     //tests for createAccount method
     @Test
-    void testCreateAccount_successful() throws HieroException {
+    void testCreateAccountSuccessful() throws HieroException {
         Hbar initialBalance = Hbar.from(100);
 
         AccountCreateResult mockResult = mock(AccountCreateResult.class);
@@ -119,7 +119,7 @@ public class AccountClientImplTest {
     }
 
     @Test
-    void testCreateAccount_invalidInitialBalance_null() {
+    void testCreateAccountInvalidInitialBalanceNull() {
         Hbar initialBalance = null;
 
         assertThrows(NullPointerException.class, () -> accountClientImpl.createAccount(initialBalance));
@@ -136,7 +136,7 @@ public class AccountClientImplTest {
 
 
     @Test
-    void testCreateAccount_hieroExceptionThrown() throws HieroException {
+    void testCreateAccountHieroExceptionThrown() throws HieroException {
         Hbar initialBalance = Hbar.from(100);
 
         when(mockProtocolLayerClient.executeAccountCreateTransaction(any(AccountCreateRequest.class)))
