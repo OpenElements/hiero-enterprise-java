@@ -740,8 +740,8 @@ public class TopicClientImplTest {
         final IllegalArgumentException e2 = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> topicClient.subscribeTopic(topicId, subscription, startTime1, endTime1, limit));
 
-        Assertions.assertEquals("endTime must be greater than starTime", e1.getMessage());
-        Assertions.assertEquals("endTime must be greater than starTime", e2.getMessage());
+        Assertions.assertEquals("endTime must be greater than startTime", e1.getMessage());
+        Assertions.assertEquals("endTime must be greater than startTime", e2.getMessage());
 
         //Start time before current time
         final IllegalArgumentException e3 = Assertions.assertThrows(IllegalArgumentException.class,

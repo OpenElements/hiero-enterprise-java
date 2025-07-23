@@ -303,6 +303,6 @@ public class TopicClientTest {
                 () -> topicClient.subscribeTopic(topicId, (message) -> {}, start, invalidEnd)
         );
 
-        Assertions.assertEquals("endTime must be greater than starTime", e2.getMessage());
+        Assertions.assertEquals("endTime must be greater than startTime", e2.getMessage());
     }
 }

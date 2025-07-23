@@ -30,7 +30,7 @@ public record TopicMessageRequest(@NonNull TopicId topicId, @NonNull Consumer<To
     @NonNull
     public static TopicMessageRequest of(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
                                          @NonNull long limit) {
-        return new TopicMessageRequest(topicId, subscription, null, null,limit, null, null);
+        return new TopicMessageRequest(topicId, subscription, null, null, limit, null, null);
     }
 
     @NonNull

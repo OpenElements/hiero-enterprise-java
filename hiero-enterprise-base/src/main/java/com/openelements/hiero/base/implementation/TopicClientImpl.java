@@ -249,7 +249,7 @@ public class TopicClientImpl implements TopicClient {
             throw  new IllegalArgumentException("startTime must be greater than currentTime");
         }
         if (endTime.isBefore(startTime)) {
-            throw  new IllegalArgumentException("endTime must be greater than starTime");
+            throw  new IllegalArgumentException("endTime must be greater than startTime");
         }
 
         TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, startTime, endTime);
@@ -270,7 +270,7 @@ public class TopicClientImpl implements TopicClient {
             throw  new IllegalArgumentException("startTime must be greater than currentTime");
         }
         if (endTime.isBefore(startTime)) {
-            throw  new IllegalArgumentException("endTime must be greater than starTime");
+            throw  new IllegalArgumentException("endTime must be greater than startTime");
         }
         if (limit == 0) {
             throw new IllegalArgumentException("limit must be greater than 0");

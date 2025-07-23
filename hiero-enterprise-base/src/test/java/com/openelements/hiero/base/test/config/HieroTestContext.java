@@ -24,7 +24,7 @@ public class HieroTestContext implements HieroContext {
 
     private final Client client;
 
-    private final Set<String> mirronNodeEnpoint;
+    private final Set<String> mirronNodeEndpoint;
 
     public HieroTestContext() {
         final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
@@ -61,7 +61,7 @@ public class HieroTestContext implements HieroContext {
         final Map<String, AccountId> nodes = new HashMap<>();
         networkSettings.getConsensusNodes()
                 .forEach(consensusNode -> nodes.put(consensusNode.getAddress(), consensusNode.getAccountId()));
-        mirronNodeEnpoint = networkSettings.getConsensusServiceAddress();
+        mirronNodeEndpoint = networkSettings.getConsensusServiceAddress();
         client = Client.forNetwork(nodes);
         if (!networkSettings.getMirrorNodeAddresses().isEmpty()) {
             try {
@@ -84,6 +84,6 @@ public class HieroTestContext implements HieroContext {
 
     @Override
     public @NonNull Set<String> getMirrorNodeEndPoint() {
-        return mirronNodeEnpoint;
+        return mirronNodeEndpoint;
     }
 }
