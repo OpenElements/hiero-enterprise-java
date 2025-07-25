@@ -25,7 +25,7 @@ public class SoloActionNetworkSettings implements NetworkSettings {
     }
 
     @Override
-    public @NonNull Set<String> getConsensusServiceAddress() {return Set.of("http://localhost:8080");}
+    public @NonNull Set<String> getConsensusServiceAddress() {return Set.of("localhost:5600");}
 
     @Override
     public @NonNull Set<ConsensusNode> getConsensusNodes() {
