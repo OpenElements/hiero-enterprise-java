@@ -210,7 +210,7 @@ public class TopicClientTest {
     }
 
     @Test
-    void testSubscribeTopic() throws HieroException {
+    void testSubscribeTopic() throws Exception {
         final String msg = "Hello Hiero";
         final List<String> messages = new ArrayList<>();
         final TopicId topicId = topicClient.createTopic();
@@ -222,14 +222,16 @@ public class TopicClientTest {
 
         topicClient.submitMessage(topicId, msg);
         hieroTestUtils.waitForMirrorNodeRecords();
+        Thread.sleep(5000); // Make sure to wait after message get recorded in mirrornode
 
         Assertions.assertNotNull(handler);
         Assertions.assertEquals(1, messages.size());
         Assertions.assertEquals(msg,messages.getFirst());
+        handler.unsubscribe();
     }
 
     @Test
-    void testSubscribeTopicWithLimit() throws HieroException {
+    void testSubscribeTopicWithLimit() throws Exception {
         final String msg = "Hello Hiero";
         final long limit = 1;
 
@@ -243,12 +245,15 @@ public class TopicClientTest {
 
         topicClient.submitMessage(topicId, msg);
         hieroTestUtils.waitForMirrorNodeRecords();
+        Thread.sleep(5000); // Make sure to wait after message get recorded in mirrornode
 
         topicClient.submitMessage(topicId, msg);
         hieroTestUtils.waitForMirrorNodeRecords();
+        Thread.sleep(5000); // Make sure to wait after message get recorded in mirrornode
 
         Assertions.assertNotNull(handler);
         Assertions.assertEquals(limit, messages.size());
+        handler.unsubscribe();
     }
 
     @Test
@@ -278,6 +283,7 @@ public class TopicClientTest {
         );
 
         Assertions.assertNotNull(handler);
+        handler.unsubscribe();
     }
 
     @Test
