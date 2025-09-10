@@ -37,9 +37,6 @@ jobs:
           installMirrorNode: true
           hieroVersion: v0.65.0
           mirrorNodeVersion: v0.136.1
-          mirrorNodePortRest: 5551
-          mirrorNodePortGrpc: 5600
-          mirrorNodePortWeb3Rest: 8545
 
       - name: Wait for Mirror Node
         run: |
