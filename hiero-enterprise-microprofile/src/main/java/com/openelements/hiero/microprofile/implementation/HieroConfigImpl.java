@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.config.NetworkSettings;
+import com.openelements.hiero.base.config.PrivateKeyParser;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.microprofile.HieroNetworkConfiguration;
 import com.openelements.hiero.microprofile.HieroOperatorConfiguration;
@@ -41,7 +42,12 @@ public class HieroConfigImpl implements HieroConfig {
         Objects.requireNonNull(networkConfiguration, "networkConfiguration must not be null");
 
         final AccountId operatorAccountId = AccountId.fromString(configuration.getAccountId());
-        final PrivateKey operatorPrivateKey = PrivateKey.fromString(configuration.getPrivateKey());
+        final PrivateKey operatorPrivateKey;
+        try {
+            operatorPrivateKey = PrivateKeyParser.parsePrivateKey(configuration.getPrivateKey());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Can not parse 'privateKey' configuration property. " + e.getMessage(), e);
+        }
         operatorAccount = Account.of(operatorAccountId, operatorPrivateKey);
         requestTimeoutInMs = networkConfiguration.getRequestTimeoutInMs().orElse(null);
         final Optional<NetworkSettings> networkSettings = networkConfiguration.getName()
