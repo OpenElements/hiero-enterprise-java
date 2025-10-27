@@ -32,14 +32,15 @@ jobs:
 
       - name: Prepare Hiero Solo
         id: solo
-        uses: hiero-ledger/hiero-solo-action@a39acf8cfbaa2feb195a86530d0ab643a45aa541 # v0.10
+        uses: hiero-ledger/hiero-solo-action@6a1a77601cf3e69661fb6880530a4edf656b40d5 # v0.14.0
         with:
           installMirrorNode: true
-          hieroVersion: v0.63.7
-          mirrorNodeVersion: v0.133.0
+          hieroVersion: v0.66.0
+          mirrorNodeVersion: v0.138.0
           mirrorNodePortRest: 5551
           mirrorNodePortGrpc: 5600
           mirrorNodePortWeb3Rest: 8545
+          soloVersion: 0.46.1
 
       - name: Wait for Mirror Node
         run: |
