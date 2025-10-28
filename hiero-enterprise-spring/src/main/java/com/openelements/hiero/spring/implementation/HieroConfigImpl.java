@@ -5,6 +5,7 @@ import com.hedera.hashgraph.sdk.PrivateKey;
 import com.openelements.hiero.base.config.ConsensusNode;
 import com.openelements.hiero.base.config.HieroConfig;
 import com.openelements.hiero.base.config.NetworkSettings;
+import com.openelements.hiero.base.config.PrivateKeyParser;
 import com.openelements.hiero.base.data.Account;
 import java.time.Duration;
 import java.util.Collections;
@@ -84,9 +85,9 @@ public class HieroConfigImpl implements HieroConfig {
 
     private static PrivateKey parsePrivateKey(final String privateKey) {
         try {
-            return PrivateKey.fromString(privateKey);
+            return PrivateKeyParser.parsePrivateKey(privateKey);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Can not parse 'privateKey' property: '" + privateKey + "'", e);
+            throw new IllegalArgumentException("Can not parse 'privateKey' property: '" + privateKey + "'. " + e.getMessage(), e);
         }
     }
 
