@@ -17,6 +17,7 @@ public class EnvBasedHieroConfig implements HieroConfig {
     private final PrivateKey operatorPrivateKey;
     private final String mirrorNodeAddress;
 
+    private final String consensusServiceAddress;
     private final String consensusNodeIp;
     private final String consensusNodePort;
     private final String consensusNodeAccount;
@@ -37,6 +38,8 @@ public class EnvBasedHieroConfig implements HieroConfig {
                 .orElseThrow(() -> new IllegalStateException("HEDERA_OPERATOR_PRIVATE_KEY is not set"));
         mirrorNodeAddress = getEnv("HEDERA_MIRROR_NODE_ADDRESS")
                 .orElse(null);
+        consensusServiceAddress = getEnv("HEDERA_CONSENSUS_SERVICE_ADDRESS")
+                .orElseThrow(() -> new IllegalStateException("HEDERA_CONSENSUS_SERVICE_ADDRESS is not set"));
         consensusNodeIp = getEnv("HEDERA_CONSENSUS_NODE_IP")
                 .orElseThrow(() -> new IllegalStateException("HEDERA_CONSENSUS_NODE_IP is not set"));
         consensusNodePort = getEnv("HEDERA_CONSENSUS_NODE_PORT")
@@ -69,6 +72,11 @@ public class EnvBasedHieroConfig implements HieroConfig {
             return Set.of();
         }
         return Set.of(mirrorNodeAddress);
+    }
+
+    @Override
+    public @NonNull Set<String> getConsensusServiceAddress() {
+        return Set.of(consensusServiceAddress);
     }
 
     @Override

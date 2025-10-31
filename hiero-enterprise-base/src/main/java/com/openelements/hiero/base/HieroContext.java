@@ -4,6 +4,8 @@ import com.hedera.hashgraph.sdk.Client;
 import com.openelements.hiero.base.data.Account;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Set;
+
 /**
  * Context for a specific Hiero connection to a network.
  */
@@ -25,4 +27,7 @@ public interface HieroContext {
      */
     @NonNull
     Client getClient();
+
+    @NonNull
+    Set<String> getMirrorNodeEndPoint();
 }
