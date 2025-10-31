@@ -18,12 +18,14 @@ import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
 import com.openelements.hiero.base.implementation.SmartContractClientImpl;
 import com.openelements.hiero.base.implementation.TokenRepositoryImpl;
 import com.openelements.hiero.base.implementation.TransactionRepositoryImpl;
+import com.openelements.hiero.base.implementation.ContractRepositoryImpl;
 import com.openelements.hiero.base.mirrornode.AccountRepository;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.NetworkRepository;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
 import com.openelements.hiero.base.mirrornode.TransactionRepository;
+import com.openelements.hiero.base.mirrornode.ContractRepository;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
 import com.openelements.hiero.base.verification.ContractVerificationClient;
 import com.openelements.hiero.microprofile.implementation.ContractVerificationClientImpl;
@@ -158,5 +160,12 @@ public class ClientProvider {
     @ApplicationScoped
     TokenRepository createTokenRepository(@NonNull final MirrorNodeClient mirrorNodeClient) {
         return new TokenRepositoryImpl(mirrorNodeClient);
+    }
+
+    @NonNull
+    @Produces
+    @ApplicationScoped
+    ContractRepository createContractRepository(@NonNull final MirrorNodeClient mirrorNodeClient) {
+        return new ContractRepositoryImpl(mirrorNodeClient);
     }
 }

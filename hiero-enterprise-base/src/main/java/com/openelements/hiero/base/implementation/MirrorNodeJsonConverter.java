@@ -12,13 +12,14 @@ import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.Balance;
 import com.openelements.hiero.base.data.Topic;
 import com.openelements.hiero.base.data.TopicMessage;
+import com.openelements.hiero.base.data.Contract;
+import com.openelements.hiero.base.data.Page;
 
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 
 public interface MirrorNodeJsonConverter<JSON> {
-
     @NonNull
     Optional<Nft> toNft(@NonNull JSON json);
 
@@ -59,4 +60,13 @@ public interface MirrorNodeJsonConverter<JSON> {
 
     @NonNull
     List<TopicMessage> toTopicMessages(JSON json);
+
+    @NonNull
+    Optional<Contract> toContract(@NonNull JSON json);
+
+    @NonNull
+    Page<Contract> toContractPage(@NonNull JSON json);
+
+    @NonNull
+    List<Contract> toContracts(@NonNull JSON json);
 }
