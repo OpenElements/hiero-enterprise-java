@@ -1,6 +1,7 @@
 package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
@@ -68,4 +69,33 @@ public interface MirrorNodeRestClient<JSON> {
 
     @NonNull
     JSON doGetCall(@NonNull String path) throws HieroException;
+
+    @NonNull
+    default JSON queryContracts() throws HieroException {
+        return doGetCall("/api/v1/contracts");
+    }
+
+    @NonNull
+    default JSON queryContractById(@NonNull final ContractId contractId) throws HieroException {
+        Objects.requireNonNull(contractId, "contractId must not be null");
+        return doGetCall("/api/v1/contracts/" + contractId);
+    }
+
+    @NonNull
+    default JSON queryContractsByEvmAddress(@NonNull final String evmAddress) throws HieroException {
+        Objects.requireNonNull(evmAddress, "evmAddress must not be null");
+        return doGetCall("/api/v1/contracts?evm.address=" + evmAddress);
+    }
+
+    @NonNull
+    default JSON queryContractsByFileId(@NonNull final String fileId) throws HieroException {
+        Objects.requireNonNull(fileId, "fileId must not be null");
+        return doGetCall("/api/v1/contracts?file.id=" + fileId);
+    }
+
+    @NonNull
+    default JSON queryContractsByProxyAccountId(@NonNull final String proxyAccountId) throws HieroException {
+        Objects.requireNonNull(proxyAccountId, "proxyAccountId must not be null");
+        return doGetCall("/api/v1/contracts?proxy.account.id=" + proxyAccountId);
+    }
 }

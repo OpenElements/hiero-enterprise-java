@@ -1,16 +1,19 @@
 package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.Contract;
+import com.openelements.hiero.base.data.Nft;
+import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.NftMetadata;
+import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Topic;
@@ -105,4 +108,37 @@ public abstract class AbstractMirrorNodeClient<JSON> implements MirrorNodeClient
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public @NonNull Page<Contract> queryContracts() throws HieroException {
+        final JSON json = getRestClient().queryContracts();
+        return getJsonConverter().toContractPage(json);
+    }
+
+    @Override
+    public @NonNull Optional<Contract> queryContractById(@NonNull final ContractId contractId) throws HieroException {
+        Objects.requireNonNull(contractId, "contractId must not be null");
+        final JSON json = getRestClient().queryContractById(contractId);
+        return getJsonConverter().toContract(json);
+    }
+
+    @Override
+    public @NonNull Page<Contract> queryContractsByEvmAddress(@NonNull final String evmAddress) throws HieroException {
+        Objects.requireNonNull(evmAddress, "evmAddress must not be null");
+        final JSON json = getRestClient().queryContractsByEvmAddress(evmAddress);
+        return getJsonConverter().toContractPage(json);
+    }
+
+    @Override
+    public @NonNull Page<Contract> queryContractsByFileId(@NonNull final String fileId) throws HieroException {
+        Objects.requireNonNull(fileId, "fileId must not be null");
+        final JSON json = getRestClient().queryContractsByFileId(fileId);
+        return getJsonConverter().toContractPage(json);
+    }
+
+    @Override
+    public @NonNull Page<Contract> queryContractsByProxyAccountId(@NonNull final String proxyAccountId) throws HieroException {
+        Objects.requireNonNull(proxyAccountId, "proxyAccountId must not be null");
+        final JSON json = getRestClient().queryContractsByProxyAccountId(proxyAccountId);
+        return getJsonConverter().toContractPage(json);
+    }
 }

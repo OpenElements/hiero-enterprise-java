@@ -2,6 +2,7 @@ package com.openelements.hiero.spring.implementation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
@@ -9,12 +10,14 @@ import com.hedera.hashgraph.sdk.TopicId;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.data.AccountInfo;
+import com.openelements.hiero.base.data.Contract;
 import com.openelements.hiero.base.data.ExchangeRate;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
+import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
@@ -388,9 +391,9 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                     .map(n ->{
                         final long amount = n.get("amount").asLong();
                         final AccountId accountId = n.get("collector_account_id").isNull()?
-                                        null : AccountId.fromString(n.get("collector_account_id").asText());
+                                null : AccountId.fromString(n.get("collector_account_id").asText());
                         final TokenId tokenId = n.get("denominating_token_id").isNull()?
-                                        null : TokenId.fromString(n.get("denominating_token_id").asText());
+                                null : TokenId.fromString(n.get("denominating_token_id").asText());
                         return new FixedFee(amount, accountId, tokenId);
                     })
                     .toList();
@@ -622,5 +625,146 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
         }
         return StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(node.iterator(), Spliterator.ORDERED), false);
+    }
+
+    @Override
+    public @NonNull Optional<Contract> toContract(@NonNull JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final ContractId contractId = ContractId.fromString(node.get("contract_id").asText());
+            final PublicKey adminKey = node.get("admin_key").isNull() ? null
+                    : PublicKey.fromString(node.get("admin_key").get("key").asText());
+            final AccountId autoRenewAccount = node.get("auto_renew_account").isNull() ? null
+                    : AccountId.fromString(node.get("auto_renew_account").asText());
+            final int autoRenewPeriod = node.get("auto_renew_period").isNull() ? 0
+                    : node.get("auto_renew_period").asInt();
+            final Instant createdTimestamp = Instant.ofEpochSecond(
+                    node.get("created_timestamp").isNumber()
+                            ? node.get("created_timestamp").asLong()
+                            : Long.parseLong(node.get("created_timestamp").asText().split("\\.")[0])
+            );
+            final boolean deleted = !node.get("deleted").isNull() && node.get("deleted").asBoolean();
+            final Instant expirationTimestamp = node.get("expiration_timestamp").isNull() ? null
+                    : Instant.ofEpochSecond(Long.parseLong(node.get("expiration_timestamp").asText().split("\\.")[0]));
+            final String fileId = node.get("file_id").isNull() ? null : node.get("file_id").asText();
+            final String evmAddress = node.get("evm_address").isNull() ? null : node.get("evm_address").asText();
+            final String memo = node.get("memo").isNull() ? null : node.get("memo").asText();
+            final Integer maxAutomaticTokenAssociations = node.get("max_automatic_token_associations").isNull() ? null
+                    : node.get("max_automatic_token_associations").asInt();
+            final Long nonce = node.get("nonce").isNull() ? null : node.get("nonce").asLong();
+            final String obtainerId = node.get("obtainer_id").isNull() ? null : node.get("obtainer_id").asText();
+            final boolean permanentRemoval = !node.get("permanent_removal").isNull() && node.get("permanent_removal").asBoolean();
+            final String proxyAccountId = node.get("proxy_account_id").isNull() ? null : node.get("proxy_account_id").asText();
+            final Instant fromTimestamp = Instant.ofEpochSecond(node.get("timestamp").get("from").asLong());
+            final Instant toTimestamp = Instant.ofEpochSecond(node.get("timestamp").get("to").asLong());
+            final String bytecode = node.get("bytecode").isNull() ? null : node.get("bytecode").asText();
+            final String runtimeBytecode = node.get("runtime_bytecode").isNull() ? null : node.get("runtime_bytecode").asText();
+
+            return Optional.of(new Contract(
+                    contractId,
+                    adminKey,
+                    autoRenewAccount,
+                    autoRenewPeriod,
+                    createdTimestamp,
+                    deleted,
+                    expirationTimestamp,
+                    fileId,
+                    evmAddress,
+                    memo,
+                    maxAutomaticTokenAssociations,
+                    nonce,
+                    obtainerId,
+                    permanentRemoval,
+                    proxyAccountId,
+                    fromTimestamp,
+                    toTimestamp,
+                    bytecode,
+                    runtimeBytecode
+            ));
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    @Override
+    public @NonNull Page<Contract> toContractPage(@NonNull JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (node.isNull() || node.isEmpty()) {
+            return new SimplePage<>(List.of());
+        }
+
+        try {
+            final List<Contract> contracts = toContracts(node);
+            return new SimplePage<>(contracts);
+        } catch (final Exception e) {
+            throw new JsonParseException(node, e);
+        }
+    }
+
+    @Override
+    public @NonNull List<Contract> toContracts(@NonNull JsonNode node) {
+        Objects.requireNonNull(node, "jsonNode must not be null");
+        if (!node.has("contracts")) {
+            return List.of();
+        }
+        final JsonNode contractsNode = node.get("contracts");
+        if (!contractsNode.isArray()) {
+            throw new IllegalArgumentException("Contracts node is not an array: " + contractsNode);
+        }
+        Spliterator<JsonNode> spliterator = Spliterators.spliteratorUnknownSize(contractsNode.iterator(),
+                Spliterator.ORDERED);
+        return StreamSupport.stream(spliterator, false)
+                .map(n -> toContract(n))
+                .filter(optional -> optional.isPresent())
+                .map(optional -> optional.get())
+                .toList();
+    }
+
+    // Simple Page implementation for converter methods
+    private static class SimplePage<T> implements Page<T> {
+        private final List<T> data;
+
+        public SimplePage(List<T> data) {
+            this.data = data;
+        }
+
+        @Override
+        public int getPageIndex() {
+            return 0;
+        }
+
+        @Override
+        public int getSize() {
+            return data.size();
+        }
+
+        @Override
+        public List<T> getData() {
+            return data;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Page<T> next() {
+            throw new IllegalStateException("No next page");
+        }
+
+        @Override
+        public Page<T> first() {
+            return this;
+        }
+
+        @Override
+        public boolean isFirst() {
+            return true;
+        }
     }
 }
