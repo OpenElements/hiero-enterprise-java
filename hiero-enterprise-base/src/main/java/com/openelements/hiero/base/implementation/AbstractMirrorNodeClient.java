@@ -121,24 +121,4 @@ public abstract class AbstractMirrorNodeClient<JSON> implements MirrorNodeClient
         return getJsonConverter().toContract(json);
     }
 
-    @Override
-    public @NonNull Page<Contract> queryContractsByEvmAddress(@NonNull final String evmAddress) throws HieroException {
-        Objects.requireNonNull(evmAddress, "evmAddress must not be null");
-        final JSON json = getRestClient().queryContractsByEvmAddress(evmAddress);
-        return getJsonConverter().toContractPage(json);
-    }
-
-    @Override
-    public @NonNull Page<Contract> queryContractsByFileId(@NonNull final String fileId) throws HieroException {
-        Objects.requireNonNull(fileId, "fileId must not be null");
-        final JSON json = getRestClient().queryContractsByFileId(fileId);
-        return getJsonConverter().toContractPage(json);
-    }
-
-    @Override
-    public @NonNull Page<Contract> queryContractsByProxyAccountId(@NonNull final String proxyAccountId) throws HieroException {
-        Objects.requireNonNull(proxyAccountId, "proxyAccountId must not be null");
-        final JSON json = getRestClient().queryContractsByProxyAccountId(proxyAccountId);
-        return getJsonConverter().toContractPage(json);
-    }
 }

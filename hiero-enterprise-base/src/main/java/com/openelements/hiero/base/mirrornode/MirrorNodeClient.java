@@ -494,33 +494,4 @@ public interface MirrorNodeClient {
         return queryContractById(ContractId.fromString(contractId));
     }
 
-    /**
-     * Queries contracts by EVM address.
-     *
-     * @param evmAddress the EVM address
-     * @return the contracts
-     * @throws HieroException if an error occurs
-     */
-    @NonNull
-    Page<Contract> queryContractsByEvmAddress(@NonNull String evmAddress) throws HieroException;
-
-    /**
-     * Queries contracts by file ID.
-     *
-     * @param fileId the file ID
-     * @return the contracts
-     * @throws HieroException if an error occurs
-     */
-    @NonNull
-    Page<Contract> queryContractsByFileId(@NonNull String fileId) throws HieroException;
-
-    /**
-     * Queries contracts by proxy account ID.
-     *
-     * @param proxyAccountId the proxy account ID
-     * @return the contracts
-     * @throws HieroException if an error occurs
-     */
-    @NonNull
-    Page<Contract> queryContractsByProxyAccountId(@NonNull String proxyAccountId) throws HieroException;
 }

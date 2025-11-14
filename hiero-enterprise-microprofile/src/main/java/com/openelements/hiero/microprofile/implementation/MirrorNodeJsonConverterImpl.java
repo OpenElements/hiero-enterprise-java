@@ -17,6 +17,7 @@ import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.Page;
+import com.openelements.hiero.base.data.SinglePage;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
@@ -678,12 +679,12 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
     public @NonNull Page<Contract> toContractPage(@NonNull JsonObject jsonObject) {
         Objects.requireNonNull(jsonObject, "jsonObject must not be null");
         if (jsonObject.isEmpty()) {
-            return new SimplePage<>(List.of());
+            return new SinglePage<>(List.of());
         }
 
         try {
             final List<Contract> contracts = toContracts(jsonObject);
-            return new SimplePage<>(contracts);
+            return new SinglePage<>(contracts);
         } catch (final Exception e) {
             throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
         }
@@ -697,9 +698,9 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
         }
         final JsonArray contractsArray = jsonObject.getJsonArray("contracts");
         if (contractsArray == null) {
-            throw new IllegalArgumentException("Contracts array is not an array: " + contractsArray);
+            throw new IllegalArgumentException("No contracts array in JSON");
         }
-        Spliterator<JsonValue> spliterator = Spliterators.spliteratorUnknownSize(contractsArray.iterator(),
+        final Spliterator<JsonValue> spliterator = Spliterators.spliteratorUnknownSize(contractsArray.iterator(),
                 Spliterator.ORDERED);
         return StreamSupport.stream(spliterator, false)
                 .map(n -> toContract(n.asJsonObject()))
@@ -708,48 +709,4 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .toList();
     }
 
-    // Simple Page implementation for converter methods
-    private static class SimplePage<T> implements Page<T> {
-        private final List<T> data;
-
-        public SimplePage(List<T> data) {
-            this.data = data;
-        }
-
-        @Override
-        public int getPageIndex() {
-            return 0;
-        }
-
-        @Override
-        public int getSize() {
-            return data.size();
-        }
-
-        @Override
-        public List<T> getData() {
-            return data;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public Page<T> next() {
-            throw new IllegalStateException("No next page");
-        }
-
-        @Override
-        public Page<T> first() {
-            return this;
-        }
-
-        @Override
-        public boolean isFirst() {
-            return true;
-        }
-    }
 }
-

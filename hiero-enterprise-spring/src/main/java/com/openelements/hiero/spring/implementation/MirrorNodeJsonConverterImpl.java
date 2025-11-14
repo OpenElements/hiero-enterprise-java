@@ -18,6 +18,7 @@ import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
 import com.openelements.hiero.base.data.Page;
+import com.openelements.hiero.base.data.SinglePage;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
@@ -46,12 +47,8 @@ import java.util.Base64;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<JsonNode> {
-
-    private static final Logger log = LoggerFactory.getLogger(MirrorNodeJsonConverterImpl.class);
 
     @Override
     public Optional<Nft> toNft(final JsonNode node) {
@@ -694,12 +691,12 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
     public @NonNull Page<Contract> toContractPage(@NonNull JsonNode node) {
         Objects.requireNonNull(node, "jsonNode must not be null");
         if (node.isNull() || node.isEmpty()) {
-            return new SimplePage<>(List.of());
+            return new SinglePage<>(List.of());
         }
 
         try {
             final List<Contract> contracts = toContracts(node);
-            return new SimplePage<>(contracts);
+            return new SinglePage<>(contracts);
         } catch (final Exception e) {
             throw new JsonParseException(node, e);
         }
@@ -724,47 +721,4 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
                 .toList();
     }
 
-    // Simple Page implementation for converter methods
-    private static class SimplePage<T> implements Page<T> {
-        private final List<T> data;
-
-        public SimplePage(List<T> data) {
-            this.data = data;
-        }
-
-        @Override
-        public int getPageIndex() {
-            return 0;
-        }
-
-        @Override
-        public int getSize() {
-            return data.size();
-        }
-
-        @Override
-        public List<T> getData() {
-            return data;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public Page<T> next() {
-            throw new IllegalStateException("No next page");
-        }
-
-        @Override
-        public Page<T> first() {
-            return this;
-        }
-
-        @Override
-        public boolean isFirst() {
-            return true;
-        }
-    }
 }

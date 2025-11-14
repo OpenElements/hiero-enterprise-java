@@ -19,9 +19,6 @@ public class ContractRepositoryTest {
     @Test
     void testNullParam() {
         Assertions.assertThrows(NullPointerException.class, () -> contractRepository.findById((String) null));
-        Assertions.assertThrows(NullPointerException.class, () -> contractRepository.findByEvmAddress(null));
-        Assertions.assertThrows(NullPointerException.class, () -> contractRepository.findByFileId(null));
-        Assertions.assertThrows(NullPointerException.class, () -> contractRepository.findByProxyAccountId(null));
     }
 
     @Test
@@ -47,42 +44,4 @@ public class ContractRepositoryTest {
         Assertions.assertFalse(result.isPresent());
     }
 
-    @Test
-    void testFindByEvmAddressWithNonExistentAddress() throws HieroException {
-        // given
-        final String nonExistentEvmAddress = "0x0000000000000000000000000000000000000000";
-
-        // when
-        final Page<Contract> result = contractRepository.findByEvmAddress(nonExistentEvmAddress);
-
-        // then
-        Assertions.assertNotNull(result);
-        Assertions.assertNotNull(result.getData());
-    }
-
-    @Test
-    void testFindByFileIdWithNonExistentFileId() throws HieroException {
-        // given
-        final String nonExistentFileId = "0.0.999999";
-
-        // when
-        final Page<Contract> result = contractRepository.findByFileId(nonExistentFileId);
-
-        // then
-        Assertions.assertNotNull(result);
-        Assertions.assertNotNull(result.getData());
-    }
-
-    @Test
-    void testFindByProxyAccountIdWithNonExistentAccountId() throws HieroException {
-        // given
-        final String nonExistentProxyAccountId = "0.0.999999";
-
-        // when
-        final Page<Contract> result = contractRepository.findByProxyAccountId(nonExistentProxyAccountId);
-
-        // then
-        Assertions.assertNotNull(result);
-        Assertions.assertNotNull(result.getData());
-    }
 }

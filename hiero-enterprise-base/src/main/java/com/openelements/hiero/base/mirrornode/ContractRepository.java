@@ -45,33 +45,4 @@ public interface ContractRepository {
         return findById(ContractId.fromString(contractId));
     }
 
-    /**
-     * Return contracts by EVM address.
-     *
-     * @param evmAddress the EVM address of the contract
-     * @return first page of contracts
-     * @throws HieroException if the search fails
-     */
-    @NonNull
-    Page<Contract> findByEvmAddress(@NonNull String evmAddress) throws HieroException;
-
-    /**
-     * Return contracts by file ID.
-     *
-     * @param fileId the file ID associated with the contract
-     * @return first page of contracts
-     * @throws HieroException if the search fails
-     */
-    @NonNull
-    Page<Contract> findByFileId(@NonNull String fileId) throws HieroException;
-
-    /**
-     * Return contracts by proxy account ID.
-     *
-     * @param proxyAccountId the proxy account ID
-     * @return first page of contracts
-     * @throws HieroException if the search fails
-     */
-    @NonNull
-    Page<Contract> findByProxyAccountId(@NonNull String proxyAccountId) throws HieroException;
 }

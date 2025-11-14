@@ -37,22 +37,4 @@ public class ContractRepositoryImpl implements ContractRepository {
     public Optional<Contract> findById(@NonNull final ContractId contractId) throws HieroException {
         return mirrorNodeClient.queryContractById(contractId);
     }
-
-    @NonNull
-    @Override
-    public Page<Contract> findByEvmAddress(@NonNull final String evmAddress) throws HieroException {
-        return mirrorNodeClient.queryContractsByEvmAddress(evmAddress);
-    }
-
-    @NonNull
-    @Override
-    public Page<Contract> findByFileId(@NonNull final String fileId) throws HieroException {
-        return mirrorNodeClient.queryContractsByFileId(fileId);
-    }
-
-    @NonNull
-    @Override
-    public Page<Contract> findByProxyAccountId(@NonNull final String proxyAccountId) throws HieroException {
-        return mirrorNodeClient.queryContractsByProxyAccountId(proxyAccountId);
-    }
 }
