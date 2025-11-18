@@ -1,15 +1,25 @@
 package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.PrivateKey;
+import com.hedera.hashgraph.sdk.SubscriptionHandle;
 import com.hedera.hashgraph.sdk.TopicId;
+import com.hedera.hashgraph.sdk.TopicMessage;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.TopicClient;
 import com.openelements.hiero.base.data.Account;
 import com.openelements.hiero.base.protocol.ProtocolLayerClient;
-import com.openelements.hiero.base.protocol.data.*;
+import com.openelements.hiero.base.protocol.data.TopicCreateRequest;
+import com.openelements.hiero.base.protocol.data.TopicCreateResult;
+import com.openelements.hiero.base.protocol.data.TopicUpdateRequest;
+import com.openelements.hiero.base.protocol.data.TopicDeleteRequest;
+import com.openelements.hiero.base.protocol.data.TopicSubmitMessageRequest;
+import com.openelements.hiero.base.protocol.data.TopicMessageRequest;
+import com.openelements.hiero.base.protocol.data.TopicMessageResult;
 import org.jspecify.annotations.NonNull;
 
+import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class TopicClientImpl implements TopicClient {
     private final ProtocolLayerClient client;
@@ -107,7 +117,7 @@ public class TopicClientImpl implements TopicClient {
         Objects.requireNonNull(topicId, "topicId must not be null");
         Objects.requireNonNull(submitKey, "submitKey must not be null");
         Objects.requireNonNull(memo, "memo must not be null");
-       updateTopic(topicId, operationalAccount.privateKey(), updatedAdminKey, submitKey, memo);
+        updateTopic(topicId, operationalAccount.privateKey(), updatedAdminKey, submitKey, memo);
     }
 
     @Override
@@ -201,5 +211,73 @@ public class TopicClientImpl implements TopicClient {
         Objects.requireNonNull(message, "message must not be null");
         TopicSubmitMessageRequest request = TopicSubmitMessageRequest.of(topicId, submitKey, message);
         client.executeTopicMessageSubmitTransaction(request);
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription)
+            throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             long limit) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        if (limit == 0) {
+            throw new IllegalArgumentException("limit must be greater than 0");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, limit);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             Instant startTime, Instant endTime) throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        Objects.requireNonNull(startTime, "startTime must not be null");
+        Objects.requireNonNull(endTime, "endTime must not be null");
+
+        if (startTime.isBefore(Instant.now())) {
+            throw  new IllegalArgumentException("startTime must be greater than currentTime");
+        }
+        if (endTime.isBefore(startTime)) {
+            throw  new IllegalArgumentException("endTime must be greater than startTime");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, startTime, endTime);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
+    }
+
+    @Override
+    public SubscriptionHandle subscribeTopic(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                             @NonNull Instant startTime, @NonNull Instant endTime, long limit)
+            throws HieroException {
+        Objects.requireNonNull(topicId, "topicId must not be null");
+        Objects.requireNonNull(subscription, "subscription must not be null");
+        Objects.requireNonNull(startTime, "startTime must not be null");
+        Objects.requireNonNull(endTime, "endTime must not be null");
+
+        if (startTime.isBefore(Instant.now())) {
+            throw  new IllegalArgumentException("startTime must be greater than currentTime");
+        }
+        if (endTime.isBefore(startTime)) {
+            throw  new IllegalArgumentException("endTime must be greater than startTime");
+        }
+        if (limit == 0) {
+            throw new IllegalArgumentException("limit must be greater than 0");
+        }
+
+        TopicMessageRequest request = TopicMessageRequest.of(topicId, subscription, startTime, endTime, limit);
+        TopicMessageResult result = client.executeTopicMessageQuery(request);
+        return result.subscriptionHandle();
     }
 }

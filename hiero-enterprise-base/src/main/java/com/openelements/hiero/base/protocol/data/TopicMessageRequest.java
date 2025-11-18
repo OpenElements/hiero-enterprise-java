@@ -26,4 +26,22 @@ public record TopicMessageRequest(@NonNull TopicId topicId, @NonNull Consumer<To
     public static TopicMessageRequest of(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription) {
         return new TopicMessageRequest(topicId, subscription, null, null, NO_LIMIT, null, null);
     }
+
+    @NonNull
+    public static TopicMessageRequest of(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                         @NonNull long limit) {
+        return new TopicMessageRequest(topicId, subscription, null, null, limit, null, null);
+    }
+
+    @NonNull
+    public static TopicMessageRequest of(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                         @NonNull Instant startTime, @NonNull Instant endTime) {
+        return new TopicMessageRequest(topicId, subscription, startTime, endTime, NO_LIMIT, null, null);
+    }
+
+    @NonNull
+    public static TopicMessageRequest of(@NonNull TopicId topicId, @NonNull Consumer<TopicMessage> subscription,
+                                         @NonNull Instant startTime, @NonNull Instant endTime, long limit) {
+        return new TopicMessageRequest(topicId, subscription, startTime, endTime, limit, null, null);
+    }
 }

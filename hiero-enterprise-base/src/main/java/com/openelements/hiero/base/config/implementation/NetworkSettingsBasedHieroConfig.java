@@ -38,6 +38,11 @@ public class NetworkSettingsBasedHieroConfig implements HieroConfig {
     }
 
     @Override
+    public @NonNull Set<String> getConsensusServiceAddress() {
+        return networkSetting.getConsensusServiceAddress();
+    }
+
+    @Override
     public @NonNull Set<ConsensusNode> getConsensusNodes() {
         return networkSetting.getConsensusNodes();
     }

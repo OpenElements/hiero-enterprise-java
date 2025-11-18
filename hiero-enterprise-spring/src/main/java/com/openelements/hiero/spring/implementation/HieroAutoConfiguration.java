@@ -36,6 +36,8 @@ import com.openelements.hiero.base.verification.ContractVerificationClient;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +113,7 @@ public class HieroAutoConfiguration {
             havingValue = "true", matchIfMissing = true)
     MirrorNodeClient mirrorNodeClient(final HieroContext hieroContext) {
         final String mirrorNodeEndpoint;
-        final List<String> mirrorNetwork = hieroContext.getClient().getMirrorNetwork();
+        final List<String> mirrorNetwork = hieroContext.getMirrorNodeEndPoint().stream().toList();
         if (mirrorNetwork.isEmpty()) {
             throw new IllegalArgumentException("Mirror node endpoint must be set");
         }
