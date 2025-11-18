@@ -1,6 +1,7 @@
 package com.openelements.hiero.microprofile.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenSupplyType;
 import com.hedera.hashgraph.sdk.TokenType;
@@ -8,12 +9,15 @@ import com.hedera.hashgraph.sdk.TopicId;
 import com.hedera.hashgraph.sdk.TransactionId;
 import com.hedera.hashgraph.sdk.PublicKey;
 import com.openelements.hiero.base.data.AccountInfo;
+import com.openelements.hiero.base.data.Contract;
 import com.openelements.hiero.base.data.ExchangeRate;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
 import com.openelements.hiero.base.data.Nft;
+import com.openelements.hiero.base.data.Page;
+import com.openelements.hiero.base.data.SinglePage;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
@@ -606,5 +610,103 @@ public class MirrorNodeJsonConverterImpl implements MirrorNodeJsonConverter<Json
             throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
         }
     }
-}
 
+    // Contract-related methods
+
+    @Override
+    public @NonNull Optional<Contract> toContract(@NonNull JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (jsonObject.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            final ContractId contractId = ContractId.fromString(jsonObject.getString("contract_id"));
+            final PublicKey adminKey = jsonObject.get("admin_key") == null ? null
+                    : PublicKey.fromString(jsonObject.get("admin_key").asJsonObject().getString("key"));
+            final AccountId autoRenewAccount = jsonObject.get("auto_renew_account") == null ? null
+                    : AccountId.fromString(jsonObject.getString("auto_renew_account"));
+            final int autoRenewPeriod = jsonObject.get("auto_renew_period") == null ? 0
+                    : jsonObject.getJsonNumber("auto_renew_period").intValue();
+            final Instant createdTimestamp = jsonObject.get("created_timestamp") == null
+                    ? Instant.ofEpochSecond(0)
+                    : Instant.ofEpochSecond(Long.parseLong(jsonObject.get("created_timestamp").toString().replaceAll("[^0-9].*$", "")));
+            final boolean deleted = jsonObject.get("deleted") != null && jsonObject.getBoolean("deleted");
+            final Instant expirationTimestamp = jsonObject.get("expiration_timestamp") == null ? null
+                    : Instant.ofEpochSecond(Long.parseLong(jsonObject.getString("expiration_timestamp").split("\\.")[0]));
+            final String fileId = jsonObject.getString("file_id", null);
+            final String evmAddress = jsonObject.getString("evm_address", null);
+            final String memo = jsonObject.getString("memo", null);
+            final Integer maxAutomaticTokenAssociations = jsonObject.get("max_automatic_token_associations") == null ? null
+                    : jsonObject.getJsonNumber("max_automatic_token_associations").intValue();
+            final Long nonce = jsonObject.get("nonce") == null ? null
+                    : jsonObject.getJsonNumber("nonce").longValue();
+            final String obtainerId = jsonObject.getString("obtainer_id", null);
+            final boolean permanentRemoval = jsonObject.get("permanent_removal") != null && jsonObject.getBoolean("permanent_removal");
+            final String proxyAccountId = jsonObject.getString("proxy_account_id", null);
+            final Instant fromTimestamp = Instant.ofEpochSecond(jsonObject.getJsonObject("timestamp").getJsonNumber("from").longValue());
+            final Instant toTimestamp = Instant.ofEpochSecond(jsonObject.getJsonObject("timestamp").getJsonNumber("to").longValue());
+            final String bytecode = jsonObject.getString("bytecode", null);
+            final String runtimeBytecode = jsonObject.getString("runtime_bytecode", null);
+
+            return Optional.of(new Contract(
+                    contractId,
+                    adminKey,
+                    autoRenewAccount,
+                    autoRenewPeriod,
+                    createdTimestamp,
+                    deleted,
+                    expirationTimestamp,
+                    fileId,
+                    evmAddress,
+                    memo,
+                    maxAutomaticTokenAssociations,
+                    nonce,
+                    obtainerId,
+                    permanentRemoval,
+                    proxyAccountId,
+                    fromTimestamp,
+                    toTimestamp,
+                    bytecode,
+                    runtimeBytecode
+            ));
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
+        }
+    }
+
+    @Override
+    public @NonNull Page<Contract> toContractPage(@NonNull JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (jsonObject.isEmpty()) {
+            return new SinglePage<>(List.of());
+        }
+
+        try {
+            final List<Contract> contracts = toContracts(jsonObject);
+            return new SinglePage<>(contracts);
+        } catch (final Exception e) {
+            throw new IllegalStateException("Can not parse JSON: " + jsonObject, e);
+        }
+    }
+
+    @Override
+    public @NonNull List<Contract> toContracts(@NonNull JsonObject jsonObject) {
+        Objects.requireNonNull(jsonObject, "jsonObject must not be null");
+        if (!jsonObject.containsKey("contracts")) {
+            return List.of();
+        }
+        final JsonArray contractsArray = jsonObject.getJsonArray("contracts");
+        if (contractsArray == null) {
+            throw new IllegalArgumentException("No contracts array in JSON");
+        }
+        final Spliterator<JsonValue> spliterator = Spliterators.spliteratorUnknownSize(contractsArray.iterator(),
+                Spliterator.ORDERED);
+        return StreamSupport.stream(spliterator, false)
+                .map(n -> toContract(n.asJsonObject()))
+                .filter(optional -> optional.isPresent())
+                .map(optional -> optional.get())
+                .toList();
+    }
+
+}

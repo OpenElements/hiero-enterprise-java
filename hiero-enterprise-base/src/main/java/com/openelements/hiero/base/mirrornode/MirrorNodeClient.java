@@ -1,11 +1,13 @@
 package com.openelements.hiero.base.mirrornode;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.Balance;
+import com.openelements.hiero.base.data.Contract;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
@@ -143,7 +145,7 @@ public interface MirrorNodeClient {
      */
     @NonNull
     default Optional<Nft> queryNftsByAccountAndTokenIdAndSerial(@NonNull AccountId accountId, @NonNull TokenId tokenId,
-            long serialNumber) throws HieroException {
+                                                                long serialNumber) throws HieroException {
         Objects.requireNonNull(accountId, "newAccountId must not be null");
         return queryNftsByTokenIdAndSerial(tokenId, serialNumber)
                 .filter(nft -> Objects.equals(nft.owner(), accountId));
@@ -160,7 +162,7 @@ public interface MirrorNodeClient {
      */
     @NonNull
     default Optional<Nft> queryNftsByAccountAndTokenIdAndSerial(@NonNull String accountId, @NonNull String tokenId,
-            long serialNumber) throws HieroException {
+                                                                long serialNumber) throws HieroException {
         Objects.requireNonNull(accountId, "accountId must not be null");
         Objects.requireNonNull(tokenId, "tokenId must not be null");
         return queryNftsByAccountAndTokenIdAndSerial(AccountId.fromString(accountId), TokenId.fromString(tokenId),
@@ -459,4 +461,37 @@ public interface MirrorNodeClient {
 
     @NonNull
     Page<NftMetadata> findAllNftTypes();
+
+    /**
+     * Queries all contracts.
+     *
+     * @return the contracts
+     * @throws HieroException if an error occurs
+     */
+    @NonNull
+    Page<Contract> queryContracts() throws HieroException;
+
+    /**
+     * Queries a contract by its contract ID.
+     *
+     * @param contractId the contract ID
+     * @return the contract information
+     * @throws HieroException if an error occurs
+     */
+    @NonNull
+    Optional<Contract> queryContractById(@NonNull ContractId contractId) throws HieroException;
+
+    /**
+     * Queries a contract by its contract ID.
+     *
+     * @param contractId the contract ID
+     * @return the contract information
+     * @throws HieroException if an error occurs
+     */
+    @NonNull
+    default Optional<Contract> queryContractById(@NonNull String contractId) throws HieroException {
+        Objects.requireNonNull(contractId, "contractId must not be null");
+        return queryContractById(ContractId.fromString(contractId));
+    }
+
 }

@@ -1,16 +1,19 @@
 package com.openelements.hiero.base.implementation;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.ContractId;
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TopicId;
 import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.data.Contract;
+import com.openelements.hiero.base.data.Nft;
+import com.openelements.hiero.base.data.NftMetadata;
 import com.openelements.hiero.base.data.AccountInfo;
 import com.openelements.hiero.base.data.ExchangeRates;
 import com.openelements.hiero.base.data.NetworkFee;
 import com.openelements.hiero.base.data.NetworkStake;
 import com.openelements.hiero.base.data.NetworkSupplies;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.NftMetadata;
+import com.openelements.hiero.base.data.Page;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.data.TransactionInfo;
 import com.openelements.hiero.base.data.Topic;
@@ -103,6 +106,19 @@ public abstract class AbstractMirrorNodeClient<JSON> implements MirrorNodeClient
     @Override
     public @NonNull Optional<NftMetadata> getNftMetadata(TokenId tokenId) throws HieroException {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public @NonNull Page<Contract> queryContracts() throws HieroException {
+        final JSON json = getRestClient().queryContracts();
+        return getJsonConverter().toContractPage(json);
+    }
+
+    @Override
+    public @NonNull Optional<Contract> queryContractById(@NonNull final ContractId contractId) throws HieroException {
+        Objects.requireNonNull(contractId, "contractId must not be null");
+        final JSON json = getRestClient().queryContractById(contractId);
+        return getJsonConverter().toContract(json);
     }
 
 }
