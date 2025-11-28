@@ -6,7 +6,8 @@ import com.openelements.hiero.base.protocol.data.TransactionType;
 
 public interface TransactionListener {
 
-    void transactionSubmitted(TransactionType transactionType, TransactionId transactionId);
+  void transactionSubmitted(TransactionType transactionType, TransactionId transactionId);
 
-    void transactionHandled(TransactionType transactionType, TransactionId transactionId, Status transactionStatus);
+  void transactionHandled(
+      TransactionType transactionType, TransactionId transactionId, Status transactionStatus);
 }

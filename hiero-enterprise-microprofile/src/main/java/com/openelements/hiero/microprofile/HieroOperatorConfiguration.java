@@ -7,15 +7,15 @@ import org.eclipse.microprofile.config.inject.ConfigProperties;
 @Dependent
 public class HieroOperatorConfiguration {
 
-    private String accountId;
+  private String accountId;
 
-    private String privateKey;
-    
-    public String getAccountId() {
-        return accountId;
-    }
+  private String privateKey;
 
-    public String getPrivateKey() {
-        return privateKey;
-    }
+  public String getAccountId() {
+    return accountId;
+  }
+
+  public String getPrivateKey() {
+    return privateKey;
+  }
 }

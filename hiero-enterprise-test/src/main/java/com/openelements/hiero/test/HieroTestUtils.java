@@ -15,64 +15,71 @@ import org.slf4j.LoggerFactory;
 
 public class HieroTestUtils implements Serializable {
 
-    private final static Logger log = LoggerFactory.getLogger(HieroTestUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(HieroTestUtils.class);
 
-    private final MirrorNodeClient mirrorNodeClient;
+  private final MirrorNodeClient mirrorNodeClient;
 
-    private final ProtocolLayerClient protocolLayerClient;
+  private final ProtocolLayerClient protocolLayerClient;
 
-    private final AtomicReference<TransactionId> transactionIdRef = new AtomicReference<>();
+  private final AtomicReference<TransactionId> transactionIdRef = new AtomicReference<>();
 
-    public HieroTestUtils() {
-        throw new UnsupportedOperationException("No-args constructor not supported");
-    }
+  public HieroTestUtils() {
+    throw new UnsupportedOperationException("No-args constructor not supported");
+  }
 
-    public HieroTestUtils(MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
-        this.mirrorNodeClient = mirrorNodeClient;
-        this.protocolLayerClient = protocolLayerClient;
+  public HieroTestUtils(
+      MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
+    this.mirrorNodeClient = mirrorNodeClient;
+    this.protocolLayerClient = protocolLayerClient;
 
-        protocolLayerClient.addTransactionListener(new TransactionListener() {
-            @Override
-            public void transactionSubmitted(TransactionType transactionType, TransactionId transactionId) {
-                transactionIdRef.set(transactionId);
-            }
+    protocolLayerClient.addTransactionListener(
+        new TransactionListener() {
+          @Override
+          public void transactionSubmitted(
+              TransactionType transactionType, TransactionId transactionId) {
+            transactionIdRef.set(transactionId);
+          }
 
-            @Override
-            public void transactionHandled(TransactionType transactionType, TransactionId transactionId,
-                    Status transactionStatus) {
-            }
+          @Override
+          public void transactionHandled(
+              TransactionType transactionType,
+              TransactionId transactionId,
+              Status transactionStatus) {}
         });
-    }
+  }
 
-    public void waitForMirrorNodeRecords() {
-        final TransactionId transactionId = transactionIdRef.get();
-        if (transactionId != null) {
-            log.debug("Waiting for transaction '{}' available at mirror node", transactionId);
-            final LocalDateTime start = LocalDateTime.now();
-            boolean done = false;
-            while (!done) {
-                String transactionIdString =
-                        transactionId.accountId.toString() + "-" + transactionId.validStart.getEpochSecond() + "-"
-                                + String.format("%09d", transactionId.validStart.getNano());
-                try {
-                    done = mirrorNodeClient.queryTransaction(transactionIdString).isPresent();
-                } catch (HieroException e) {
-                    throw new RuntimeException("Error in mirror node query!", e);
-                }
-                if (!done) {
-                    if (LocalDateTime.now().isAfter(start.plusSeconds(30))) {
-                        throw new RuntimeException("Timeout waiting for transaction");
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException("Interrupted while waiting for transaction", e);
-                    }
-                }
-            }
-            log.debug("Transaction '{}' is available at mirror node", transactionId);
-        } else {
-            log.debug("No transaction to wait for");
+  public void waitForMirrorNodeRecords() {
+    final TransactionId transactionId = transactionIdRef.get();
+    if (transactionId != null) {
+      log.debug("Waiting for transaction '{}' available at mirror node", transactionId);
+      final LocalDateTime start = LocalDateTime.now();
+      boolean done = false;
+      while (!done) {
+        String transactionIdString =
+            transactionId.accountId.toString()
+                + "-"
+                + transactionId.validStart.getEpochSecond()
+                + "-"
+                + String.format("%09d", transactionId.validStart.getNano());
+        try {
+          done = mirrorNodeClient.queryTransaction(transactionIdString).isPresent();
+        } catch (HieroException e) {
+          throw new RuntimeException("Error in mirror node query!", e);
         }
+        if (!done) {
+          if (LocalDateTime.now().isAfter(start.plusSeconds(30))) {
+            throw new RuntimeException("Timeout waiting for transaction");
+          }
+          try {
+            Thread.sleep(100);
+          } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupted while waiting for transaction", e);
+          }
+        }
+      }
+      log.debug("Transaction '{}' is available at mirror node", transactionId);
+    } else {
+      log.debug("No transaction to wait for");
     }
+  }
 }

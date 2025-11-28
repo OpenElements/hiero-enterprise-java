@@ -10,10 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableHiero
 public class Application {
 
-    @Autowired
-    MeterRegistry registry;
+  @Autowired MeterRegistry registry;
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
 }

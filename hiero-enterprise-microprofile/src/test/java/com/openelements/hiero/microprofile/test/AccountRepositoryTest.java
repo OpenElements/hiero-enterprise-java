@@ -22,33 +22,31 @@ import org.junit.jupiter.api.Test;
 @Configuration(useExisting = true)
 public class AccountRepositoryTest {
 
-    @Inject
-    private AccountRepository accountRepository;
+  @Inject private AccountRepository accountRepository;
 
-    @Inject
-    private AccountClient accountClient;
+  @Inject private AccountClient accountClient;
 
-    @BeforeAll
-    static void setup() {
-        final Config build = ConfigProviderResolver.instance()
-                .getBuilder().withSources(new TestConfigSource()).build();
-        ConfigProviderResolver.instance().registerConfig(build, Thread.currentThread().getContextClassLoader());
-    }
+  @BeforeAll
+  static void setup() {
+    final Config build =
+        ConfigProviderResolver.instance().getBuilder().withSources(new TestConfigSource()).build();
+    ConfigProviderResolver.instance()
+        .registerConfig(build, Thread.currentThread().getContextClassLoader());
+  }
 
-    @Test
-    void findById() throws Exception {
-        //given
-        final Account account = accountClient.createAccount();
-        final AccountId newOwner = account.accountId();
-        //TODO: fix sleep
-        Thread.sleep(10_000);
+  @Test
+  void findById() throws Exception {
+    // given
+    final Account account = accountClient.createAccount();
+    final AccountId newOwner = account.accountId();
+    // TODO: fix sleep
+    Thread.sleep(10_000);
 
-        //when
-        final Optional<AccountInfo> result = accountRepository.findById(newOwner);
+    // when
+    final Optional<AccountInfo> result = accountRepository.findById(newOwner);
 
-        //then
-        Assertions.assertNotNull(result);
-        Assertions.assertTrue(result.isPresent());
-
-    }
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isPresent());
+  }
 }

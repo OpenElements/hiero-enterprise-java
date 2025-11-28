@@ -12,23 +12,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = HieroTestConfig.class)
 public class ServicesTest {
 
-    @Autowired
-    private ProtocolLayerClient protocolLayerClient;
+  @Autowired private ProtocolLayerClient protocolLayerClient;
 
-    @Autowired
-    private ContractVerificationClient verificationClient;
+  @Autowired private ContractVerificationClient verificationClient;
 
-    @Autowired
-    private FileClient fileServiceClient;
+  @Autowired private FileClient fileServiceClient;
 
-    @Autowired
-    private SmartContractClient smartContractServiceClient;
+  @Autowired private SmartContractClient smartContractServiceClient;
 
-    @Test
-    void testServices() throws Exception {
-        Assertions.assertNotNull(protocolLayerClient);
-        Assertions.assertNotNull(verificationClient);
-        Assertions.assertNotNull(fileServiceClient);
-        Assertions.assertNotNull(smartContractServiceClient);
-    }
+  @Test
+  void testServices() throws Exception {
+    Assertions.assertNotNull(protocolLayerClient);
+    Assertions.assertNotNull(verificationClient);
+    Assertions.assertNotNull(fileServiceClient);
+    Assertions.assertNotNull(smartContractServiceClient);
+  }
 }

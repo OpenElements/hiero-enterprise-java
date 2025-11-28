@@ -18,5 +18,4 @@ import org.springframework.context.annotation.Import;
 @Retention(RUNTIME)
 @Import(HieroAutoConfiguration.class)
 @Documented
-public @interface EnableHiero {
-}
+public @interface EnableHiero {}

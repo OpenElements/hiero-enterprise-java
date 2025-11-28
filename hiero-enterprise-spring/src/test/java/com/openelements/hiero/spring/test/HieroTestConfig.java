@@ -13,9 +13,10 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan
 public class HieroTestConfig {
 
-    @Bean
-    HieroTestUtils hieroTestUtils(MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
-        HieroTestUtils testUtils = new HieroTestUtils(mirrorNodeClient, protocolLayerClient);
-        return testUtils;
-    }
+  @Bean
+  HieroTestUtils hieroTestUtils(
+      MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
+    HieroTestUtils testUtils = new HieroTestUtils(mirrorNodeClient, protocolLayerClient);
+    return testUtils;
+  }
 }

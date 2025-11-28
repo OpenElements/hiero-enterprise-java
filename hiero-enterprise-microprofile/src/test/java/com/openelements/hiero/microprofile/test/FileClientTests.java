@@ -18,26 +18,26 @@ import org.junit.jupiter.api.Test;
 @Configuration(useExisting = true)
 public class FileClientTests {
 
-    @BeforeAll
-    static void setup() {
-        final Config build = ConfigProviderResolver.instance()
-                .getBuilder().withSources(new TestConfigSource()).build();
-        ConfigProviderResolver.instance().registerConfig(build, Thread.currentThread().getContextClassLoader());
-    }
+  @BeforeAll
+  static void setup() {
+    final Config build =
+        ConfigProviderResolver.instance().getBuilder().withSources(new TestConfigSource()).build();
+    ConfigProviderResolver.instance()
+        .registerConfig(build, Thread.currentThread().getContextClassLoader());
+  }
 
-    @Inject
-    private FileClient fileClient;
+  @Inject private FileClient fileClient;
 
-    @Test
-    void testFileClient() throws Exception {
-        //given
-        final byte[] contents = "Hello, Hedera!".getBytes();
-        Assertions.assertNotNull(fileClient);
+  @Test
+  void testFileClient() throws Exception {
+    // given
+    final byte[] contents = "Hello, Hedera!".getBytes();
+    Assertions.assertNotNull(fileClient);
 
-        //when
-        final FileId fileId = fileClient.createFile(contents);
+    // when
+    final FileId fileId = fileClient.createFile(contents);
 
-        //then
-        Assertions.assertNotNull(fileId);
-    }
+    // then
+    Assertions.assertNotNull(fileId);
+  }
 }

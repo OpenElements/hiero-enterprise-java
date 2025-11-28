@@ -5,11 +5,11 @@ import com.hedera.hashgraph.sdk.TransactionId;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-public record FileAppendResult(@NonNull TransactionId transactionId, @NonNull Status status) implements
-        TransactionResult {
+public record FileAppendResult(@NonNull TransactionId transactionId, @NonNull Status status)
+    implements TransactionResult {
 
-    public FileAppendResult {
-        Objects.requireNonNull(transactionId, "transactionId must not be null");
-        Objects.requireNonNull(status, "status must not be null");
-    }
+  public FileAppendResult {
+    Objects.requireNonNull(transactionId, "transactionId must not be null");
+    Objects.requireNonNull(status, "status must not be null");
+  }
 }

@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HieroEndpoint {
 
-    private final AccountClient client;
+  private final AccountClient client;
 
-    public HieroEndpoint(final AccountClient client) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
-    }
+  public HieroEndpoint(final AccountClient client) {
+    this.client = Objects.requireNonNull(client, "client must not be null");
+  }
 
-    @GetMapping("/")
-    public String createAccount() {
-        try {
-            final Account account = client.createAccount();
-            return "Account " + account.accountId() + " created!";
-        } catch (final Exception e) {
-            throw new RuntimeException("Error in Hedera call", e);
-        }
+  @GetMapping("/")
+  public String createAccount() {
+    try {
+      final Account account = client.createAccount();
+      return "Account " + account.accountId() + " created!";
+    } catch (final Exception e) {
+      throw new RuntimeException("Error in Hedera call", e);
     }
+  }
 }
