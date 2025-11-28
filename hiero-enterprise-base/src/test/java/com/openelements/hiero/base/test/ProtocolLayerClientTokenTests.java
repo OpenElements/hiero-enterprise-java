@@ -1,6 +1,5 @@
 package com.openelements.hiero.base.test;
 
-
 import com.hedera.hashgraph.sdk.TokenId;
 import com.hedera.hashgraph.sdk.TokenType;
 import com.openelements.hiero.base.implementation.ProtocolLayerClientImpl;
@@ -17,37 +16,44 @@ import org.junit.jupiter.api.Test;
 
 public class ProtocolLayerClientTokenTests {
 
-    private static HieroTestContext hieroTestContext;
+  private static HieroTestContext hieroTestContext;
 
-    private static ProtocolLayerClient protocolLayerClient;
+  private static ProtocolLayerClient protocolLayerClient;
 
-    @BeforeAll
-    static void init() {
-        hieroTestContext = new HieroTestContext();
-        protocolLayerClient = new ProtocolLayerClientImpl(hieroTestContext);
-    }
+  @BeforeAll
+  static void init() {
+    hieroTestContext = new HieroTestContext();
+    protocolLayerClient = new ProtocolLayerClientImpl(hieroTestContext);
+  }
 
-    @Test
-    void testBurnNft() throws Exception {
-        //given
-        final TokenCreateRequest tokenCreateRequest = TokenCreateRequest.of("Test NFT", "TST",
-                TokenType.NON_FUNGIBLE_UNIQUE,
-                hieroTestContext.getOperatorAccount());
-        final TokenCreateResult tokenCreateResult = protocolLayerClient.executeTokenCreateTransaction(
-                tokenCreateRequest);
-        final TokenId tokenId = tokenCreateResult.tokenId();
+  @Test
+  void testBurnNft() throws Exception {
+    // given
+    final TokenCreateRequest tokenCreateRequest =
+        TokenCreateRequest.of(
+            "Test NFT",
+            "TST",
+            TokenType.NON_FUNGIBLE_UNIQUE,
+            hieroTestContext.getOperatorAccount());
+    final TokenCreateResult tokenCreateResult =
+        protocolLayerClient.executeTokenCreateTransaction(tokenCreateRequest);
+    final TokenId tokenId = tokenCreateResult.tokenId();
 
-        final TokenMintRequest tokenMintRequest = TokenMintRequest.of(tokenId,
-                hieroTestContext.getOperatorAccount().privateKey(), "https://example.com/metadata");
-        final TokenMintResult tokenMintResult = protocolLayerClient.executeMintTokenTransaction(tokenMintRequest);
-        final Long serial = tokenMintResult.serials().get(0);
+    final TokenMintRequest tokenMintRequest =
+        TokenMintRequest.of(
+            tokenId,
+            hieroTestContext.getOperatorAccount().privateKey(),
+            "https://example.com/metadata");
+    final TokenMintResult tokenMintResult =
+        protocolLayerClient.executeMintTokenTransaction(tokenMintRequest);
+    final Long serial = tokenMintResult.serials().get(0);
 
-        //when
-        final TokenBurnRequest tokenBurnRequest = TokenBurnRequest.of(tokenId, serial,
-                hieroTestContext.getOperatorAccount().privateKey());
+    // when
+    final TokenBurnRequest tokenBurnRequest =
+        TokenBurnRequest.of(tokenId, serial, hieroTestContext.getOperatorAccount().privateKey());
 
-        //then
-        Assertions.assertDoesNotThrow(() -> protocolLayerClient.executeBurnTokenTransaction(tokenBurnRequest));
-    }
-
+    // then
+    Assertions.assertDoesNotThrow(
+        () -> protocolLayerClient.executeBurnTokenTransaction(tokenBurnRequest));
+  }
 }

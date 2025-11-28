@@ -1,6 +1,5 @@
 package com.openelements.hiero.base.test;
 
-
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.Hbar;
 import com.openelements.hiero.base.HieroException;
@@ -19,71 +18,72 @@ import org.junit.jupiter.api.Test;
 
 public class ProtocolLayerClientAccountTests {
 
-    private static HieroTestContext hieroTestContext;
+  private static HieroTestContext hieroTestContext;
 
-    private static ProtocolLayerClient protocolLayerClient;
+  private static ProtocolLayerClient protocolLayerClient;
 
-    @BeforeAll
-    static void init() {
-        hieroTestContext = new HieroTestContext();
-        protocolLayerClient = new ProtocolLayerClientImpl(hieroTestContext);
-    }
+  @BeforeAll
+  static void init() {
+    hieroTestContext = new HieroTestContext();
+    protocolLayerClient = new ProtocolLayerClientImpl(hieroTestContext);
+  }
 
-    @Test
-    void testAccountBalanceRequest() throws Exception {
-        //given
-        final Hbar amount = Hbar.from(1L);
-        final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of(amount);
-        final AccountCreateResult accountCreateResult = protocolLayerClient.executeAccountCreateTransaction(
-                accountCreateRequest);
-        final AccountId accountId = accountCreateResult.newAccount().accountId();
+  @Test
+  void testAccountBalanceRequest() throws Exception {
+    // given
+    final Hbar amount = Hbar.from(1L);
+    final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of(amount);
+    final AccountCreateResult accountCreateResult =
+        protocolLayerClient.executeAccountCreateTransaction(accountCreateRequest);
+    final AccountId accountId = accountCreateResult.newAccount().accountId();
 
-        //when
-        final AccountBalanceRequest accountBalanceRequest = AccountBalanceRequest.of(accountId);
-        final AccountBalanceResponse accountBalanceResponse = protocolLayerClient.executeAccountBalanceQuery(
-                accountBalanceRequest);
+    // when
+    final AccountBalanceRequest accountBalanceRequest = AccountBalanceRequest.of(accountId);
+    final AccountBalanceResponse accountBalanceResponse =
+        protocolLayerClient.executeAccountBalanceQuery(accountBalanceRequest);
 
-        //then
-        Assertions.assertNotNull(accountBalanceResponse);
-        Assertions.assertNotNull(accountBalanceResponse.hbars());
-        Assertions.assertEquals(amount, accountBalanceResponse.hbars());
-    }
+    // then
+    Assertions.assertNotNull(accountBalanceResponse);
+    Assertions.assertNotNull(accountBalanceResponse.hbars());
+    Assertions.assertEquals(amount, accountBalanceResponse.hbars());
+  }
 
-    @Test
-    void testAccountBalanceRequestForZeroBalance() throws Exception {
-        //given
-        final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of();
-        final AccountCreateResult accountCreateResult = protocolLayerClient.executeAccountCreateTransaction(
-                accountCreateRequest);
-        final AccountId accountId = accountCreateResult.newAccount().accountId();
+  @Test
+  void testAccountBalanceRequestForZeroBalance() throws Exception {
+    // given
+    final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of();
+    final AccountCreateResult accountCreateResult =
+        protocolLayerClient.executeAccountCreateTransaction(accountCreateRequest);
+    final AccountId accountId = accountCreateResult.newAccount().accountId();
 
-        //when
-        final AccountBalanceRequest accountBalanceRequest = AccountBalanceRequest.of(accountId);
-        final AccountBalanceResponse accountBalanceResponse = protocolLayerClient.executeAccountBalanceQuery(
-                accountBalanceRequest);
+    // when
+    final AccountBalanceRequest accountBalanceRequest = AccountBalanceRequest.of(accountId);
+    final AccountBalanceResponse accountBalanceResponse =
+        protocolLayerClient.executeAccountBalanceQuery(accountBalanceRequest);
 
-        //then
-        Assertions.assertNotNull(accountBalanceResponse);
-        Assertions.assertNotNull(accountBalanceResponse.hbars());
-        Assertions.assertEquals(0L, accountBalanceResponse.hbars().toTinybars());
-    }
+    // then
+    Assertions.assertNotNull(accountBalanceResponse);
+    Assertions.assertNotNull(accountBalanceResponse.hbars());
+    Assertions.assertEquals(0L, accountBalanceResponse.hbars().toTinybars());
+  }
 
-    @Test
-    void testAccountBalanceRequestForNotExistingAccount() throws Exception {
-        //given
-        final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of();
-        final AccountCreateResult accountCreateResult = protocolLayerClient.executeAccountCreateTransaction(
-                accountCreateRequest);
-        final Account account = accountCreateResult.newAccount();
-        AccountDeleteRequest accountDeleteRequest = AccountDeleteRequest.of(account);
-        protocolLayerClient.executeAccountDeleteTransaction(accountDeleteRequest);
+  @Test
+  void testAccountBalanceRequestForNotExistingAccount() throws Exception {
+    // given
+    final AccountCreateRequest accountCreateRequest = AccountCreateRequest.of();
+    final AccountCreateResult accountCreateResult =
+        protocolLayerClient.executeAccountCreateTransaction(accountCreateRequest);
+    final Account account = accountCreateResult.newAccount();
+    AccountDeleteRequest accountDeleteRequest = AccountDeleteRequest.of(account);
+    protocolLayerClient.executeAccountDeleteTransaction(accountDeleteRequest);
 
-        //when
-        final AccountBalanceRequest accountBalanceRequest = AccountBalanceRequest.of(account.accountId());
+    // when
+    final AccountBalanceRequest accountBalanceRequest =
+        AccountBalanceRequest.of(account.accountId());
 
-        //then
-        Assertions.assertThrows(HieroException.class,
-                () -> protocolLayerClient.executeAccountBalanceQuery(accountBalanceRequest));
-    }
-
+    // then
+    Assertions.assertThrows(
+        HieroException.class,
+        () -> protocolLayerClient.executeAccountBalanceQuery(accountBalanceRequest));
+  }
 }

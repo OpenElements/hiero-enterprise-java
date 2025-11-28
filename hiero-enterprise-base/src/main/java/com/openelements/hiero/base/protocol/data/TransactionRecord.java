@@ -7,13 +7,13 @@ import java.time.Instant;
 
 public interface TransactionRecord extends TransactionResult {
 
-    TransactionId transactionId();
+  TransactionId transactionId();
 
-    Status status();
+  Status status();
 
-    byte[] transactionHash();
+  byte[] transactionHash();
 
-    Instant consensusTimestamp();
+  Instant consensusTimestamp();
 
-    Hbar transactionFee();
+  Hbar transactionFee();
 }

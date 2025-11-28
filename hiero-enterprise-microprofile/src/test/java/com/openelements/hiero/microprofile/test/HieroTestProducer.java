@@ -9,10 +9,10 @@ import jakarta.enterprise.inject.Produces;
 @ApplicationScoped
 public class HieroTestProducer {
 
-    @Produces
-    @ApplicationScoped
-    public HieroTestUtils createHieroTestUtils(
-            MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
-        return new HieroTestUtils(mirrorNodeClient, protocolLayerClient);
-    }
+  @Produces
+  @ApplicationScoped
+  public HieroTestUtils createHieroTestUtils(
+      MirrorNodeClient mirrorNodeClient, ProtocolLayerClient protocolLayerClient) {
+    return new HieroTestUtils(mirrorNodeClient, protocolLayerClient);
+  }
 }

@@ -19,61 +19,61 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = HieroTestConfig.class)
 public class TransactionRepositoryTest {
-    @Autowired
-    private TransactionRepository transactionRepository;
+  @Autowired private TransactionRepository transactionRepository;
 
-    @Autowired
-    private AccountClient accountClient;
+  @Autowired private AccountClient accountClient;
 
-    @Autowired
-    private HieroTestUtils hieroTestUtils;
+  @Autowired private HieroTestUtils hieroTestUtils;
 
-    @Test
-    void testFindTransactionByAccountId() throws HieroException {
-        final Account account = accountClient.createAccount(1);
-        hieroTestUtils.waitForMirrorNodeRecords();
-        final Page<TransactionInfo> page = transactionRepository.findByAccount(account.accountId());
-        Assertions.assertNotNull(page);
+  @Test
+  void testFindTransactionByAccountId() throws HieroException {
+    final Account account = accountClient.createAccount(1);
+    hieroTestUtils.waitForMirrorNodeRecords();
+    final Page<TransactionInfo> page = transactionRepository.findByAccount(account.accountId());
+    Assertions.assertNotNull(page);
 
-        final List<TransactionInfo> data = page.getData();
-        Assertions.assertFalse(data.isEmpty());
-    }
+    final List<TransactionInfo> data = page.getData();
+    Assertions.assertFalse(data.isEmpty());
+  }
 
-    @Test
-    void testFindTransactionByAccountIdGiveEmptyListForAccountIdWithZeroTransaction() throws HieroException {
-        final AccountId accountId = AccountId.fromString("0.0.0");
-        hieroTestUtils.waitForMirrorNodeRecords();
-        final Page<TransactionInfo> page = transactionRepository.findByAccount(accountId);
-        Assertions.assertNotNull(page);
+  @Test
+  void testFindTransactionByAccountIdGiveEmptyListForAccountIdWithZeroTransaction()
+      throws HieroException {
+    final AccountId accountId = AccountId.fromString("0.0.0");
+    hieroTestUtils.waitForMirrorNodeRecords();
+    final Page<TransactionInfo> page = transactionRepository.findByAccount(accountId);
+    Assertions.assertNotNull(page);
 
-        final List<TransactionInfo> data = page.getData();
-        Assertions.assertTrue(data.isEmpty());
-    }
+    final List<TransactionInfo> data = page.getData();
+    Assertions.assertTrue(data.isEmpty());
+  }
 
-    @Test
-    void testFindTransactionByAccountIdAndType() throws HieroException {
-        final Account account = accountClient.createAccount(1);
-        hieroTestUtils.waitForMirrorNodeRecords();
-        final Page<TransactionInfo> page = transactionRepository.findByAccountAndType(account.accountId(),
-                TransactionType.ACCOUNT_CREATE);
-        Assertions.assertNotNull(page);
-    }
+  @Test
+  void testFindTransactionByAccountIdAndType() throws HieroException {
+    final Account account = accountClient.createAccount(1);
+    hieroTestUtils.waitForMirrorNodeRecords();
+    final Page<TransactionInfo> page =
+        transactionRepository.findByAccountAndType(
+            account.accountId(), TransactionType.ACCOUNT_CREATE);
+    Assertions.assertNotNull(page);
+  }
 
-    @Test
-    void testFindTransactionByAccountIdAndResult() throws HieroException {
-        final Account account = accountClient.createAccount(1);
-        hieroTestUtils.waitForMirrorNodeRecords();
-        final Page<TransactionInfo> page = transactionRepository.findByAccountAndResult(account.accountId(),
-                Result.SUCCESS);
-        Assertions.assertNotNull(page);
-    }
+  @Test
+  void testFindTransactionByAccountIdAndResult() throws HieroException {
+    final Account account = accountClient.createAccount(1);
+    hieroTestUtils.waitForMirrorNodeRecords();
+    final Page<TransactionInfo> page =
+        transactionRepository.findByAccountAndResult(account.accountId(), Result.SUCCESS);
+    Assertions.assertNotNull(page);
+  }
 
-    @Test
-    void testFindTransactionByAccountIdAndBalanceModification() throws HieroException {
-        final Account account = accountClient.createAccount(1);
-        hieroTestUtils.waitForMirrorNodeRecords();
-        final Page<TransactionInfo> page = transactionRepository.findByAccountAndModification(account.accountId(),
-                BalanceModification.DEBIT);
-        Assertions.assertNotNull(page);
-    }
+  @Test
+  void testFindTransactionByAccountIdAndBalanceModification() throws HieroException {
+    final Account account = accountClient.createAccount(1);
+    hieroTestUtils.waitForMirrorNodeRecords();
+    final Page<TransactionInfo> page =
+        transactionRepository.findByAccountAndModification(
+            account.accountId(), BalanceModification.DEBIT);
+    Assertions.assertNotNull(page);
+  }
 }

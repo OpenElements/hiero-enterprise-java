@@ -11,14 +11,14 @@ import org.jspecify.annotations.NonNull;
  */
 public record AccountBalanceResponse(@NonNull Hbar hbars) {
 
-    public AccountBalanceResponse {
-        Objects.requireNonNull(hbars, "hbars must be non-null");
-        if (hbars.toTinybars() < 0) {
-            throw new IllegalArgumentException("hbars must be non-negative");
-        }
+  public AccountBalanceResponse {
+    Objects.requireNonNull(hbars, "hbars must be non-null");
+    if (hbars.toTinybars() < 0) {
+      throw new IllegalArgumentException("hbars must be non-negative");
     }
+  }
 
-    public static AccountBalanceResponse of(Hbar hbars) {
-        return new AccountBalanceResponse(hbars);
-    }
+  public static AccountBalanceResponse of(Hbar hbars) {
+    return new AccountBalanceResponse(hbars);
+  }
 }

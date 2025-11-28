@@ -1,4 +1,3 @@
 package com.openelements.hiero.base.data;
 
-public record Bytes(byte[] bytes) {
-}
+public record Bytes(byte[] bytes) {}

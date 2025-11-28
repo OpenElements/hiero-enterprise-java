@@ -9,35 +9,36 @@ import com.openelements.hiero.base.data.Token;
 import com.openelements.hiero.base.data.TokenInfo;
 import com.openelements.hiero.base.mirrornode.MirrorNodeClient;
 import com.openelements.hiero.base.mirrornode.TokenRepository;
-import org.jspecify.annotations.NonNull;
-
 import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 public class TokenRepositoryImpl implements TokenRepository {
-    private final MirrorNodeClient mirrorNodeClient;
+  private final MirrorNodeClient mirrorNodeClient;
 
-    public TokenRepositoryImpl(@NonNull final MirrorNodeClient mirrorNodeClient) {
-        this.mirrorNodeClient = Objects.requireNonNull(mirrorNodeClient, "mirrorNodeClient must not be null");
-    }
+  public TokenRepositoryImpl(@NonNull final MirrorNodeClient mirrorNodeClient) {
+    this.mirrorNodeClient =
+        Objects.requireNonNull(mirrorNodeClient, "mirrorNodeClient must not be null");
+  }
 
-    @Override
-    public Page<Token> findByAccount(@NonNull AccountId accountId) throws HieroException {
-        return mirrorNodeClient.queryTokensForAccount(accountId);
-    }
+  @Override
+  public Page<Token> findByAccount(@NonNull AccountId accountId) throws HieroException {
+    return mirrorNodeClient.queryTokensForAccount(accountId);
+  }
 
-    @Override
-    public Optional<TokenInfo> findById(@NonNull TokenId tokenId) throws HieroException {
-        return mirrorNodeClient.queryTokenById(tokenId);
-    }
+  @Override
+  public Optional<TokenInfo> findById(@NonNull TokenId tokenId) throws HieroException {
+    return mirrorNodeClient.queryTokenById(tokenId);
+  }
 
-    @Override
-    public Page<Balance> getBalances(@NonNull TokenId tokenId) throws HieroException {
-        return mirrorNodeClient.queryTokenBalances(tokenId);
-    }
+  @Override
+  public Page<Balance> getBalances(@NonNull TokenId tokenId) throws HieroException {
+    return mirrorNodeClient.queryTokenBalances(tokenId);
+  }
 
-    @Override
-    public Page<Balance> getBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId) throws HieroException {
-        return mirrorNodeClient.queryTokenBalancesForAccount(tokenId, accountId);
-    }
+  @Override
+  public Page<Balance> getBalancesForAccount(@NonNull TokenId tokenId, @NonNull AccountId accountId)
+      throws HieroException {
+    return mirrorNodeClient.queryTokenBalancesForAccount(tokenId, accountId);
+  }
 }

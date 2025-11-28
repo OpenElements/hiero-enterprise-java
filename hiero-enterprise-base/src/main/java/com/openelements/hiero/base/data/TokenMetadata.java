@@ -5,11 +5,11 @@ import com.hedera.hashgraph.sdk.TokenId;
 
 public interface TokenMetadata {
 
-    TokenId tokenId();
+  TokenId tokenId();
 
-    String name();
+  String name();
 
-    String symbol();
+  String symbol();
 
-    AccountId treasuryAccountId();
+  AccountId treasuryAccountId();
 }
