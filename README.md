@@ -34,7 +34,27 @@ The `spring.hiero.network` property defines the network that is used to interact
 In the given example, the [Hedera](https://hedera.com) testnet network is used.
 Hedera is based on Hiero and therefore the testnet can be used to interact with a Hiero network.
 The account information (`accountId`, `privateKey`) can all be found at the [Hedera portal](https://portal.hedera.com/) for a testnet or previewnet account.
-Today only the "DER Encoded Private Key" of the "ECDSA" key type is supported for the `spring.hiero.privateKey` property.
+
+**Private Key Formats**: The `spring.hiero.privateKey` property supports multiple private key formats:
+- **DER Encoded**: Traditional DER-encoded ECDSA private key (default Hedera format)
+- **PEM Format**: Standard PEM-encoded private key with BEGIN/END headers
+- **Raw Hex**: 32-byte private key as hexadecimal string (with or without 0x prefix)
+- **Legacy**: Any format supported by the underlying Hedera SDK
+
+Examples:
+```properties
+# DER format (existing format)
+spring.hiero.privateKey=2130020100312346052b8104400304220420c236508c429395a8180b1230f436d389adc5afaa9145456783b57b2045c6cc37
+
+# Raw hex format (32 bytes)
+spring.hiero.privateKey=c236508c429395a8180b1230f436d389adc5afaa9145456783b57b2045c6cc37
+
+# Raw hex with 0x prefix
+spring.hiero.privateKey=0xc236508c429395a8180b1230f436d389adc5afaa9145456783b57b2045c6cc37
+
+# PEM format
+spring.hiero.privateKey=-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg...\n-----END PRIVATE KEY-----
+```
 
 The 2 properties `spring.hiero.accountId` and `spring.hiero.privateKey` define the "operator account".
 The operator account is used as the account that sends all transactions against the Hiero network.
@@ -158,8 +178,9 @@ The tests in the project are working against any Hiero network.
 You need to provide the account id and the private key of an account that is used to run the tests.
 **If no account is provided, the tests will fail.**
 The most easy way to run the tests is to use the Hedera testnet network.
-To run the tests, you need to provide the account id and the "DER Encoded Private Key" of the "ECDSA" testnet account.
-That information can be provided as environemt variables:
+To run the tests, you need to provide the account id and private key of a testnet account.
+The private key can be provided in any supported format (DER, PEM, or raw hex).
+That information can be provided as environment variables:
  
 ```shell
 export HEDERA_ACCOUNT_ID=0.0.3447271
